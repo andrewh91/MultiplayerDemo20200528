@@ -6,7 +6,9 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.math.Vector2;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -111,6 +113,45 @@ public class MyGdxGame extends ApplicationAdapter {
 					friendlyPlayers.put(id, new Starship(friendlyShip));
 				}catch(JSONException e){
 					Gdx.app.log("SocketIO", "Error getting New PlayerID");
+				}
+			}
+		}).on("playerDisconnected", new Emitter.Listener() {
+			@Override
+			public void call(Object... args) {
+				JSONObject data = (JSONObject) args[0];
+				try {
+					/*ge thte id of the disconnected player*/
+					id = data.getString("id");
+					/*remove the player from the hashmap*/
+					friendlyPlayers.remove(id);
+				}catch(JSONException e){
+					Gdx.app.log("SocketIO", "Error getting disconnected PlayerID");
+				}
+			}
+		}).on("getPlayers", new Emitter.Listener() {
+			/*getPlayers is for when the new player arrives and needs to know the
+			* info about all the players that were there before it*/
+			@Override
+			public void call(Object... args) {
+				/*get the players array from the server, which will contain the
+				class called player, which has id and pos*/
+				JSONArray objects = (JSONArray) args[0];
+				try {
+					for(int i = 0; i < objects.length(); i++){
+						/*create a new starship for every object inside the players
+						array we have been passed*/
+						Starship coopPlayer = new Starship(friendlyShip);
+						Vector2 position = new Vector2();
+						/*apparently you cannot get a float value from a JSONObject, so cast it to double
+						* but set position method below only takes floats*/
+						position.x = ((Double) objects.getJSONObject(i).getDouble("x")).floatValue();
+						position.y = ((Double) objects.getJSONObject(i).getDouble("y")).floatValue();
+						coopPlayer.setPosition(position.x, position.y);
+						/*add the new starship to the hash map*/
+						friendlyPlayers.put(objects.getJSONObject(i).getString("id"), coopPlayer);
+					}
+				} catch(JSONException e){
+
 				}
 			}
 		});
