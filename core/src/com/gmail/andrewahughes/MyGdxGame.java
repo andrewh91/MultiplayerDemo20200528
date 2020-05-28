@@ -5,15 +5,21 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import io.socket.client.IO;
+import io.socket.client.Socket;
 
 public class MyGdxGame extends ApplicationAdapter {
 	SpriteBatch batch;
 	Texture img;
-	
+	private Socket socket;
+
 	@Override
 	public void create () {
 		batch = new SpriteBatch();
 		img = new Texture("badlogic.jpg");
+		System.out.println("create");
+		System.out.println("connect...");
+		connectSocket();
 	}
 
 	@Override
@@ -24,7 +30,18 @@ public class MyGdxGame extends ApplicationAdapter {
 		batch.draw(img, 0, 0);
 		batch.end();
 	}
-	
+
+	public void connectSocket(){
+		try{
+			socket = IO.socket("http://localhost:8080");
+			socket.connect();
+			System.out.println("connected");
+		} catch(Exception e){
+			System.out.println(e);
+		}
+	}
+
+
 	@Override
 	public void dispose () {
 		batch.dispose();

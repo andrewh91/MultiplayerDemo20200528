@@ -1,0 +1,23 @@
+{
+  "name": "multiplayerdemo20200528",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/andrewh91/MultiplayerDemo20200528.git"
+  },
+  "author": "Andrew Hughes",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/andrewh91/MultiplayerDemo20200528/issues"
+  },
+  "homepage": "https://github.com/andrewh91/MultiplayerDemo20200528#readme",
+  "dependencies": {
+    "express": "^4.17.1",
+    "socket.io": "^2.3.0"
+  }
+}
