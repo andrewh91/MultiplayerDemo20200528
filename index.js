@@ -4,7 +4,7 @@ var io = require('socket.io')(server);
 var players = [];
 
 
-server.listen(8080, function(){
+server.listen(8080,"192.168.1.6", function(){
 	console.log("Server is now running...");
 });
 

@@ -3,9 +3,12 @@ package com.gmail.andrewahughes;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
 
 import org.json.JSONArray;
@@ -22,6 +25,8 @@ public class MyGdxGame extends ApplicationAdapter {
 	private final float UPDATE_TIME = 1/60f;
 	float timer;
 	SpriteBatch batch;
+	BitmapFont font;
+	ShapeRenderer shapeRenderer;
 	private Socket socket;
 	String id;
 	Starship player;
@@ -35,6 +40,8 @@ public class MyGdxGame extends ApplicationAdapter {
 	@Override
 	public void create() {
 		batch = new SpriteBatch();
+		font = new BitmapFont();
+		shapeRenderer = new ShapeRenderer();
 		playerShip = new Texture("badlogic.jpg");
 		friendlyShip = new Texture("badlogic.jpg");
 		friendlyPlayers = new HashMap<String, Starship>();
@@ -43,10 +50,9 @@ public class MyGdxGame extends ApplicationAdapter {
 	}
 	public void handleInput(float dt){
 		if(player != null) {
-			if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
-				player.setPosition(player.getX() + (-200 * dt), player.getY());
-			} else if(Gdx.input.isKeyPressed(Input.Keys.RIGHT)){
-				player.setPosition(player.getX() + (+200 * dt), player.getY());
+			if (Gdx.input.isTouched()) {
+
+				player.setPosition(Gdx.input.getX(), Gdx.graphics.getHeight()-Gdx.input.getY());
 			}
 		}
 	}
@@ -74,11 +80,19 @@ public class MyGdxGame extends ApplicationAdapter {
 	public void render() {
 		handleInput(Gdx.graphics.getDeltaTime());
 		updateServer(Gdx.graphics.getDeltaTime());
-		Gdx.gl.glClearColor(0, 0, 0, 1);
+		Gdx.gl.glClearColor(0, 1, 0, 1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+		shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+		shapeRenderer.rect(0,
+				0,
+				Gdx.graphics.getWidth(), Gdx.graphics.getHeight(),
+				Color.RED, Color.GREEN, Color.BLUE, Color.WHITE);
+		shapeRenderer.end();
 		batch.begin();
 		if(player != null){
 			player.draw(batch);
+			font.draw(batch,"[bottomleft] x: "+player.getX()+" y: "+player.getY(),10,20);
+			font.draw(batch," [topleft] x: "+player.getX()+" y: "+player.getY(),10,Gdx.graphics.getHeight()-20);
 		}
 		/*for each entry in the hash map, get the value, which remember
 		* is a starship class, and call the function draw to draw that
@@ -96,7 +110,7 @@ public class MyGdxGame extends ApplicationAdapter {
 	}
 	public void connectSocket() {
 		try {
-			socket = IO.socket("http://localhost:8080");
+			socket = IO.socket("http://192.168.1.6:8080");
 			socket.connect();
 			System.out.println("connected");
 		} catch (Exception e) {
