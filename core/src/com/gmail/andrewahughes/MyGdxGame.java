@@ -19,6 +19,8 @@ import io.socket.client.Socket;
 import io.socket.emitter.Emitter;
 
 public class MyGdxGame extends ApplicationAdapter {
+	private final float UPDATE_TIME = 1/60f;
+	float timer;
 	SpriteBatch batch;
 	private Socket socket;
 	String id;
@@ -48,12 +50,32 @@ public class MyGdxGame extends ApplicationAdapter {
 			}
 		}
 	}
+	/*send an update to the server*/
+	public void updateServer(float dt){
+		timer+=dt;
+		if(timer>= UPDATE_TIME && player!= null&& player.hasMoved()){
+			JSONObject data = new JSONObject();
+			try{
+				data.put("x",player.getX());
+				data.put("y",player.getY());
+				/*the player emits data to the server here
+				* the server has a corresponding method to
+				* interpret this data*/
+				socket.emit("playerMoved",data);
 
+			} catch(JSONException e) {
+				Gdx.app.log("SOCKET.IO","Error sending update data");
+			}
+
+		}
+
+	}
 	@Override
 	public void render() {
-		Gdx.gl.glClearColor(1, 0, 0, 1);
-		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 		handleInput(Gdx.graphics.getDeltaTime());
+		updateServer(Gdx.graphics.getDeltaTime());
+		Gdx.gl.glClearColor(0, 0, 0, 1);
+		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 		batch.begin();
 		if(player != null){
 			player.draw(batch);
@@ -107,10 +129,10 @@ public class MyGdxGame extends ApplicationAdapter {
 			public void call(Object... args) {
 				JSONObject data = (JSONObject) args[0];
 				try {
-					id = data.getString("id");
+					String playerId = data.getString("id");
 					Gdx.app.log("SocketIO", "New Player Connect: " + id);
 					/*put the new player's id and the starship class in our hashmap*/
-					friendlyPlayers.put(id, new Starship(friendlyShip));
+					friendlyPlayers.put(playerId, new Starship(friendlyShip));
 				}catch(JSONException e){
 					Gdx.app.log("SocketIO", "Error getting New PlayerID");
 				}
@@ -126,6 +148,28 @@ public class MyGdxGame extends ApplicationAdapter {
 					friendlyPlayers.remove(id);
 				}catch(JSONException e){
 					Gdx.app.log("SocketIO", "Error getting disconnected PlayerID");
+				}
+			}
+		}).on("playerMoved", new Emitter.Listener() {
+			@Override
+			public void call(Object... args) {
+				/*if a player moves the player will call the updateServer
+				* method as defined above
+				* the server will be informed of that player's position
+				* and will emit a playerMoved event
+				*
+				* all players will listen for a playerMoved event from
+				* the server and will update the position of other
+				* players on screen with that data*/
+				JSONObject data = (JSONObject) args[0];
+				try {
+					String playerId = data.getString("id");
+					Double x= data.getDouble("x");
+					Double y= data.getDouble("y");
+					if(friendlyPlayers.get(playerId) != null){
+						friendlyPlayers.get(playerId).setPosition(x.floatValue(),y.floatValue());
+					}
+				}catch(JSONException e){
 				}
 			}
 		}).on("getPlayers", new Emitter.Listener() {

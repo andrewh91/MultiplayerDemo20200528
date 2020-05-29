@@ -21,6 +21,32 @@ io.on('connection', function(socket){
 	we can send to all other players on different sockets by
 	using broadcast as below*/
 	socket.broadcast.emit('newPlayer', { id: socket.id });
+	/*when a player emits a playerMoved event the server
+	will interpret it here*/
+	socket.on('playerMoved', function(data){
+	    /*the data the player sent did not include it's playerid
+	    just because we didn't need to -
+	    because we already know the socket id which is identical
+	    so add the id to the data object,
+	    the data now includes x, y and id*/
+	    data.id=socket.id;
+	    /*send the data we received (x,y and id) to all other players
+	     specifically all players apart from the one that sent it */
+	    socket.broadcast.emit("playerMoved",data);
+
+	    console.log("playerMoved: "+
+	                "ID: "+data.id +
+	                "x: "+data.x +
+	                "y: "+data.y);
+        /*we're going to go through our array of existing players
+        and store the new position info for each relevant player*/
+	    for (var i =0; i< players.length;i++){
+	        if(players[i].id == data.id){
+	            players[i].x=data.x;
+	            players[i].y=data.y;
+	        }
+	    }
+	});
 	socket.on('disconnect', function(){
 		console.log("Player Disconnected");
 		/*when the player disconnects tell all over players*/
