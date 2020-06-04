@@ -21,7 +21,7 @@ import io.socket.client.IO;
 import io.socket.client.Socket;
 import io.socket.emitter.Emitter;
 
-public class MyGdxGame extends ApplicationAdapter {
+public class MyGdxGame extends ApplicationAdapter  implements  StageInterface{
 	private final float UPDATE_TIME = 1/60f;
 	float timer;
 	SpriteBatch batch;
@@ -32,6 +32,14 @@ public class MyGdxGame extends ApplicationAdapter {
 	Starship player;
 	Texture playerShip;
 	Texture friendlyShip;
+
+	TitleStage titleStage;
+	OptionsStage optionsStage;
+	MatchMakingStage matchMakingStage;
+	DealStage dealStage;
+	TridentBuildingStage tridentBuildingStage;
+	GameStage gameStage;
+	GameOverStage gameOverStage;
 	/*the hashmap will store the a key which in our case is a string
 	 and a value which for us is a Starship class
 	* string will store the id , starship will store a starship class*/
@@ -39,6 +47,16 @@ public class MyGdxGame extends ApplicationAdapter {
 
 	@Override
 	public void create() {
+		/*pass in this (MyGdxGame) as the stage interface so the stage can use the stage interface methods*/
+		titleStage = new TitleStage(this);
+		optionsStage = new OptionsStage(this);
+		matchMakingStage = new MatchMakingStage(this);
+		dealStage = new DealStage(this);
+		tridentBuildingStage = new TridentBuildingStage(this);
+		gameStage = new GameStage(this);
+		gameOverStage = new GameOverStage(this);
+
+		goToStage(TITLESTAGE);
 		batch = new SpriteBatch();
 		font = new BitmapFont();
 		shapeRenderer = new ShapeRenderer();
@@ -101,6 +119,13 @@ public class MyGdxGame extends ApplicationAdapter {
 			entry.getValue().draw(batch);
 		}
 		batch.end();
+		titleStage.draw();
+		optionsStage.draw();
+		matchMakingStage.draw();
+		dealStage.draw();
+		tridentBuildingStage.draw();
+		gameStage.draw();
+		gameOverStage.draw();
 	}
 	@Override
 	public void dispose () {
@@ -217,7 +242,51 @@ public class MyGdxGame extends ApplicationAdapter {
 	}
 
 
+	@Override
+	public void hideAllStages() {
+		titleStage.setVisible(false);
+		optionsStage.setVisible(false);
+		matchMakingStage.setVisible(false);
+		dealStage.setVisible(false);
+		tridentBuildingStage.setVisible(false);
+		gameStage.setVisible(false);
+		gameOverStage.setVisible(false);
+	}
 
+	@Override
+	public void goToStage(int stage) {
+		hideAllStages();
+		switch (stage) {
+			case TITLESTAGE :{
+				titleStage.setVisible(true);
+				break;
+			}
+			case OPTIONSSTAGE :{
+				optionsStage.setVisible(true);
+				break;
+			}
+			case MATCHMAKINGSTAGE :{
+				matchMakingStage.setVisible(true);
+				break;
+			}
+			case DEALSTAGE :{
+				dealStage.setVisible(true);
+				break;
+			}
+			case TRIDENTBUILDINGSTAGE :{
+				tridentBuildingStage.setVisible(true);
+				break;
+			}
+			case GAMESTAGE :{
+				gameStage.setVisible(true);
+				break;
+			}
+			case GAMEOVERSTAGE :{
+				gameOverStage.setVisible(true);
+				break;
+			}
+		}
+	}
 
 
 }
