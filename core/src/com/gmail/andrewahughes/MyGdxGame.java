@@ -47,6 +47,14 @@ public class MyGdxGame extends ApplicationAdapter  implements  StageInterface{
 
 	@Override
 	public void create() {
+
+		batch = new SpriteBatch();
+		font = new BitmapFont();
+		shapeRenderer = new ShapeRenderer();
+		playerShip = new Texture("badlogic.jpg");
+		friendlyShip = new Texture("badlogic.jpg");
+		friendlyPlayers = new HashMap<String, Starship>();
+
 		/*pass in this (MyGdxGame) as the stage interface so the stage can use the stage interface methods*/
 		titleStage = new TitleStage(this);
 		optionsStage = new OptionsStage(this);
@@ -57,12 +65,6 @@ public class MyGdxGame extends ApplicationAdapter  implements  StageInterface{
 		gameOverStage = new GameOverStage(this);
 
 		goToStage(TITLESTAGE);
-		batch = new SpriteBatch();
-		font = new BitmapFont();
-		shapeRenderer = new ShapeRenderer();
-		playerShip = new Texture("badlogic.jpg");
-		friendlyShip = new Texture("badlogic.jpg");
-		friendlyPlayers = new HashMap<String, Starship>();
 		connectSocket();
 		configSocketEvents();
 	}
