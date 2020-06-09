@@ -17,15 +17,11 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.TimeUtils;
 
 public class TriButton extends Actor {
-    private long lastTapTime;
-    private long tapCountInterval = (long)(0.4f * 1000000000l);
-
-
     private static boolean POINTUP = true;
     private static boolean POINTDOWN = false;
     boolean orientation = POINTDOWN;
     float edgeLength = 50.0f;
-    /*the altitude of an equilateral triangle will always be edgelength * 0.86602540378443864676372317075294*/
+    /*the altitude of an equilateral triangle will always be edgelength * 0.86602540378443864676372317075294 = sin(60)*/
     float altitude = (float)(edgeLength * Math.sin(Math.PI/3));
     float halfEdgeLength = edgeLength/2;
     float halfAltitude = altitude/2;
@@ -75,7 +71,7 @@ public class TriButton extends Actor {
         if (triangleHit( x, y)) {
             touchLogic( x, y);
         } else {
-            TitleStage.clickTridentButton(x,y);
+            TitleStage.clickTriButton(x,y);
         }
     }
     }); /*the end of the this.addListener*/
@@ -109,8 +105,6 @@ public class TriButton extends Actor {
                     getX() + halfEdgeLength,
                     getY());
         }
-        shapeRenderer.line(getX(),getY(),getX()+20,getY());
-        shapeRenderer.line(getX(),getY(),getX(),getY()+20);
     }
 
     /**work out if the triangle has been hit, considering orientation

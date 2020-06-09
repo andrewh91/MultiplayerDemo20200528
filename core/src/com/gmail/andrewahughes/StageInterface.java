@@ -11,4 +11,6 @@ public interface StageInterface {
     void goToStage(int stage);
     int addTriButton(TriButton triButton, Array array, Stage stage,int index);
     TriButton getTriButton(Array array, int index);
+    int addCardButton(CardButton cardButton, Array array, Stage stage,int index);
+    CardButton getCardButton(Array array, int index);
 }

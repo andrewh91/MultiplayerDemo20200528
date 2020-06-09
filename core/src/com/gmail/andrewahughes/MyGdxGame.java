@@ -321,7 +321,18 @@ public class MyGdxGame extends ApplicationAdapter  implements  StageInterface{
 		return (TriButton) array.get(index);
 	}
 
+	@Override
+	public int addCardButton(CardButton cardButton, Array array, Stage stage, int index) {
+		array.add(cardButton);
+		stage.addActor(cardButton);
+		index++;
+		return index;
+	}
 
+	@Override
+	public CardButton getCardButton(Array array, int index) {
+		return (CardButton) array.get(index);
+	}
 
 
 }
