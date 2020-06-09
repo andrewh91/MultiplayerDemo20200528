@@ -10,6 +10,8 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.utils.Array;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -289,6 +291,37 @@ public class MyGdxGame extends ApplicationAdapter  implements  StageInterface{
 			}
 		}
 	}
+
+	/**	this method is called in any of the game stages to add a new TriButton to the stage
+	 * and also keep track of it in that stage's array of triButtons
+	 *
+	 * @param triButton the new button
+	 * @param array the array to add it to
+	 * @param stage the current stage so we can add the button as an actor
+	 * @param index this will be the index position of the new button in the array
+	 * @return
+	 */
+	@Override
+	public int addTriButton(TriButton triButton, Array array, Stage stage,int index) {
+		array.add(triButton);
+		stage.addActor(triButton);
+		index++;
+		return index;
+	}
+
+	/**used in game stages to get a triButton from the stage's triButtonArray
+	 *
+	 * @param array the Stage's triButtonArray
+	 * @param index the variable that holds the associated triButton's index in the array
+	 * @return
+	 */
+	@Override
+	public TriButton getTriButton(Array array, int index) {
+		/*array hold type object, so we need to cast (TriButton) else incompatible types error*/
+		return (TriButton) array.get(index);
+	}
+
+
 
 
 }
