@@ -262,30 +262,37 @@ public class MyGdxGame extends ApplicationAdapter  implements  StageInterface{
 		switch (stage) {
 			case TITLESTAGE :{
 				titleStage.setVisible(true);
+				Gdx.input.setInputProcessor(titleStage);
 				break;
 			}
 			case OPTIONSSTAGE :{
 				optionsStage.setVisible(true);
+				Gdx.input.setInputProcessor(optionsStage);
 				break;
 			}
 			case MATCHMAKINGSTAGE :{
 				matchMakingStage.setVisible(true);
+				Gdx.input.setInputProcessor(matchMakingStage);
 				break;
 			}
 			case DEALSTAGE :{
 				dealStage.setVisible(true);
+				Gdx.input.setInputProcessor(dealStage);
 				break;
 			}
 			case TRIDENTBUILDINGSTAGE :{
 				tridentBuildingStage.setVisible(true);
+				Gdx.input.setInputProcessor(tridentBuildingStage);
 				break;
 			}
 			case GAMESTAGE :{
 				gameStage.setVisible(true);
+				Gdx.input.setInputProcessor(gameStage);
 				break;
 			}
 			case GAMEOVERSTAGE :{
 				gameOverStage.setVisible(true);
+				Gdx.input.setInputProcessor(gameOverStage);
 				break;
 			}
 		}
@@ -300,43 +307,133 @@ public class MyGdxGame extends ApplicationAdapter  implements  StageInterface{
 	 * @return
 	 */
 	@Override
-	public void addTriButton(TriButton triButton, Array array, Stage stage, int index) {
+	public void addTriButton(TriButton triButton, Array array, Stage stage, ButtonEnum.Tri index) {
 		/*instead of adding the buttons, insert them at the index location, this is important because this way
 		* there will be an error if the buttons are added in the wrong order and i can rectify the order,
 		* otherwise just using the add method will produce no error even if buttons added in the wrong order
 		* but when we come to get the buttons from the array using the enum value, it could get the wrong button*/
-		array.insert(index, triButton);
+		array.insert(index.value, triButton);
 
 		stage.addActor(triButton);
 
 	}
 
-	/**used in game stages to get a triButton from the stage's triButtonArray
-	 *
-	 * @param array the Stage's triButtonArray
-	 * @param index the variable that holds the associated triButton's index in the array
-	 * @return
-	 */
 	@Override
-	public TriButton getTriButton(Array array, ButtonEnum.TitleStageTri index ) {
+	public TriButton getTriButtonTitleStage(Array array, ButtonEnum.Tri index) {
 		/*array hold type object, so we need to cast (TriButton) else incompatible types error*/
-		return (TriButton) array.get(index.ordinal());
+		return (TriButton) array.get(index.value);
 	}
 
 	@Override
-	public void addCardButton(CardButton cardButton, Array array, Stage stage,int index) {
+	public TriButton getTriButtonOptionsStage(Array array, ButtonEnum.Tri index) {
+		/*array hold type object, so we need to cast (TriButton) else incompatible types error*/
+		return (TriButton) array.get(index.value);
+	}
+
+	@Override
+	public TriButton getTriButtonMatchMakingStage(Array array, ButtonEnum.Tri index) {
+		/*array hold type object, so we need to cast (TriButton) else incompatible types error*/
+		return (TriButton) array.get(index.value);
+	}
+
+	@Override
+	public TriButton getTriButtonDealStage(Array array, ButtonEnum.Tri index) {
+		/*array hold type object, so we need to cast (TriButton) else incompatible types error*/
+		return (TriButton) array.get(index.value);
+	}
+
+	@Override
+	public TriButton getTriButtonTridentBuildingStage(Array array, ButtonEnum.Tri index) {
+		/*array hold type object, so we need to cast (TriButton) else incompatible types error*/
+		return (TriButton) array.get(index.value);
+	}
+
+	@Override
+	public TriButton getTriButtonGameStage(Array array, ButtonEnum.Tri index) {
+		/*array hold type object, so we need to cast (TriButton) else incompatible types error*/
+		return (TriButton) array.get(index.value);
+	}
+
+	@Override
+	public TriButton getTriButtonGameOverStage(Array array, ButtonEnum.Tri index) {
+		/*array hold type object, so we need to cast (TriButton) else incompatible types error*/
+		return (TriButton) array.get(index.value);
+	}
+
+
+	@Override
+	public void addCardButton(CardButton cardButton, Array array, Stage stage,ButtonEnum.Card index) {
 		/*instead of adding the buttons, insert them at the index location, this is important because this way
 		 * there will be an error if the buttons are added in the wrong order and i can rectify the order,
 		 * otherwise just using the add method will produce no error even if buttons added in the wrong order
 		 * but when we come to get the buttons from the array using the enum value, it could get the wrong button*/
-		array.insert(index,cardButton);
+		array.insert(index.value,cardButton);
 		stage.addActor(cardButton);
 	}
 
 	@Override
-	public CardButton getCardButton(Array array, ButtonEnum.TitleStageCard index) {
-		return (CardButton) array.get(index.ordinal());
+	public CardButton getCardButtonTridentBuildingStage(Array array, ButtonEnum.Card index) {
+		return (CardButton) array.get(index.value);
+
 	}
+
+	/**Below are the handleButton *stage* type methods,
+	 * when a button is clicked, it will use the stageinterface to call these
+	 * methods, depending on which stage has been passed to the button
+	 * these method will simply call the touchLogic method of the actual instance of
+	 * the stage in question. alternatively i think i would have had to pass an
+	 * instance of the stage to every button to be able to access the stage's
+	 * no static touchLogic method
+	 */
+	@Override
+	public void handleButtonsTitleTri(ButtonEnum.Tri triButtonIndex) {
+		titleStage.touchLogic(triButtonIndex);
+
+	}
+
+	@Override
+	public void handleButtonsOptionsTri(ButtonEnum.Tri triButtonIndex) {
+		optionsStage.touchLogic(triButtonIndex);
+
+	}
+
+	@Override
+	public void handleButtonsMatchMakingTri(ButtonEnum.Tri triButtonIndex) {
+		matchMakingStage.touchLogic(triButtonIndex);
+
+	}
+
+	@Override
+	public void handleButtonsDealTri(ButtonEnum.Tri triButtonIndex) {
+		dealStage.touchLogic(triButtonIndex);
+
+	}
+
+	@Override
+	public void handleButtonsTridentBuildingTri(ButtonEnum.Tri triButtonIndex) {
+		tridentBuildingStage.touchLogic(triButtonIndex);
+
+	}
+
+	@Override
+	public void handleButtonsGameTri(ButtonEnum.Tri triButtonIndex) {
+		gameStage.touchLogic(triButtonIndex);
+
+	}
+
+	@Override
+	public void handleButtonsGameOverTri(ButtonEnum.Tri triButtonIndex) {
+		gameOverStage.touchLogic(triButtonIndex);
+
+	}
+
+	@Override
+	public void handleButtonsTridentBuildingCard(ButtonEnum.Card cardButtonIndex) {
+		tridentBuildingStage.touchLogicCard(cardButtonIndex);
+
+	}
+
+
 
 
 }

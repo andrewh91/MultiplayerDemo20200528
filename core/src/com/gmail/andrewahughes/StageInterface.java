@@ -9,8 +9,22 @@ public interface StageInterface {
 
     void hideAllStages();
     void goToStage(int stage);
-    void addTriButton(TriButton triButton, Array array, Stage stage, int index);
-    TriButton getTriButton(Array array, ButtonEnum.TitleStageTri index);
-    void addCardButton(CardButton cardButton, Array array, Stage stage,int index);
-    CardButton getCardButton(Array array, ButtonEnum.TitleStageCard index);
+    void addTriButton(TriButton triButton, Array array, Stage stage, ButtonEnum.Tri index);
+    TriButton getTriButtonTitleStage(Array array, ButtonEnum.Tri index);
+    TriButton getTriButtonOptionsStage(Array array, ButtonEnum.Tri index);
+    TriButton getTriButtonMatchMakingStage(Array array, ButtonEnum.Tri index);
+    TriButton getTriButtonDealStage(Array array, ButtonEnum.Tri index);
+    TriButton getTriButtonTridentBuildingStage(Array array, ButtonEnum.Tri index);
+    TriButton getTriButtonGameStage(Array array, ButtonEnum.Tri index);
+    TriButton getTriButtonGameOverStage(Array array, ButtonEnum.Tri index);
+    void addCardButton(CardButton cardButton, Array array, Stage stage,ButtonEnum.Card index);
+    CardButton getCardButtonTridentBuildingStage(Array array, ButtonEnum.Card index);
+    void handleButtonsTitleTri(ButtonEnum.Tri triButtonIndex);
+    void handleButtonsOptionsTri(ButtonEnum.Tri triButtonIndex);
+    void handleButtonsMatchMakingTri(ButtonEnum.Tri triButtonIndex);
+    void handleButtonsDealTri(ButtonEnum.Tri triButtonIndex);
+    void handleButtonsTridentBuildingTri(ButtonEnum.Tri triButtonIndex);
+    void handleButtonsGameTri(ButtonEnum.Tri triButtonIndex);
+    void handleButtonsGameOverTri(ButtonEnum.Tri triButtonIndex);
+    void handleButtonsTridentBuildingCard(ButtonEnum.Card cardButtonIndex);
 }

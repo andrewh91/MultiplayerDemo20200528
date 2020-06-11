@@ -8,9 +8,11 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 
 public class CardButton  extends Actor {
+    StageInterface stageInterface;
     private static final boolean POINTUP = true;
     private static final boolean POINTDOWN = false;
     boolean orientation = POINTDOWN;
@@ -34,7 +36,7 @@ public class CardButton  extends Actor {
     SpriteBatch spriteBatch = new SpriteBatch();
     Texture texture;
     byte stageIndex;
-    ButtonEnum.TitleStageCard cardButtonIndex;
+    ButtonEnum.Card cardButtonIndex;
 
     /**constructor for triButton
      *
@@ -43,12 +45,13 @@ public class CardButton  extends Actor {
      * @param isPointUp orientation boolean, tru means POINTUP false means POINTDOWN
      * @param stageIndex this will be used in the touchLogic method to figure out which stage this button is in
      */
-    public CardButton(float startingX, float startingY, boolean isPointUp, byte position, final byte stageIndex, ButtonEnum.TitleStageCard cardButtonIndex)
+    public CardButton(StageInterface stageInterface,float startingX, float startingY, boolean isPointUp, byte position, final byte stageIndex, ButtonEnum.Card cardButtonIndex)
     {
         texture = new Texture(Gdx.files.internal("badlogic.jpg"));
         orientation = isPointUp;
         this.position = position;
         this.stageIndex = stageIndex;
+        this.stageInterface = stageInterface;
 
         this.cardButtonIndex=cardButtonIndex;
         setX(startingX);
@@ -85,7 +88,7 @@ public class CardButton  extends Actor {
                 } else {
 
                     Gdx.app.log("Example", "search all actors");
-                    TitleStage.queryCardButtonTouch(x,y);
+                    TridentBuildingStage.queryCardButtonTouch(x,y);
                 }
             }
         }); /*the end of the this.addListener*/
@@ -262,7 +265,7 @@ public class CardButton  extends Actor {
             */
             case StageInterface.TRIDENTBUILDINGSTAGE:
             {
-                TridentBuildingStage.touchLogicCard(cardButtonIndex);
+                stageInterface.handleButtonsTridentBuildingCard(cardButtonIndex);
                 break;
             }
             /*

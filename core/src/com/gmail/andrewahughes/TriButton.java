@@ -12,6 +12,7 @@ import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 
 public class TriButton extends Actor {
+    StageInterface stageInterface;
     private static boolean POINTUP = true;
     private static boolean POINTDOWN = false;
     boolean orientation = POINTDOWN;
@@ -26,18 +27,19 @@ public class TriButton extends Actor {
     SpriteBatch spriteBatch = new SpriteBatch();
     Texture texture;
      byte stageIndex;
-    ButtonEnum.TitleStageTri triButtonIndex;
+    ButtonEnum.Tri triButtonIndex;
     /**constructor for triButton
      *
      * @param startingX initial x position
      * @param startingY initial y position
      * @param isPointUp orientation boolean, tru means POINTUP false means POINTDOWN
      */
-    public TriButton(float startingX, float startingY, boolean isPointUp, final byte stageIndex, ButtonEnum.TitleStageTri triButtonIndex)
+    public TriButton(StageInterface stageInterface, float startingX, float startingY, boolean isPointUp, final byte stageIndex, ButtonEnum.Tri triButtonIndex)
     {
         texture = new Texture(Gdx.files.internal("badlogic.jpg"));
         orientation = isPointUp;
         this.stageIndex=stageIndex;
+        this.stageInterface =stageInterface;
 
         this.triButtonIndex=triButtonIndex;
         setX(startingX);
@@ -70,7 +72,8 @@ public class TriButton extends Actor {
         if (triangleHit( x, y)) {
             touchLogic( x, y);
         } else {
-            TitleStage.queryTriButtonTouch(x,y);
+            otherHit(x,y);
+
         }
     }
     }); /*the end of the this.addListener*/
@@ -121,8 +124,52 @@ public class TriButton extends Actor {
         return false;
     }
 
-    /**perform whatever action is required when the button is pressed
-     *
+    public void otherHit(float x, float y) {
+
+        switch(this.stageIndex) {
+            case StageInterface.TITLESTAGE: {
+                TitleStage.queryTriButtonTouch(x, y);
+                break;
+            }
+            case StageInterface.OPTIONSSTAGE:
+            {
+                OptionsStage.queryTriButtonTouch(x, y);
+                break;
+            }
+            case StageInterface.MATCHMAKINGSTAGE:
+            {
+                MatchMakingStage.queryTriButtonTouch(x, y);
+                break;
+            }
+            case StageInterface.DEALSTAGE:
+            {
+                DealStage.queryTriButtonTouch(x, y);
+                break;
+            }
+            case StageInterface.TRIDENTBUILDINGSTAGE:
+            {
+                TridentBuildingStage.queryTriButtonTouch(x, y);
+                break;
+            }
+            case StageInterface.GAMESTAGE:
+            {
+                GameStage.queryTriButtonTouch(x, y);
+                break;
+            }
+            case StageInterface.GAMEOVERSTAGE:
+            {
+                GameOverStage.queryTriButtonTouch(x, y);
+                break;
+            }
+        }
+    }
+    /**perform whatever action is required when the TriButton is pressed
+     *this is called when the clicklistener fires because we touched an actor's bounding box
+     * and then either it was confirmed the touch was withing this actor's triangle, or
+     * it was not in the triangle and all other actors in the same array were queried and
+     * the touch is in one of their triangles,
+     * this method calls the handleButtons method overloaded in MyGdxGame, which
+     * in turn calls the touchLogic method of the instance of the relevant stage
      * @param x
      * @param y
      */
@@ -131,36 +178,41 @@ public class TriButton extends Actor {
 
         setX( x);
         setY( y);
-        switch(stageIndex)
+        switch(this.stageIndex)
         {
             case StageInterface.TITLESTAGE:
             {
-                TitleStage.touchLogic(triButtonIndex);
+                stageInterface.handleButtonsTitleTri(triButtonIndex);
                 break;
             }
             case StageInterface.OPTIONSSTAGE:
             {
+                stageInterface.handleButtonsOptionsTri(triButtonIndex);
                 break;
             }
             case StageInterface.MATCHMAKINGSTAGE:
             {
+                stageInterface.handleButtonsMatchMakingTri(triButtonIndex);
                 break;
             }
             case StageInterface.DEALSTAGE:
             {
+                stageInterface.handleButtonsDealTri(triButtonIndex);
                 break;
             }
             case StageInterface.TRIDENTBUILDINGSTAGE:
             {
-                TridentBuildingStage.touchLogic(triButtonIndex);
+                stageInterface.handleButtonsTridentBuildingTri(triButtonIndex);
                 break;
             }
             case StageInterface.GAMESTAGE:
             {
+                stageInterface.handleButtonsGameTri(triButtonIndex);
                 break;
             }
             case StageInterface.GAMEOVERSTAGE:
             {
+                stageInterface.handleButtonsGameOverTri(triButtonIndex);
                 break;
             }
 
