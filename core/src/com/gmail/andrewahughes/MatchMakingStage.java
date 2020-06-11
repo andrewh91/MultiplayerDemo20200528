@@ -36,5 +36,12 @@ public class MatchMakingStage extends Stage {
     public void setVisible(boolean visible) {
         this.visible = visible;
     }
+    /**
+     * this will be called in the tributton class,
+     * @param triButtonIndex this will be the index of the tributton that was clicked, the index is set on creation of the
+     *                       triButton and will be the same as it's index in the triButtonArray for this stage
+     */
+    public static void touchLogic(int triButtonIndex){
 
+    }
 }

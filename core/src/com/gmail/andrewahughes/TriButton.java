@@ -1,7 +1,6 @@
 package com.gmail.andrewahughes;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
@@ -10,11 +9,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
-import com.badlogic.gdx.scenes.scene2d.InputListener;
-import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
-import com.badlogic.gdx.utils.TimeUtils;
 
 public class TriButton extends Actor {
     private static boolean POINTUP = true;
@@ -30,17 +25,21 @@ public class TriButton extends Actor {
     GlyphLayout glyphLayout = new GlyphLayout();
     SpriteBatch spriteBatch = new SpriteBatch();
     Texture texture;
-
+     byte stageIndex;
+    ButtonEnum.TitleStageTri triButtonIndex;
     /**constructor for triButton
      *
      * @param startingX initial x position
      * @param startingY initial y position
      * @param isPointUp orientation boolean, tru means POINTUP false means POINTDOWN
      */
-    public TriButton(float startingX, float startingY, boolean isPointUp)
+    public TriButton(float startingX, float startingY, boolean isPointUp, final byte stageIndex, ButtonEnum.TitleStageTri triButtonIndex)
     {
         texture = new Texture(Gdx.files.internal("badlogic.jpg"));
         orientation = isPointUp;
+        this.stageIndex=stageIndex;
+
+        this.triButtonIndex=triButtonIndex;
         setX(startingX);
         setY(startingY);
         setWidth(edgeLength);
@@ -71,7 +70,7 @@ public class TriButton extends Actor {
         if (triangleHit( x, y)) {
             touchLogic( x, y);
         } else {
-            TitleStage.clickTriButton(x,y);
+            TitleStage.queryTriButtonTouch(x,y);
         }
     }
     }); /*the end of the this.addListener*/
@@ -132,5 +131,39 @@ public class TriButton extends Actor {
 
         setX( x);
         setY( y);
+        switch(stageIndex)
+        {
+            case StageInterface.TITLESTAGE:
+            {
+                TitleStage.touchLogic(triButtonIndex);
+                break;
+            }
+            case StageInterface.OPTIONSSTAGE:
+            {
+                break;
+            }
+            case StageInterface.MATCHMAKINGSTAGE:
+            {
+                break;
+            }
+            case StageInterface.DEALSTAGE:
+            {
+                break;
+            }
+            case StageInterface.TRIDENTBUILDINGSTAGE:
+            {
+                TridentBuildingStage.touchLogic(triButtonIndex);
+                break;
+            }
+            case StageInterface.GAMESTAGE:
+            {
+                break;
+            }
+            case StageInterface.GAMEOVERSTAGE:
+            {
+                break;
+            }
+
+        }
     }
 }

@@ -3,7 +3,6 @@ package com.gmail.andrewahughes;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
@@ -34,18 +33,24 @@ public class CardButton  extends Actor {
     GlyphLayout glyphLayout = new GlyphLayout();
     SpriteBatch spriteBatch = new SpriteBatch();
     Texture texture;
+    byte stageIndex;
+    ButtonEnum.TitleStageCard cardButtonIndex;
 
     /**constructor for triButton
      *
      * @param startingX initial x position
      * @param startingY initial y position
      * @param isPointUp orientation boolean, tru means POINTUP false means POINTDOWN
+     * @param stageIndex this will be used in the touchLogic method to figure out which stage this button is in
      */
-    public CardButton(float startingX, float startingY, boolean isPointUp,byte position)
+    public CardButton(float startingX, float startingY, boolean isPointUp, byte position, final byte stageIndex, ButtonEnum.TitleStageCard cardButtonIndex)
     {
         texture = new Texture(Gdx.files.internal("badlogic.jpg"));
         orientation = isPointUp;
         this.position = position;
+        this.stageIndex = stageIndex;
+
+        this.cardButtonIndex=cardButtonIndex;
         setX(startingX);
         setY(startingY);
 
@@ -80,7 +85,7 @@ public class CardButton  extends Actor {
                 } else {
 
                     Gdx.app.log("Example", "search all actors");
-                    TitleStage.clickCardButton(x,y);
+                    TitleStage.queryCardButtonTouch(x,y);
                 }
             }
         }); /*the end of the this.addListener*/
@@ -234,5 +239,42 @@ public class CardButton  extends Actor {
 
         setX( x);
         setY( y);
+        switch(stageIndex)
+        {
+            /*i think card buttons will only be used in the tridentBuildingStage*/
+            /*
+            case StageInterface.TITLESTAGE:
+            {
+                break;
+            }
+            case StageInterface.OPTIONSSTAGE:
+            {
+                break;
+            }
+            case StageInterface.MATCHMAKINGSTAGE:
+            {
+                break;
+            }
+            case StageInterface.DEALSTAGE:
+            {
+                break;
+            }
+            */
+            case StageInterface.TRIDENTBUILDINGSTAGE:
+            {
+                TridentBuildingStage.touchLogicCard(cardButtonIndex);
+                break;
+            }
+            /*
+            case StageInterface.GAMESTAGE:
+            {
+                break;
+            }
+            case StageInterface.GAMEOVERSTAGE:
+            {
+                break;
+            }*/
+
+        }
     }
 }

@@ -2,7 +2,6 @@ package com.gmail.andrewahughes;
 
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
@@ -298,15 +297,18 @@ public class MyGdxGame extends ApplicationAdapter  implements  StageInterface{
 	 * @param triButton the new button
 	 * @param array the array to add it to
 	 * @param stage the current stage so we can add the button as an actor
-	 * @param index this will be the index position of the new button in the array
 	 * @return
 	 */
 	@Override
-	public int addTriButton(TriButton triButton, Array array, Stage stage,int index) {
-		array.add(triButton);
+	public void addTriButton(TriButton triButton, Array array, Stage stage, int index) {
+		/*instead of adding the buttons, insert them at the index location, this is important because this way
+		* there will be an error if the buttons are added in the wrong order and i can rectify the order,
+		* otherwise just using the add method will produce no error even if buttons added in the wrong order
+		* but when we come to get the buttons from the array using the enum value, it could get the wrong button*/
+		array.insert(index, triButton);
+
 		stage.addActor(triButton);
-		index++;
-		return index;
+
 	}
 
 	/**used in game stages to get a triButton from the stage's triButtonArray
@@ -316,22 +318,24 @@ public class MyGdxGame extends ApplicationAdapter  implements  StageInterface{
 	 * @return
 	 */
 	@Override
-	public TriButton getTriButton(Array array, int index) {
+	public TriButton getTriButton(Array array, ButtonEnum.TitleStageTri index ) {
 		/*array hold type object, so we need to cast (TriButton) else incompatible types error*/
-		return (TriButton) array.get(index);
+		return (TriButton) array.get(index.ordinal());
 	}
 
 	@Override
-	public int addCardButton(CardButton cardButton, Array array, Stage stage, int index) {
-		array.add(cardButton);
+	public void addCardButton(CardButton cardButton, Array array, Stage stage,int index) {
+		/*instead of adding the buttons, insert them at the index location, this is important because this way
+		 * there will be an error if the buttons are added in the wrong order and i can rectify the order,
+		 * otherwise just using the add method will produce no error even if buttons added in the wrong order
+		 * but when we come to get the buttons from the array using the enum value, it could get the wrong button*/
+		array.insert(index,cardButton);
 		stage.addActor(cardButton);
-		index++;
-		return index;
 	}
 
 	@Override
-	public CardButton getCardButton(Array array, int index) {
-		return (CardButton) array.get(index);
+	public CardButton getCardButton(Array array, ButtonEnum.TitleStageCard index) {
+		return (CardButton) array.get(index.ordinal());
 	}
 
 

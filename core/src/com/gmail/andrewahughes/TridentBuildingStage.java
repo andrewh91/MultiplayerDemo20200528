@@ -37,4 +37,20 @@ public class TridentBuildingStage extends Stage {
         this.visible = visible;
     }
 
+    /**
+     * this will be called in the tributton class,
+     * @param triButtonIndex this will be the index of the tributton that was clicked, the index is set on creation of the
+     *                       triButton and will be the same as it's index in the triButtonArray for this stage
+     */
+    public static void touchLogic(ButtonEnum.TitleStageTri triButtonIndex){
+
+    }
+    /**
+     * this will be called in the tributton class,
+     * @param cardButtonIndex this will be the index of the cardbutton that was clicked, the index is set on creation of the
+     *                       cardButton and will be the same as it's index in the cardButtonArray for this stage
+     */
+    public static void touchLogicCard(ButtonEnum.TitleStageCard cardButtonIndex){
+
+    }
 }
