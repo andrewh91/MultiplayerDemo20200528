@@ -40,6 +40,7 @@ public class DealStage extends Stage {
             /*draw all actors of this stage*/
             drawTriButtonsShape();
             shapeRenderer.end();
+            MyServer.update();
         }
     }
     void drawTriButtons() {

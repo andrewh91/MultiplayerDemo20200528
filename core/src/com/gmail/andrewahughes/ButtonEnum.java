@@ -12,6 +12,7 @@ public class ButtonEnum {
         TITLEOTHER                  (1),
         TITLENEXTSTAGE              (2),
 
+        /*buttons for a new stage must begin again at value 0*/
         OPTIONSNEXTSTAGE            (0),
 
         MATCHMAKINGNEXTSTAGE        (0),
@@ -23,6 +24,7 @@ public class ButtonEnum {
         GAMENEXTSTAGE               (0),
 
         GAMEOVERNEXTSTAGE           (0);
+
         final int value;
         Tri(int i) {
             this.value= i;

@@ -22,6 +22,7 @@ public class MatchMakingStage extends Stage {
         this.spriteBatch =new SpriteBatch();
         this.shapeRenderer = new ShapeRenderer();
         createButtons();
+
     }
     @Override
     public void draw() {
@@ -40,6 +41,9 @@ public class MatchMakingStage extends Stage {
             /*draw all actors of this stage*/
             drawTriButtonsShape();
             shapeRenderer.end();
+            /*update the server
+             */
+            MyServer.update();
         }
     }
     void drawTriButtons() {
