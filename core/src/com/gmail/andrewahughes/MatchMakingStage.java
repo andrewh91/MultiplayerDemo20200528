@@ -29,20 +29,18 @@ public class MatchMakingStage extends Stage {
         act(Gdx.graphics.getDeltaTime());
         if (visible)
         {
-
             Gdx.gl.glClearColor(1.0f, 1.0f, 0.0f, 1);
             Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
             spriteBatch.begin();
             /*draw all actors of this stage*/
-            //drawTriButtons();
+            drawTriButtons();
             spriteBatch.end();
             shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
             /*draw all actors of this stage*/
             drawTriButtonsShape();
             shapeRenderer.end();
-            /*update the server
-             */
+            /*update the server includes drawing the players*/
             MyServer.update();
         }
     }
@@ -74,7 +72,9 @@ public class MatchMakingStage extends Stage {
          * when adding to the array the method actually inserts it in the array at the enum.value index
          * this means if we add the buttons out of order it will cause an error, which is good because
          * then i can make sure the buttons are in the correct order*/
-        stageInterface.addTriButton(new TriButton(stageInterface,50,250,false,StageInterface.MATCHMAKINGSTAGE, ButtonEnum.Tri.MATCHMAKINGNEXTSTAGE),triButtonArray,this, ButtonEnum.Tri.MATCHMAKINGNEXTSTAGE);
+        stageInterface.addTriButton(new TriButton(stageInterface,50,250,false,StageInterface.MATCHMAKINGSTAGE, ButtonEnum.Tri.MATCHMAKINGNEXTSTAGE),triButtonArray,this);
+        stageInterface.getTriButton(triButtonArray,ButtonEnum.Tri.MATCHMAKINGNEXTSTAGE).setText("Deal");
+        stageInterface.getTriButtonTitleStage(triButtonArray,ButtonEnum.Tri.MATCHMAKINGNEXTSTAGE).setTridentToTextSize();
 
     }
     /**

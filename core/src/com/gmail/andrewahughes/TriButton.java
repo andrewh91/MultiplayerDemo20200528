@@ -21,13 +21,17 @@ public class TriButton extends Actor {
     float altitude = (float)(edgeLength * Math.sin(Math.PI/3));
     float halfEdgeLength = edgeLength/2;
     float halfAltitude = altitude/2;
+
     BitmapFont font = new BitmapFont();
     /*glyph layout helps provide some extra data on the text which helps centre it properly*/
     GlyphLayout glyphLayout = new GlyphLayout();
     SpriteBatch spriteBatch = new SpriteBatch();
     Texture texture;
-     byte stageIndex;
+    byte stageIndex;
     ButtonEnum.Tri triButtonIndex;
+    String text;
+    /*the text margin will be a gap between the text and the edge of the tributton*/
+    float textMargin=0.05f;
     /**constructor for triButton
      *
      * @param startingX initial x position
@@ -44,20 +48,13 @@ public class TriButton extends Actor {
         this.triButtonIndex=triButtonIndex;
         setX(startingX);
         setY(startingY);
-        setWidth(edgeLength);
-        setHeight(altitude);
+        updateBounds();
 
         this.addListener(new ClickListener() {
-
-
             public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
                 Gdx.app.log("Example", "touch started at (" + x + ", " + y + ")");
                 return true;
             }
-
-
-
-
         public void touchUp(InputEvent event, float x, float y, int pointer, int button) {
 
         /*the x and y arguments will be relative to the actor so a click on the bottom left of the actor will be
@@ -82,10 +79,18 @@ public class TriButton extends Actor {
     }
 
 
+
+
     public void draw(Batch batch, float parentAlpha) {
         /*super.draw(batch, parentAlpha);*/
-        batch.draw(texture,getX(),getY());
-
+        //batch.draw(texture,getX(),getY());
+        if (text != null) {
+            /*pass the font and the text string into glyphLayout, then we can access the height and width of the text
+            * useful for proper positioning of the text  */
+            glyphLayout.setText(font,text);
+            /*draw the text centred in the x axis, and at the top if it's POINTDOWN and at the bottom if it's POINTUP*/
+            font.draw(batch, text, getX()+halfEdgeLength-glyphLayout.width/2, getY()+ (orientation ? +altitude*textMargin+glyphLayout.height :+altitude*(1-textMargin)) );
+        }
 
     }
     public void drawShape(ShapeRenderer shapeRenderer) {
@@ -217,5 +222,34 @@ public class TriButton extends Actor {
             }
 
         }
+    }
+    public void setText(String text){
+        this.text=text;
+    }
+    public void setTridentToTextSize(){
+        if (text != null) {
+            glyphLayout.setText(font,text);
+            edgeLength = ((glyphLayout.width*(float)Math.sin(Math.PI/3)  + glyphLayout.height) / (1-textMargin))/(float)Math.sin(Math.PI/3);
+            /*need the bounding box to take on the new values */
+            updateBounds();
+        }
+
+    }
+    /*
+    public void setTextToTridentSize(){
+        if (text != null) {
+            glyphLayout.setText(font,text);
+            font.getData().setScale(edgeLength /glyphLayout.width);
+            /*need the bounding box to take on the new values *//*
+            updateBounds();
+        }
+    }*/
+    private void updateBounds() {
+        /*the altitude of an equilateral triangle will always be edgelength * 0.86602540378443864676372317075294 = sin(60)*/
+        altitude = (float)(edgeLength * Math.sin(Math.PI/3));
+        halfEdgeLength = edgeLength/2;
+        halfAltitude = altitude/2;
+        setWidth(edgeLength);
+        setHeight(altitude);
     }
 }

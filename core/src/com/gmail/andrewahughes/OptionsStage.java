@@ -37,7 +37,7 @@ public class OptionsStage extends Stage {
 
             spriteBatch.begin();
             /*draw all actors of this stage*/
-            //drawTriButtons();
+            drawTriButtons();
             spriteBatch.end();
             shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
             /*draw all actors of this stage*/
@@ -72,8 +72,9 @@ public class OptionsStage extends Stage {
          * when adding to the array the method actually inserts it in the array at the enum.value index
          * this means if we add the buttons out of order it will cause an error, which is good because
          * then i can make sure the buttons are in the correct order*/
-        stageInterface.addTriButton(new TriButton(stageInterface,50,250,false,StageInterface.OPTIONSSTAGE, ButtonEnum.Tri.OPTIONSNEXTSTAGE),triButtonArray,this, ButtonEnum.Tri.OPTIONSNEXTSTAGE);
-
+        stageInterface.addTriButton(new TriButton(stageInterface,50,250,false,StageInterface.OPTIONSSTAGE, ButtonEnum.Tri.OPTIONSNEXTSTAGE),triButtonArray,this);
+        stageInterface.getTriButton(triButtonArray,ButtonEnum.Tri.OPTIONSNEXTSTAGE).setText("MatchMaking");
+        stageInterface.getTriButtonTitleStage(triButtonArray,ButtonEnum.Tri.OPTIONSNEXTSTAGE).setTridentToTextSize();
     }
     /**
      * this will be called in the tributton class, the arguments will be the coordinates relevant to the world

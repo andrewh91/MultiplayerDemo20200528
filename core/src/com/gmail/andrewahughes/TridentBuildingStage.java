@@ -38,13 +38,20 @@ public class TridentBuildingStage extends Stage {
 
             spriteBatch.begin();
             /*draw all actors of this stage*/
-            //drawTriButtons();
+            drawTriButtons();
             spriteBatch.end();
             shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
             /*draw all actors of this stage*/
             drawTriButtonsShape();
             drawCardButtonsShape();
             shapeRenderer.end();
+        }
+    }
+    void drawTriButtons() {
+
+        for(int i=0;i<triButtonArray.size;i++) {
+            triButtonArray.get(i).draw(spriteBatch,1.0f);
+
         }
     }
     /**
@@ -75,14 +82,17 @@ public class TridentBuildingStage extends Stage {
          * this means if we add the buttons out of order it will cause an error, which is good because
          * then i can make sure the buttons are in the correct order*/
         /*trident buttons*/
-        stageInterface.addTriButton(new TriButton(stageInterface,50,250,false,StageInterface.TRIDENTBUILDINGSTAGE, ButtonEnum.Tri.TRIDENTBUILDINGNEXTSTAGE),triButtonArray,this, ButtonEnum.Tri.TRIDENTBUILDINGNEXTSTAGE);
+        stageInterface.addTriButton(new TriButton(stageInterface,50,250,false,StageInterface.TRIDENTBUILDINGSTAGE, ButtonEnum.Tri.TRIDENTBUILDINGNEXTSTAGE),triButtonArray,this);
+        stageInterface.getTriButton(triButtonArray,ButtonEnum.Tri.TRIDENTBUILDINGNEXTSTAGE).setText("Game");
+        stageInterface.getTriButtonTitleStage(triButtonArray,ButtonEnum.Tri.TRIDENTBUILDINGNEXTSTAGE).setTridentToTextSize();
+
         /*card buttons*/
-        stageInterface.addCardButton(new CardButton(stageInterface,300,200,true,CardButton.LEFT,       StageInterface.TRIDENTBUILDINGSTAGE, ButtonEnum.Card.TRIDENTBUILDING0),cardButtonArray,this, ButtonEnum.Card.TRIDENTBUILDING0);
-        stageInterface.addCardButton(new CardButton(stageInterface,300,200,true,CardButton.RIGHT,      StageInterface.TRIDENTBUILDINGSTAGE, ButtonEnum.Card.TRIDENTBUILDING1),cardButtonArray,this, ButtonEnum.Card.TRIDENTBUILDING1);
-        stageInterface.addCardButton(new CardButton(stageInterface,300,200,true,CardButton.VERTICAL,   StageInterface.TRIDENTBUILDINGSTAGE, ButtonEnum.Card.TRIDENTBUILDING2),cardButtonArray,this, ButtonEnum.Card.TRIDENTBUILDING2);
-        stageInterface.addCardButton(new CardButton(stageInterface,275,200,false,CardButton.LEFT,      StageInterface.TRIDENTBUILDINGSTAGE, ButtonEnum.Card.TRIDENTBUILDING3),cardButtonArray,this, ButtonEnum.Card.TRIDENTBUILDING3);
-        stageInterface.addCardButton(new CardButton(stageInterface,275,200,false,CardButton.RIGHT,     StageInterface.TRIDENTBUILDINGSTAGE, ButtonEnum.Card.TRIDENTBUILDING4),cardButtonArray,this, ButtonEnum.Card.TRIDENTBUILDING4);
-        stageInterface.addCardButton(new CardButton(stageInterface,275,200,false,CardButton.VERTICAL,  StageInterface.TRIDENTBUILDINGSTAGE, ButtonEnum.Card.TRIDENTBUILDING5),cardButtonArray,this, ButtonEnum.Card.TRIDENTBUILDING5);
+        stageInterface.addCardButton(new CardButton(stageInterface,300,200,true,CardButton.LEFT,       StageInterface.TRIDENTBUILDINGSTAGE, ButtonEnum.Card.TRIDENTBUILDING0),cardButtonArray,this);
+        stageInterface.addCardButton(new CardButton(stageInterface,300,200,true,CardButton.RIGHT,      StageInterface.TRIDENTBUILDINGSTAGE, ButtonEnum.Card.TRIDENTBUILDING1),cardButtonArray,this);
+        stageInterface.addCardButton(new CardButton(stageInterface,300,200,true,CardButton.VERTICAL,   StageInterface.TRIDENTBUILDINGSTAGE, ButtonEnum.Card.TRIDENTBUILDING2),cardButtonArray,this);
+        stageInterface.addCardButton(new CardButton(stageInterface,275,200,false,CardButton.LEFT,      StageInterface.TRIDENTBUILDINGSTAGE, ButtonEnum.Card.TRIDENTBUILDING3),cardButtonArray,this);
+        stageInterface.addCardButton(new CardButton(stageInterface,275,200,false,CardButton.RIGHT,     StageInterface.TRIDENTBUILDINGSTAGE, ButtonEnum.Card.TRIDENTBUILDING4),cardButtonArray,this);
+        stageInterface.addCardButton(new CardButton(stageInterface,275,200,false,CardButton.VERTICAL,  StageInterface.TRIDENTBUILDINGSTAGE, ButtonEnum.Card.TRIDENTBUILDING5),cardButtonArray,this);
 }
     /**
      * this will be called in the tributton class, the arguments will be the coordinates relevant to the world

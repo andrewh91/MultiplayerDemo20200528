@@ -34,7 +34,7 @@ public class DealStage extends Stage {
 
             spriteBatch.begin();
             /*draw all actors of this stage*/
-            //drawTriButtons();
+            drawTriButtons();
             spriteBatch.end();
             shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
             /*draw all actors of this stage*/
@@ -71,7 +71,10 @@ public class DealStage extends Stage {
          * when adding to the array the method actually inserts it in the array at the enum.value index
          * this means if we add the buttons out of order it will cause an error, which is good because
          * then i can make sure the buttons are in the correct order*/
-        stageInterface.addTriButton(new TriButton(stageInterface,50,250,false,StageInterface.DEALSTAGE, ButtonEnum.Tri.DEALNEXTSTAGE),triButtonArray,this, ButtonEnum.Tri.DEALNEXTSTAGE);
+        stageInterface.addTriButton(new TriButton(stageInterface,50,250,false,StageInterface.DEALSTAGE, ButtonEnum.Tri.DEALNEXTSTAGE),triButtonArray,this);
+        stageInterface.getTriButton(triButtonArray,ButtonEnum.Tri.DEALNEXTSTAGE).setText("TridentBuilding");
+        stageInterface.getTriButtonTitleStage(triButtonArray,ButtonEnum.Tri.DEALNEXTSTAGE).setTridentToTextSize();
+
 
     }
     /**

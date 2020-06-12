@@ -138,15 +138,23 @@ public class MyGdxGame extends ApplicationAdapter  implements  StageInterface{
 	 * @return
 	 */
 	@Override
-	public void addTriButton(TriButton triButton, Array array, Stage stage, ButtonEnum.Tri index) {
+	public void addTriButton(TriButton triButton, Array array, Stage stage) {
 		/*instead of adding the buttons, insert them at the index location, this is important because this way
 		* there will be an error if the buttons are added in the wrong order and i can rectify the order,
 		* otherwise just using the add method will produce no error even if buttons added in the wrong order
 		* but when we come to get the buttons from the array using the enum value, it could get the wrong button*/
-		array.insert(index.value, triButton);
+		/*i used to pass the ButtonEnum.Tri value in as an argument, but the exact same value is always passed into
+		the TriButton constructor*/
+		array.insert(triButton.triButtonIndex.value, triButton);
 
 		stage.addActor(triButton);
 
+	}
+
+	@Override
+	public TriButton getTriButton(Array array, ButtonEnum.Tri index) {
+		/*array hold type object, so we need to cast (TriButton) else incompatible types error*/
+		return (TriButton) array.get(index.value);
 	}
 
 	@Override
@@ -193,12 +201,12 @@ public class MyGdxGame extends ApplicationAdapter  implements  StageInterface{
 
 
 	@Override
-	public void addCardButton(CardButton cardButton, Array array, Stage stage,ButtonEnum.Card index) {
+	public void addCardButton(CardButton cardButton, Array array, Stage stage) {
 		/*instead of adding the buttons, insert them at the index location, this is important because this way
 		 * there will be an error if the buttons are added in the wrong order and i can rectify the order,
 		 * otherwise just using the add method will produce no error even if buttons added in the wrong order
 		 * but when we come to get the buttons from the array using the enum value, it could get the wrong button*/
-		array.insert(index.value,cardButton);
+		array.insert(cardButton.cardButtonIndex.value,cardButton);
 		stage.addActor(cardButton);
 	}
 

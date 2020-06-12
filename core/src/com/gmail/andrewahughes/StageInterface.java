@@ -9,7 +9,8 @@ public interface StageInterface {
 
     void hideAllStages();
     void goToStage(int stage);
-    void addTriButton(TriButton triButton, Array array, Stage stage, ButtonEnum.Tri index);
+    void addTriButton(TriButton triButton, Array array, Stage stage);
+    TriButton getTriButton(Array array, ButtonEnum.Tri index);
     TriButton getTriButtonTitleStage(Array array, ButtonEnum.Tri index);
     TriButton getTriButtonOptionsStage(Array array, ButtonEnum.Tri index);
     TriButton getTriButtonMatchMakingStage(Array array, ButtonEnum.Tri index);
@@ -17,7 +18,7 @@ public interface StageInterface {
     TriButton getTriButtonTridentBuildingStage(Array array, ButtonEnum.Tri index);
     TriButton getTriButtonGameStage(Array array, ButtonEnum.Tri index);
     TriButton getTriButtonGameOverStage(Array array, ButtonEnum.Tri index);
-    void addCardButton(CardButton cardButton, Array array, Stage stage,ButtonEnum.Card index);
+    void addCardButton(CardButton cardButton, Array array, Stage stage);
     CardButton getCardButtonTridentBuildingStage(Array array, ButtonEnum.Card index);
     void handleButtonsTitleTri(ButtonEnum.Tri triButtonIndex);
     void handleButtonsOptionsTri(ButtonEnum.Tri triButtonIndex);

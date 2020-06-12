@@ -38,7 +38,7 @@ public class TitleStage extends Stage {
 
             spriteBatch.begin();
             /*draw all actors of this stage*/
-            //drawTriButtons();
+            drawTriButtons();
             spriteBatch.end();
             shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
             /*draw all actors of this stage*/
@@ -76,9 +76,14 @@ public class TitleStage extends Stage {
          * when adding to the array the method actually inserts it in the array at the enum.value index
          * this means if we add the buttons out of order it will cause an error, which is good because
          * then i can make sure the buttons are in the correct order*/
-        stageInterface.addTriButton(new TriButton(stageInterface,200,200,true,StageInterface.TITLESTAGE, ButtonEnum.Tri.TITLEEXIT),triButtonArray,this, ButtonEnum.Tri.TITLEEXIT);
-        stageInterface.addTriButton(new TriButton(stageInterface,100,200,false,StageInterface.TITLESTAGE, ButtonEnum.Tri.TITLEOTHER),triButtonArray,this, ButtonEnum.Tri.TITLEOTHER);
-        stageInterface.addTriButton(new TriButton(stageInterface,50,250,false,StageInterface.TITLESTAGE, ButtonEnum.Tri.TITLENEXTSTAGE),triButtonArray,this, ButtonEnum.Tri.TITLENEXTSTAGE);
+        stageInterface.addTriButton(new TriButton(stageInterface,25,200,true,StageInterface.TITLESTAGE, ButtonEnum.Tri.TITLEEXIT),triButtonArray,this);
+        stageInterface.getTriButtonTitleStage(triButtonArray,ButtonEnum.Tri.TITLEEXIT).setText("Exit");
+        stageInterface.getTriButtonTitleStage(triButtonArray,ButtonEnum.Tri.TITLEEXIT).setTridentToTextSize();
+        stageInterface.addTriButton(new TriButton(stageInterface,100,200,false,StageInterface.TITLESTAGE, ButtonEnum.Tri.TITLEOTHER),triButtonArray,this);
+        stageInterface.addTriButton(new TriButton(stageInterface,50,200,false,StageInterface.TITLESTAGE, ButtonEnum.Tri.TITLENEXTSTAGE),triButtonArray,this);
+        stageInterface.getTriButtonTitleStage(triButtonArray,ButtonEnum.Tri.TITLENEXTSTAGE).setText("Options");
+        stageInterface.getTriButtonTitleStage(triButtonArray,ButtonEnum.Tri.TITLENEXTSTAGE).setTridentToTextSize();
+
 
 
     }
