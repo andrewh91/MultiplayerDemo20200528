@@ -7,6 +7,8 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.Array;
 
+import java.util.HashMap;
+
 public class TridentBuildingStage extends Stage {
 
 
@@ -84,7 +86,7 @@ public class TridentBuildingStage extends Stage {
         /*trident buttons*/
         stageInterface.addTriButton(new TriButton(stageInterface,50,250,false,StageInterface.TRIDENTBUILDINGSTAGE, ButtonEnum.Tri.TRIDENTBUILDINGNEXTSTAGE),triButtonArray,this);
         stageInterface.getTriButton(triButtonArray,ButtonEnum.Tri.TRIDENTBUILDINGNEXTSTAGE).setText("Game");
-        stageInterface.getTriButtonTitleStage(triButtonArray,ButtonEnum.Tri.TRIDENTBUILDINGNEXTSTAGE).setTridentToTextSize();
+        stageInterface.getTriButton(triButtonArray,ButtonEnum.Tri.TRIDENTBUILDINGNEXTSTAGE).setTridentToTextSize();
 
         /*card buttons*/
         stageInterface.addCardButton(new CardButton(stageInterface,300,200,true,CardButton.LEFT,       StageInterface.TRIDENTBUILDINGSTAGE, ButtonEnum.Card.TRIDENTBUILDING0),cardButtonArray,this);
@@ -158,6 +160,25 @@ public class TridentBuildingStage extends Stage {
      *                       cardButton and will be the same as it's index in the cardButtonArray for this stage
      */
     public void touchLogicCard(ButtonEnum.Card cardButtonIndex){
+
+    }
+    public void reset(){
+        cardButtonArray.clear();
+        setUpCards();
+
+    }
+    /*set up all the cards, they should be given an enum each,
+    some of the initial values don't matter much since they will be set
+    when allocated to one of the players */
+    public void setUpCards() {
+        /*set up all cards*/
+        for (ButtonEnum.Card cardEnum : ButtonEnum.Card.values()) {
+            System.out.println(cardEnum);
+            stageInterface.addCardButton(new CardButton(stageInterface, 0, 0, true, (byte) 0, stageInterface.TRIDENTBUILDINGSTAGE, cardEnum), cardButtonArray, this);
+        }
+    }
+    public void amendCardsForTridentBuildingStage() {
+
 
     }
 }

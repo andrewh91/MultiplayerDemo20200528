@@ -4,6 +4,7 @@ import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
@@ -23,8 +24,11 @@ public class MyGdxGame extends ApplicationAdapter  implements  StageInterface{
 	GameStage gameStage;
 	GameOverStage gameOverStage;
 
+	Deck deck;
 	@Override
 	public void create() {
+
+		//Gdx.graphics.setWindowedMode(720, 1280);
 
 		spriteBatch = new SpriteBatch();
 		bitmapFont = new BitmapFont();
@@ -38,6 +42,8 @@ public class MyGdxGame extends ApplicationAdapter  implements  StageInterface{
 		tridentBuildingStage = new TridentBuildingStage(this);
 		gameStage = new GameStage(this);
 		gameOverStage = new GameOverStage(this);
+
+		deck = new Deck();
 
 		goToStage(TITLESTAGE);
 	}
@@ -71,6 +77,8 @@ public class MyGdxGame extends ApplicationAdapter  implements  StageInterface{
 		spriteBatch.dispose();
 		MyServer.dispose();
 	}
+
+
 
 
 
@@ -108,11 +116,19 @@ public class MyGdxGame extends ApplicationAdapter  implements  StageInterface{
 			}
 			case DEALSTAGE :{
 				dealStage.setVisible(true);
+				dealStage.reset();
+				/*because the dealStage needs to acccess the tridentBuildingStage's
+				* cardButton array, we must set up the trident stage as well */
+				tridentBuildingStage.reset();
+				dealStage.amendCardsForDealStageAnimation();
 				Gdx.input.setInputProcessor(dealStage);
 				break;
 			}
 			case TRIDENTBUILDINGSTAGE :{
 				tridentBuildingStage.setVisible(true);
+				/*all of the tridentStage should have been set up in the deal stage
+				* so we just need to amend some values*/
+				tridentBuildingStage.amendCardsForTridentBuildingStage();
 				Gdx.input.setInputProcessor(tridentBuildingStage);
 				break;
 			}
@@ -145,7 +161,17 @@ public class MyGdxGame extends ApplicationAdapter  implements  StageInterface{
 		* but when we come to get the buttons from the array using the enum value, it could get the wrong button*/
 		/*i used to pass the ButtonEnum.Tri value in as an argument, but the exact same value is always passed into
 		the TriButton constructor*/
-		array.insert(triButton.triButtonIndex.value, triButton);
+
+		if (triButton.triButtonIndex.value==array.size ) {
+
+			array.insert(triButton.triButtonIndex.value, triButton);
+		}
+		else{
+			/*might have assigned an enum to the new triButton that has already been used, or maybe the value is
+			non incremental in the ButtonEnum class*/
+			Gdx.app.log("Warning","triButton added with incorrect index: "+triButton.triButtonIndex+" value: "+triButton.triButtonIndex.value+" will cause problems when trying to access it");
+
+		}
 
 		stage.addActor(triButton);
 
@@ -157,47 +183,6 @@ public class MyGdxGame extends ApplicationAdapter  implements  StageInterface{
 		return (TriButton) array.get(index.value);
 	}
 
-	@Override
-	public TriButton getTriButtonTitleStage(Array array, ButtonEnum.Tri index) {
-		/*array hold type object, so we need to cast (TriButton) else incompatible types error*/
-		return (TriButton) array.get(index.value);
-	}
-
-	@Override
-	public TriButton getTriButtonOptionsStage(Array array, ButtonEnum.Tri index) {
-		/*array hold type object, so we need to cast (TriButton) else incompatible types error*/
-		return (TriButton) array.get(index.value);
-	}
-
-	@Override
-	public TriButton getTriButtonMatchMakingStage(Array array, ButtonEnum.Tri index) {
-		/*array hold type object, so we need to cast (TriButton) else incompatible types error*/
-		return (TriButton) array.get(index.value);
-	}
-
-	@Override
-	public TriButton getTriButtonDealStage(Array array, ButtonEnum.Tri index) {
-		/*array hold type object, so we need to cast (TriButton) else incompatible types error*/
-		return (TriButton) array.get(index.value);
-	}
-
-	@Override
-	public TriButton getTriButtonTridentBuildingStage(Array array, ButtonEnum.Tri index) {
-		/*array hold type object, so we need to cast (TriButton) else incompatible types error*/
-		return (TriButton) array.get(index.value);
-	}
-
-	@Override
-	public TriButton getTriButtonGameStage(Array array, ButtonEnum.Tri index) {
-		/*array hold type object, so we need to cast (TriButton) else incompatible types error*/
-		return (TriButton) array.get(index.value);
-	}
-
-	@Override
-	public TriButton getTriButtonGameOverStage(Array array, ButtonEnum.Tri index) {
-		/*array hold type object, so we need to cast (TriButton) else incompatible types error*/
-		return (TriButton) array.get(index.value);
-	}
 
 
 	@Override

@@ -77,12 +77,12 @@ public class TitleStage extends Stage {
          * this means if we add the buttons out of order it will cause an error, which is good because
          * then i can make sure the buttons are in the correct order*/
         stageInterface.addTriButton(new TriButton(stageInterface,25,200,true,StageInterface.TITLESTAGE, ButtonEnum.Tri.TITLEEXIT),triButtonArray,this);
-        stageInterface.getTriButtonTitleStage(triButtonArray,ButtonEnum.Tri.TITLEEXIT).setText("Exit");
-        stageInterface.getTriButtonTitleStage(triButtonArray,ButtonEnum.Tri.TITLEEXIT).setTridentToTextSize();
+        stageInterface.getTriButton(triButtonArray,ButtonEnum.Tri.TITLEEXIT).setText("Exit");
+        stageInterface.getTriButton(triButtonArray,ButtonEnum.Tri.TITLEEXIT).setTridentToTextSize();
         stageInterface.addTriButton(new TriButton(stageInterface,100,200,false,StageInterface.TITLESTAGE, ButtonEnum.Tri.TITLEOTHER),triButtonArray,this);
         stageInterface.addTriButton(new TriButton(stageInterface,50,200,false,StageInterface.TITLESTAGE, ButtonEnum.Tri.TITLENEXTSTAGE),triButtonArray,this);
-        stageInterface.getTriButtonTitleStage(triButtonArray,ButtonEnum.Tri.TITLENEXTSTAGE).setText("Options");
-        stageInterface.getTriButtonTitleStage(triButtonArray,ButtonEnum.Tri.TITLENEXTSTAGE).setTridentToTextSize();
+        stageInterface.getTriButton(triButtonArray,ButtonEnum.Tri.TITLENEXTSTAGE).setText("Options");
+        stageInterface.getTriButton(triButtonArray,ButtonEnum.Tri.TITLENEXTSTAGE).setTridentToTextSize();
 
 
 

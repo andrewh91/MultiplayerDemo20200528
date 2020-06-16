@@ -74,7 +74,7 @@ public class GameOverStage extends Stage {
          * then i can make sure the buttons are in the correct order*/
         stageInterface.addTriButton(new TriButton(stageInterface,50,250,false,StageInterface.GAMEOVERSTAGE, ButtonEnum.Tri.GAMEOVERNEXTSTAGE),triButtonArray,this);
         stageInterface.getTriButton(triButtonArray,ButtonEnum.Tri.GAMEOVERNEXTSTAGE).setText("Title");
-        stageInterface.getTriButtonTitleStage(triButtonArray,ButtonEnum.Tri.GAMEOVERNEXTSTAGE).setTridentToTextSize();
+        stageInterface.getTriButton(triButtonArray,ButtonEnum.Tri.GAMEOVERNEXTSTAGE).setTridentToTextSize();
 
     }
     /**

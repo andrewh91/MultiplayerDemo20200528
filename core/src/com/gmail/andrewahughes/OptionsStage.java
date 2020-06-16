@@ -16,6 +16,23 @@ public class OptionsStage extends Stage {
     /*we need to store an array of TriButtons so we can loop through and call the draw method of each
     need to use my custom method of adding buttons in order to make sure they are added to this array*/
     static Array<TriButton> triButtonArray = new Array<TriButton>();
+
+    /*options stage values*/
+
+    /**
+     *     need to work out how many cards each player should have maximum
+     *     consider how many players there are, if preAndPostGameCards are enabled
+     */
+    public static int cardsEach=0;
+    /**
+     * the open game mode allows all player's to see each other's cards
+     * disable this mode so player's can only see their own cards
+     */
+    public static boolean openMode = true;
+    /**
+     * number of players will be either 2 or 3
+     */
+    public static byte numberOfPlayers = 2;
     public OptionsStage(StageInterface stageInterface )
     {
         this.stageInterface =stageInterface;
@@ -74,7 +91,7 @@ public class OptionsStage extends Stage {
          * then i can make sure the buttons are in the correct order*/
         stageInterface.addTriButton(new TriButton(stageInterface,50,250,false,StageInterface.OPTIONSSTAGE, ButtonEnum.Tri.OPTIONSNEXTSTAGE),triButtonArray,this);
         stageInterface.getTriButton(triButtonArray,ButtonEnum.Tri.OPTIONSNEXTSTAGE).setText("MatchMaking");
-        stageInterface.getTriButtonTitleStage(triButtonArray,ButtonEnum.Tri.OPTIONSNEXTSTAGE).setTridentToTextSize();
+        stageInterface.getTriButton(triButtonArray,ButtonEnum.Tri.OPTIONSNEXTSTAGE).setTridentToTextSize();
     }
     /**
      * this will be called in the tributton class, the arguments will be the coordinates relevant to the world

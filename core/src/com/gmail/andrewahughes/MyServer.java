@@ -22,13 +22,15 @@ public class MyServer {
     private static boolean created =false;
     private static Socket socket;
     public static String id;
-    public static Starship player;
+    public static Player player;
     public static Texture playerShip;
     public static Texture friendlyShip;
     /*the hashmap will store the a key which in our case is a string
      and a value which for us is a Starship class
     * string will store the id , starship will store a starship class*/
-    public static HashMap<String, Starship> friendlyPlayers;
+    public static HashMap<String, Player> friendlyPlayers;
+    /*i want to store a copy of all player data on each device*/
+    public static HashMap<String, Player> localPlayers;
     public static SpriteBatch spriteBatch;
     public static BitmapFont bitmapFont;
     public static ShapeRenderer shapeRenderer;
@@ -47,7 +49,7 @@ public class MyServer {
             spriteBatch = new SpriteBatch();
             bitmapFont = new BitmapFont();
             shapeRenderer = new ShapeRenderer();
-            friendlyPlayers = new HashMap<String, Starship>();
+            friendlyPlayers = new HashMap<String, Player>();
             playerShip = new Texture("badlogic.jpg");
             friendlyShip = new Texture("badlogic.jpg");
             startServer();
@@ -77,7 +79,7 @@ public class MyServer {
         /*for each entry in the hash map, get the value, which remember
          * is a starship class, and call the function draw to draw that
          * starship.  note that starship inherits draw method from texture*/
-        for(HashMap.Entry<String, Starship> entry : friendlyPlayers.entrySet()){
+        for(HashMap.Entry<String, Player> entry : friendlyPlayers.entrySet()){
             entry.getValue().draw(spriteBatch);
         }
     }
@@ -129,7 +131,7 @@ public class MyServer {
             @Override
             public void call(Object... args) {
                 Gdx.app.log("SocketIO", "Connected");
-                player = new Starship(playerShip);
+                player = new Player(playerShip);
             }
         }).on("socketID", new Emitter.Listener() {
             /*the event listener will listen for an event called "socketID"*/
@@ -149,9 +151,9 @@ public class MyServer {
                 JSONObject data = (JSONObject) args[0];
                 try {
                     String playerId = data.getString("id");
-                    Gdx.app.log("SocketIO", "New Player Connect: " + id);
+                    Gdx.app.log("SocketIO", "New Player Connect: " + playerId);
                     /*put the new player's id and the starship class in our hashmap*/
-                    friendlyPlayers.put(playerId, new Starship(friendlyShip));
+                    friendlyPlayers.put(playerId, new Player(friendlyShip));
                 }catch(JSONException e){
                     Gdx.app.log("SocketIO", "Error getting New PlayerID");
                 }
@@ -165,6 +167,8 @@ public class MyServer {
                     id = data.getString("id");
                     /*remove the player from the hashmap*/
                     friendlyPlayers.remove(id);
+                    Gdx.app.log("SocketIO", "disconnected PlayerID: "+id);
+
                 }catch(JSONException e){
                     Gdx.app.log("SocketIO", "Error getting disconnected PlayerID");
                 }
@@ -203,7 +207,7 @@ public class MyServer {
                     for(int i = 0; i < objects.length(); i++){
 						/*create a new starship for every object inside the players
 						array we have been passed*/
-                        Starship coopPlayer = new Starship(friendlyShip);
+                        Player coopPlayer = new Player(friendlyShip);
                         Vector2 position = new Vector2();
                         /*apparently you cannot get a float value from a JSONObject, so cast it to double
                          * but set position method below only takes floats*/

@@ -74,7 +74,7 @@ public class MatchMakingStage extends Stage {
          * then i can make sure the buttons are in the correct order*/
         stageInterface.addTriButton(new TriButton(stageInterface,50,250,false,StageInterface.MATCHMAKINGSTAGE, ButtonEnum.Tri.MATCHMAKINGNEXTSTAGE),triButtonArray,this);
         stageInterface.getTriButton(triButtonArray,ButtonEnum.Tri.MATCHMAKINGNEXTSTAGE).setText("Deal");
-        stageInterface.getTriButtonTitleStage(triButtonArray,ButtonEnum.Tri.MATCHMAKINGNEXTSTAGE).setTridentToTextSize();
+        stageInterface.getTriButton(triButtonArray,ButtonEnum.Tri.MATCHMAKINGNEXTSTAGE).setTridentToTextSize();
 
     }
     /**

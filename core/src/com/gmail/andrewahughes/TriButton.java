@@ -7,6 +7,7 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
@@ -21,17 +22,20 @@ public class TriButton extends Actor {
     float altitude = (float)(edgeLength * Math.sin(Math.PI/3));
     float halfEdgeLength = edgeLength/2;
     float halfAltitude = altitude/2;
+    /*this is just used in the centred method*/
+    private boolean centred=false;
 
     BitmapFont font = new BitmapFont();
     /*glyph layout helps provide some extra data on the text which helps centre it properly*/
     GlyphLayout glyphLayout = new GlyphLayout();
+    String text;
+    /*the text margin will be a gap between the text and the edge of the tributton*/
+    float textMargin=0.05f;
+
     SpriteBatch spriteBatch = new SpriteBatch();
     Texture texture;
     byte stageIndex;
     ButtonEnum.Tri triButtonIndex;
-    String text;
-    /*the text margin will be a gap between the text and the edge of the tributton*/
-    float textMargin=0.05f;
     /**constructor for triButton
      *
      * @param startingX initial x position
@@ -84,36 +88,38 @@ public class TriButton extends Actor {
     public void draw(Batch batch, float parentAlpha) {
         /*super.draw(batch, parentAlpha);*/
         //batch.draw(texture,getX(),getY());
-        if (text != null) {
-            /*pass the font and the text string into glyphLayout, then we can access the height and width of the text
-            * useful for proper positioning of the text  */
-            glyphLayout.setText(font,text);
-            /*draw the text centred in the x axis, and at the top if it's POINTDOWN and at the bottom if it's POINTUP*/
-            font.draw(batch, text, getX()+halfEdgeLength-glyphLayout.width/2, getY()+ (orientation ? +altitude*textMargin+glyphLayout.height :+altitude*(1-textMargin)) );
+        if(isVisible()) {
+            if (text != null) {
+                /*pass the font and the text string into glyphLayout, then we can access the height and width of the text
+                 * useful for proper positioning of the text  */
+                glyphLayout.setText(font, text);
+                /*draw the text centred in the x axis, and at the top if it's POINTDOWN and at the bottom if it's POINTUP*/
+                font.draw(batch, text, getX() + halfEdgeLength - glyphLayout.width / 2, getY() + (orientation ? +altitude * textMargin + glyphLayout.height : +altitude * (1 - textMargin)));
+            }
         }
 
     }
     public void drawShape(ShapeRenderer shapeRenderer) {
-        if(orientation==POINTUP) {
-            shapeRenderer.triangle(
-                    getX(),
-                    getY(),
-                    getX() + halfEdgeLength,
-                    getY() + altitude,
-                    getX() + edgeLength,
-                    getY());
-        }
-        else if(orientation==POINTDOWN){
-            shapeRenderer.triangle(
-                    getX(),
-                    getY() + altitude,
-                    getX() + edgeLength,
-                    getY() + altitude,
-                    getX() + halfEdgeLength,
-                    getY());
+        if (isVisible()) {
+            if (orientation == POINTUP) {
+                shapeRenderer.triangle(
+                        getX(),
+                        getY(),
+                        getX() + halfEdgeLength,
+                        getY() + altitude,
+                        getX() + edgeLength,
+                        getY());
+            } else if (orientation == POINTDOWN) {
+                shapeRenderer.triangle(
+                        getX(),
+                        getY() + altitude,
+                        getX() + edgeLength,
+                        getY() + altitude,
+                        getX() + halfEdgeLength,
+                        getY());
+            }
         }
     }
-
     /**work out if the triangle has been hit, considering orientation
      *
      */
@@ -226,6 +232,10 @@ public class TriButton extends Actor {
     public void setText(String text){
         this.text=text;
     }
+
+    /**
+     * increase or decrease the size of the trident to match the text that it has been given
+     */
     public void setTridentToTextSize(){
         if (text != null) {
             glyphLayout.setText(font,text);
@@ -233,6 +243,22 @@ public class TriButton extends Actor {
             /*need the bounding box to take on the new values */
             updateBounds();
         }
+
+    }
+
+    /**
+     * changing the trident size to fit the text will mean the trident's right edge
+     * and top edge will move, but the bottom left will stay the same, this method
+     * will instead make all edges expand or shrink so that the centre remains the same
+     *
+     */
+    public void setTridentToTextSizeRecentre(){
+
+        float oldWidth = getWidth();
+        float oldHeight = getHeight();
+        setTridentToTextSize();
+        setX(getX()-(getWidth()-oldWidth)/2);
+        setY(getY()-(getWidth()-oldHeight)/2);
 
     }
     /*
@@ -244,6 +270,22 @@ public class TriButton extends Actor {
             updateBounds();
         }
     }*/
+
+    /**
+     * triButtons are drawn at an x and y pos, the bottom left of the triButton
+     * will be at that pos, this method will shift the x and y pos down and
+     * left so that the triButton becomes centred on the original x and y
+     * I could do this in the constructor but the triButton might not have its
+     * final width and height at that point
+     */
+    public void centre(){
+        if(centred==false){
+            setX(getX()-getWidth()/2);
+            setY(getY()-getHeight()/2);
+            centred=true;
+        }
+
+    }
     private void updateBounds() {
         /*the altitude of an equilateral triangle will always be edgelength * 0.86602540378443864676372317075294 = sin(60)*/
         altitude = (float)(edgeLength * Math.sin(Math.PI/3));
@@ -252,4 +294,13 @@ public class TriButton extends Actor {
         setWidth(edgeLength);
         setHeight(altitude);
     }
+    public void setPos(float x, float y){
+        setX(x);
+        setY(y);
+    }
+    public Vector2 getPos(){
+        return new Vector2(getX(),getY());
+    }
+
+
 }
