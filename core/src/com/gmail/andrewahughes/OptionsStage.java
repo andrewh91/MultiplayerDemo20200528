@@ -33,12 +33,14 @@ public class OptionsStage extends Stage {
      * number of players will be either 2 or 3
      */
     public static byte numberOfPlayers = 2;
+    public static boolean preAndPostGameCard = true;
     public OptionsStage(StageInterface stageInterface )
     {
         this.stageInterface =stageInterface;
         this.spriteBatch =new SpriteBatch();
         this.shapeRenderer = new ShapeRenderer();
         createButtons();
+        calculateCardsEach();
     }
 
 
@@ -48,6 +50,7 @@ public class OptionsStage extends Stage {
         act(Gdx.graphics.getDeltaTime());
         if (visible)
         {
+            this.getViewport().apply();
 
             Gdx.gl.glClearColor(0.7f, 0.5f, 0f, 1);
             Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
@@ -127,6 +130,17 @@ public class OptionsStage extends Stage {
             default:
                 Gdx.app.log("Example", "DEFAULT "+triButtonIndex.value);
                 throw new IllegalStateException("Unexpected value: " + triButtonIndex);
+        }
+    }
+    public static void calculateCardsEach(){
+        if(numberOfPlayers==2){
+            cardsEach=24;
+        }
+        else{
+            cardsEach=15;
+        }
+        if (preAndPostGameCard){
+            cardsEach+=2;
         }
     }
 }

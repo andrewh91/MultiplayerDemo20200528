@@ -9,7 +9,6 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
-import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 
 public class CardButton  extends Actor {
@@ -48,14 +47,35 @@ public class CardButton  extends Actor {
     byte stageIndex;
     ButtonEnum.Card cardButtonIndex;
 
-    static float dealAnimationRectangleX=0;
-    static float dealAnimationRectangleY=0;
+    static float dealAnimationRectangleDisplayX =0;
+    static float dealAnimationRectangleDisplayY =0;
+    static float dealAnimationRectangleDealX =0;
+    static float dealAnimationRectangleDealY =0;
     static float dealAnimationRectangleWidth=Gdx.graphics.getWidth();
     static float dealAnimationRectangleHeight=Gdx.graphics.getHeight();
     static float dealAnimationTridentEdgeLength=50f;
 
+    static float dealAnimationRowMargin=10;
 
-    int value;
+    static float dealAnimationTridentHandHeight =0;
+    static float dealAnimationTridentHeight =0;
+    static float dealAnimationTridentWidth =0;
+
+    float dealAnimationPositionX;
+    float dealAnimationPositionY;
+    /**
+     * this is just used to help position the cardButtons in the setDealAnimationPosition method
+     */
+    static byte dealAnimationSuit =-1;
+    static byte dealAnimationPreviousSuit =0;
+
+    byte value;
+
+    /*when the cards are dealt to the player, all that happens is this
+    * variable is set to the player's index, which will be used in the
+    * touch logic, deafult is 0 so we know it doesn't have a player,
+    * otherwise value will be 1, 2 or 3*/
+    byte playerIndex =0;
 
     /**constructor for triButton
      *
@@ -211,22 +231,45 @@ public class CardButton  extends Actor {
     }
 
     /**
-     * this will be called in the dealStage, will be asimple animation to move all
+     * this will be called in the dealStage, will be a simple animation to move all
      * cardButtons to the centre of the screen so they overlap
      */
     public void overlapAnimation(float percentage){
         if(percentage<=0.5f){
-            setX(getX()+((dealAnimationRectangleX+dealAnimationRectangleWidth/2 ) - getX())*(percentage*2));
+            setX(getX()+((dealAnimationRectangleDisplayX +dealAnimationRectangleWidth/2 ) - getX())*(percentage*2));
         }
         else if(percentage<1) {
-            setX(dealAnimationRectangleX+dealAnimationRectangleWidth/2 );
-            setY(getY() + ((dealAnimationRectangleY + dealAnimationRectangleHeight / 2) - getY()) * (percentage-0.5f)*2);
+            setX(dealAnimationRectangleDisplayX +dealAnimationRectangleWidth/2 );
+            setY(getY() + ((dealAnimationRectangleDisplayY + dealAnimationRectangleHeight / 2) - getY()) * (percentage-0.5f)*2);
         }
         else{
-            setX(dealAnimationRectangleX+dealAnimationRectangleWidth/2 );
-            setY(dealAnimationRectangleY+dealAnimationRectangleHeight/2 );
+            setX(dealAnimationRectangleDisplayX +dealAnimationRectangleWidth/2 );
+            setY(dealAnimationRectangleDisplayY +dealAnimationRectangleHeight/2 );
         }
     }
+    /**
+     * this will be called in the dealStage, will be a simple animation to move all
+     * cardButtons to the player's card hand, that position must have previously
+     * been set in setDealAnimationPosition method
+     */
+    public void moveToPositionAnimation(float percentage){
+        /*first we need to work out the correct position for this cardButton based
+        * on the playerIndex and the index - as well as the numberOfPlayers*/
+
+        if(percentage<=0.5f){
+            setX(getX()+((dealAnimationPositionX) - getX())*(percentage*2));
+        }
+        else if(percentage<1) {
+            setX(dealAnimationPositionX);
+            setY(getY() + ((dealAnimationPositionY) - getY()) * (percentage-0.5f)*2);
+        }
+        else{
+            setX(dealAnimationPositionX);
+            setY(dealAnimationPositionY);
+        }
+    }
+
+
     /**work out if the triangle has been hit, considering orientation
      *
      */
@@ -344,8 +387,10 @@ public class CardButton  extends Actor {
      * @param height
      */
     public static void setDealAnimationRectangle(float x,float y,float width,float height){
-        dealAnimationRectangleX=x;
-        dealAnimationRectangleY=y;
+        dealAnimationRectangleDisplayX =x;
+        dealAnimationRectangleDisplayY =y;
+        dealAnimationRectangleDealX =x;
+        dealAnimationRectangleDealY =y;
         dealAnimationRectangleWidth=width;
         dealAnimationRectangleHeight=height;
         /*also work out how larger a trident edgeLength this allows us to use
@@ -359,11 +404,11 @@ public class CardButton  extends Actor {
             dealAnimationTridentEdgeLength=altEdgeLength;
         }
         edgeLength=dealAnimationTridentEdgeLength;
-        /*now work out how to centre the gride of tridents*/
+        /*now work out how to centre the grid of tridents*/
         float triGridWidth = dealAnimationTridentEdgeLength*2.5f;
         float triGridHeight = (float)(dealAnimationTridentEdgeLength * 5 * Math.sin(Math.PI/3));
-        dealAnimationRectangleX = dealAnimationRectangleX + dealAnimationRectangleWidth/2f - triGridWidth/2f;
-        dealAnimationRectangleY = dealAnimationRectangleY + dealAnimationRectangleHeight/2f - triGridHeight/2f;
+        dealAnimationRectangleDisplayX = dealAnimationRectangleDisplayX + dealAnimationRectangleWidth/2f - triGridWidth/2f;
+        dealAnimationRectangleDisplayY = dealAnimationRectangleDisplayY + dealAnimationRectangleHeight/2f - triGridHeight/2f;
     }
 
     /**
@@ -379,8 +424,8 @@ public class CardButton  extends Actor {
         setHeight(tridentAltitude);
 
         int tridentIndex = (int)Math.floor(index/3);
-        setX(dealAnimationRectangleX+(tridentIndex % 4) * (dealAnimationTridentEdgeLength / 2));
-        setY(dealAnimationRectangleY+(float)(dealAnimationRectangleHeight- ((Math.floor(tridentIndex/4)+1)*dealAnimationTridentEdgeLength*Math.sin(Math.PI/3))));
+        setX(dealAnimationRectangleDisplayX +(tridentIndex % 4) * (dealAnimationTridentEdgeLength / 2));
+        setY(dealAnimationRectangleDisplayY +(float)(dealAnimationRectangleHeight- ((Math.floor(tridentIndex/4)+1)*dealAnimationTridentEdgeLength*Math.sin(Math.PI/3))));
         /*if on an even row, 0, 2 or 4*/
         if(Math.floor(tridentIndex/4)%2==0){
             /*if on an even column, 0, 2 then POINTUP*/
@@ -413,13 +458,83 @@ public class CardButton  extends Actor {
     }
 
     /**
+     * this will be called in the deal method after the card buttons
+     * have been assigned a playerIndex, this method will work out where
+     * the cardButton's position on in the dealAnimationRectangle should be
+     * so that it appears in the player's card hand, the method
+     * moveToPositionAnimation will then move the cardButton to that location
+     */
+    public void setDealAnimationPosition(){
+        /*if the cardbutton belongs to the current player*/
+        if(playerIndex==MyServer.player.index){
+            /*need to reserve space at the top of the rectangle for trident hand*/
+                dealAnimationSuit=(byte)(dealAnimationPreviousSuit==getSuit()?dealAnimationSuit+1:-1);
+                dealAnimationPreviousSuit=getSuit();dealAnimationPositionY = Gdx.graphics.getHeight()-(+dealAnimationTridentHandHeight+(dealAnimationTridentHeight+dealAnimationRowMargin) *getSuit());
+                dealAnimationPositionX = (float)(dealAnimationRectangleDealX +(dealAnimationTridentWidth*0.5f*Math.floor(dealAnimationSuit/3)));
+                orientation= getSuit()%2==0 ? (Math.floor(dealAnimationSuit/3)%2==0?POINTUP:POINTDOWN) : (Math.floor(dealAnimationSuit/3)%2==0?POINTDOWN:POINTUP);
+                position=(byte)(dealAnimationSuit%3);
+        }
+        else if(playerIndex==(MyServer.player.index-1%3)){
+            dealAnimationPositionX = -Gdx.graphics.getWidth();
+        }
+        else if(playerIndex==(MyServer.player.index+1%3)){
+            dealAnimationPositionX = Gdx.graphics.getWidth()*2;
+        }
+    }
+
+
+    /**
+     * this will be called in deal stage, it will be equal to the height
+     * of the trident hand plus row margin *2 + dealAnimationRectangleY
+     */
+    public static void setTridentHandHeight(){
+        dealAnimationTridentWidth =dealAnimationRectangleWidth/5f;
+        edgeLength=dealAnimationTridentWidth;
+        updateBounds();
+        dealAnimationTridentHeight =(float)(dealAnimationTridentWidth*Math.sin(Math.PI/3));
+        dealAnimationTridentHandHeight = dealAnimationRectangleDealY + dealAnimationTridentHeight *3+dealAnimationRowMargin*2;
+    }
+
+    /**
      * called in the dealStage, once we have created a random list of values 0-51
      * we can assign one to this cardButton
      */
-    public void setValue(int value){
+    public void setValue(byte value){
         this.value = value;
-        this.text=""+this.value;
     }
+
+    /**
+     * this method will just work out what suit the card is based on the value
+     * suit 0,1,2 or 3
+     */
+    public byte getSuit(){
+        return (byte)Math.floor(this.value/13);
+    }
+    /**
+     * this method will just work out what pip the card is based on the value
+     * pip from 0 to 12
+     */
+    public byte getPip(){
+        return (byte)(this.value%13);
+    }
+    /**
+     * called in the dealStage, once the random values have already been assigned to
+     * the cardButtons, we can call this to actually set the text to match the value
+     * this text will display the suit and pip value of the card, this should be
+     * replaced by actual pictures eventually
+     *
+     * this will be called at the end of the overlap method
+     *
+     * before this method is called the default text will just be the index
+     */
+    public void setText(){
+        this.text=""+this.value;
+
+    }
+    public void setPlayerIndex(byte index){
+        playerIndex=index;
+    }
+
     public static void updateBounds() {
 
         /*assuming the isosceles card shape has the longest edge parallel to the horizon
@@ -431,4 +546,5 @@ public class CardButton  extends Actor {
         tridentAltitude = (float)(edgeLength * Math.sin(Math.PI/3));
 
     }
+
 }

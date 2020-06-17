@@ -47,8 +47,11 @@ public class DealStage extends Stage {
      */
     final static float ANIMATIONDEALCARDSTIMER = 2;
     byte ANIMATIONSTAGE = ANIMATIONSTOPPED;
-
-
+    /**
+     * half way through the animation a method called set text will be called
+     * this flag ensures it's only called once,
+     */
+    boolean ANIMATIONSETTEXTFLAG=true;
     float animationTimer = 0;
 
 
@@ -65,6 +68,7 @@ public class DealStage extends Stage {
         act(Gdx.graphics.getDeltaTime());
         if (visible) {
 
+            this.getViewport().apply();
             Gdx.gl.glClearColor(0.0f, 1.0f, 0.0f, 1);
             Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
@@ -72,13 +76,11 @@ public class DealStage extends Stage {
             /*draw all actors of this stage*/
             drawTriButtons();
             drawAnimation();
-            drawPlayers();
             spriteBatch.end();
             shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
             /*draw all actors of this stage*/
             drawTriButtonsShape();
             drawAnimationShape();
-            drawPlayersShape();
             shapeRenderer.end();
             MyServer.update();
         }
@@ -90,24 +92,10 @@ public class DealStage extends Stage {
         }
     }
 
-
-
-    void drawPlayers() {
-        for (HashMap.Entry<String, Player> entry : MyServer.friendlyPlayers.entrySet()) {
-            entry.getValue().drawCardArray(spriteBatch);
-        }
-    }
-
-    void drawPlayersShape() {
-        for (HashMap.Entry<String, Player> entry : MyServer.friendlyPlayers.entrySet()) {
-            entry.getValue().drawCardArrayShape(shapeRenderer);
-        }
-    }
-
     void drawAnimation() {
 
         /*after a certain amount of time, begin the overlap animation */
-        if (animationTimer>ANIMATIONOVERLAPCARDSTIMER){
+        if (animationTimer>ANIMATIONOVERLAPCARDSTIMER&& animationTimer <= ANIMATIONDEALCARDSTIMER+ANIMATIONOVERLAPCARDSTIMER){
             ANIMATIONSTAGE=ANIMATIONOVERLAPCARDS;
 
             /*fade the CardButton's fadeFont so that it becomes more
@@ -117,17 +105,40 @@ public class DealStage extends Stage {
                 TridentBuildingStage.cardButtonArray.get(i).overlapAnimation((animationTimer-ANIMATIONOVERLAPCARDSTIMER)/ANIMATIONDEALCARDSTIMER);
             }
         }
+        /*end the overlap animation and begin the deal animation*/
         if (animationTimer>ANIMATIONDEALCARDSTIMER+ANIMATIONOVERLAPCARDSTIMER){
-            //ANIMATIONSTAGE=ANIMATIONDEALCARDS;
-        }
+            /*the cardbuttons will have already been set a random number,
+            * this will actually display that number */
+            if(ANIMATIONSETTEXTFLAG) {
+                ANIMATIONSETTEXTFLAG=false;
+                /*when the cards are moved to their player's card hand
+                * we need to reserve some space at the top for the trident hand
+                * this method determines how much space */
+                CardButton.setTridentHandHeight();
+                for (int i = 0; i < Deck.cardArray.size; i++) {
+                    TridentBuildingStage.cardButtonArray.get(i).setText();
+                    TridentBuildingStage.cardButtonArray.get(i).setDealAnimationPosition();
+                }
+            }
+            /*fade the text back in as the cards move to their player's card hand*/
+            CardButton.fadeFont.setColor(1,1,1,((animationTimer-ANIMATIONDEALCARDSTIMER+ANIMATIONOVERLAPCARDSTIMER)/ANIMATIONDEALCARDSTIMER*4));
+            /* actually don't fade the text back in until we've resolved par*/
 
+            for (int i = 0; i < Deck.cardArray.size; i++) {
+                TridentBuildingStage.cardButtonArray.get(i).moveToPositionAnimation((animationTimer-ANIMATIONDEALCARDSTIMER-ANIMATIONOVERLAPCARDSTIMER)/ANIMATIONDEALCARDSTIMER);
+            }
+            ANIMATIONSTAGE=ANIMATIONDEALCARDS;
+        }
+        /*if the begin deal button is clicked, display all the cards spread out
+        * across the screen*/
         if (ANIMATIONSTAGE == ANIMATIONDISPLAYCARDS) {
             animationTimer+=Gdx.graphics.getDeltaTime();
             for (int i = 0; i < Deck.cardArray.size; i++) {
                 TridentBuildingStage.cardButtonArray.get(i).draw(spriteBatch,1.0f);
             }
         }
-        if (ANIMATIONSTAGE == ANIMATIONOVERLAPCARDS ){
+        /*after a set amount of time the cards will all move to the centre*/
+        else if (ANIMATIONSTAGE == ANIMATIONOVERLAPCARDS ){
             animationTimer+=Gdx.graphics.getDeltaTime();
             if(OptionsStage.openMode ) {
                 for (int i = 0; i < Deck.cardArray.size; i++) {
@@ -135,9 +146,16 @@ public class DealStage extends Stage {
                 }
             }
         }
-        /*after some animation or timing call this
-        *  actually deal the cards to the player
-        deal();*/
+        /*once moved to the centre the cards will then move to their
+        * position in their player's card hand*/
+        else if (ANIMATIONSTAGE == ANIMATIONDEALCARDS ){
+            animationTimer+=Gdx.graphics.getDeltaTime();
+            if(OptionsStage.openMode ) {
+                for (int i = 0; i < Deck.cardArray.size; i++) {
+                    TridentBuildingStage.cardButtonArray.get(i).draw(spriteBatch, 1.0f);
+                }
+            }
+        }
     }
     /**
      * i've made a bit of a temporary animation here
@@ -149,6 +167,11 @@ public class DealStage extends Stage {
             }
         }
         if (ANIMATIONSTAGE == ANIMATIONOVERLAPCARDS) {
+            for (int i = 0; i < Deck.cardArray.size; i++) {
+                TridentBuildingStage.cardButtonArray.get(i).drawShape(shapeRenderer);
+            }
+        }
+        if (ANIMATIONSTAGE == ANIMATIONDEALCARDS) {
             for (int i = 0; i < Deck.cardArray.size; i++) {
                 TridentBuildingStage.cardButtonArray.get(i).drawShape(shapeRenderer);
             }
@@ -212,12 +235,14 @@ public class DealStage extends Stage {
     }
 
     public void reset() {
-        /*reset the animation stages and tmer*/
+        Deck.shuffle();
+        /*reset the animation stages and timer*/
         ANIMATIONSTAGE = ANIMATIONSTOPPED;
         animationTimer = 0;
         /*display the begin deal button*/
         stageInterface.getTriButton(triButtonArray, ButtonEnum.Tri.DEALBEGINDEAL).setVisible(true);
         CardButton.fadeFont.setColor(1,1,1,1);
+        ANIMATIONSETTEXTFLAG=true;
     }
 
     /** when the begindeal button is clicked;
@@ -237,11 +262,23 @@ public class DealStage extends Stage {
     }
 
     /**
-     * actually assign the random card to each player
+     * this is where we actually deal each card to a player, however actually,
+     * the player index is added to the cardButton
+     * the amendCardsForDeal method has already set the random cards to
+     * TridentBuildingStage.cardButtonArray and it did it in such a way that
+     * the contents of the array includes a section of one player's cards which are sorted
+     * in order, then another section of another player's cards after that which are also sorted
+     * as such we can just loop through and assign the player index to each section
+     *
      */
     private void deal() {
-        ANIMATIONSTAGE = ANIMATIONDEALCARDS;
 
+        for (byte p = 0; p < OptionsStage.numberOfPlayers; p++) {
+            for (int i = 0; i < OptionsStage.cardsEach; i++) {
+                TridentBuildingStage.cardButtonArray.get(OptionsStage.cardsEach*p+i).setPlayerIndex(p);
+            }
+
+        }
     }
 
     /**
@@ -283,6 +320,11 @@ public class DealStage extends Stage {
         for (int i = 0; i < TridentBuildingStage.cardButtonArray.size; i++) {
             TridentBuildingStage.cardButtonArray.get(i).setDealAnimationValues(i);
         }
+        /*this is where the cards are shuffled*/
+        amendCardsForDeal();
+        /*we will deal the cards to the players here,
+        but the effect of the deal won't be visible yet*/
+        deal();
     }
 
     /**
@@ -303,11 +345,22 @@ public class DealStage extends Stage {
     /**
      * assign the random value to the cardbutton, next step
      * after this method is to deal the cards to the players
+     * use OptionsStage.cardsEach to figure out how many cards
+     * to give each player, then before setting the value of each cardbutton
+     * we can sort that player's cards.  this results in player 1's sorted cards
+     * being in teh array first, followed by player 2's sorted cards etc
      */
     public void amendCardsForDeal() {
-        for (int i = 0; i < TridentBuildingStage.cardButtonArray.size; i++) {
-            TridentBuildingStage.cardButtonArray.get(i).setValue(Deck.randomCardArray.get(i));
+        Array<Byte> tempArray = new Array<>();
+        for(int j=0;j<OptionsStage.numberOfPlayers;j++) {
+            tempArray.clear();
+            for (int i = 0; i < OptionsStage.cardsEach; i++) {
+                tempArray.add(Deck.randomCardArray.get(j*OptionsStage.cardsEach+i));
+            }
+            tempArray.sort();
+            for (int k =0; k < tempArray.size;k++){
+                TridentBuildingStage.cardButtonArray.get(j*OptionsStage.cardsEach+k).setValue(tempArray.get(k));
+            }
         }
-
     }
 }

@@ -29,8 +29,6 @@ public class MyServer {
      and a value which for us is a Starship class
     * string will store the id , starship will store a starship class*/
     public static HashMap<String, Player> friendlyPlayers;
-    /*i want to store a copy of all player data on each device*/
-    public static HashMap<String, Player> localPlayers;
     public static SpriteBatch spriteBatch;
     public static BitmapFont bitmapFont;
     public static ShapeRenderer shapeRenderer;
@@ -154,6 +152,10 @@ public class MyServer {
                     Gdx.app.log("SocketIO", "New Player Connect: " + playerId);
                     /*put the new player's id and the starship class in our hashmap*/
                     friendlyPlayers.put(playerId, new Player(friendlyShip));
+                    Gdx.app.log("SocketIO", "total players in hashmap: " + friendlyPlayers.size());
+                    /*call the gotAllPlayers method which will set the player indexes
+                    * if we have the correct number of players*/
+                    gotAllPlayers();
                 }catch(JSONException e){
                     Gdx.app.log("SocketIO", "Error getting New PlayerID");
                 }
@@ -232,5 +234,19 @@ public class MyServer {
         spriteBatch.dispose();
         playerShip.dispose();
         friendlyShip.dispose();
+    }
+
+    /**
+     * called when a new player is added, this will test to see if we have the
+     * specified number of players, if so it will give them either a 0,1 or 2 index
+     */
+    public static void gotAllPlayers(){
+        if(friendlyPlayers.size() == OptionsStage.numberOfPlayers){
+            byte i =0;
+            for(HashMap.Entry<String, Player> entry : friendlyPlayers.entrySet()){
+                entry.getValue().setIndex(i);
+                i++;
+            }
+        }
     }
 }

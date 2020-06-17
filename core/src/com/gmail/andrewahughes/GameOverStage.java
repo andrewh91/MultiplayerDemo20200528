@@ -30,6 +30,7 @@ public class GameOverStage extends Stage {
         if (visible)
         {
 
+            this.getViewport().apply();
             Gdx.gl.glClearColor(1.0f, 0.0f, 1.0f, 1);
             Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 

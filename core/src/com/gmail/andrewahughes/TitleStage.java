@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.viewport.Viewport;
 
 public class TitleStage extends Stage {
 
@@ -32,6 +33,7 @@ public class TitleStage extends Stage {
         act(Gdx.graphics.getDeltaTime());
         if (visible)
         {
+            this.getViewport().apply();
 
             Gdx.gl.glClearColor(1.0f, 0.0f, 0.0f, 1);
             Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);

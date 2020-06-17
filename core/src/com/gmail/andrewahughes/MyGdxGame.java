@@ -10,6 +10,8 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.viewport.FitViewport;
+import com.badlogic.gdx.utils.viewport.Viewport;
 
 public class MyGdxGame extends ApplicationAdapter  implements  StageInterface{
 	SpriteBatch spriteBatch;
@@ -28,12 +30,16 @@ public class MyGdxGame extends ApplicationAdapter  implements  StageInterface{
 	@Override
 	public void create() {
 
+		Gdx.graphics.setWindowedMode(720/2, 1280/2);
+
+
 		//Gdx.graphics.setWindowedMode(720, 1280);
 
 		spriteBatch = new SpriteBatch();
 		bitmapFont = new BitmapFont();
 		shapeRenderer = new ShapeRenderer();
 
+		deck = new Deck();
 		/*pass in this (MyGdxGame) as the stage interface so the stage can use the stage interface methods*/
 		titleStage = new TitleStage(this);
 		optionsStage = new OptionsStage(this);
@@ -43,7 +49,6 @@ public class MyGdxGame extends ApplicationAdapter  implements  StageInterface{
 		gameStage = new GameStage(this);
 		gameOverStage = new GameOverStage(this);
 
-		deck = new Deck();
 
 		goToStage(TITLESTAGE);
 	}
@@ -76,6 +81,11 @@ public class MyGdxGame extends ApplicationAdapter  implements  StageInterface{
 	public void dispose () {
 		spriteBatch.dispose();
 		MyServer.dispose();
+	}
+	@Override
+	public void resize(int width, int height) {
+		//titleStage.getViewport().update(width,height);
+		Gdx.app.log("Example","resize");
 	}
 
 
