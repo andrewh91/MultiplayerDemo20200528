@@ -11,6 +11,10 @@ import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 
+import static com.gmail.andrewahughes.MyGdxGame.WORLDHEIGHT;
+import static com.gmail.andrewahughes.MyGdxGame.WORLDWIDTH;
+
+
 public class CardButton  extends Actor {
     StageInterface stageInterface;
     private static final boolean POINTUP = true;
@@ -23,8 +27,9 @@ public class CardButton  extends Actor {
     public static final byte LEFT = 1;
     public static final byte RIGHT = 2;
     byte position = VERTICAL;
+
     /*the longest edge length, should be the same as the edge length of the trident*/
-    static float edgeLength = 50.0f;
+    static float edgeLength = 50;
     /*assuming the isosceles card shape has the longest edge parallel to the horizon
     * the altitude is tan(30) * edgeLength /2    = 0.28867513459481288225457439025098 * edgeLength*/
     static float altitude = (float)( Math.tan(Math.PI/6) * edgeLength /2);
@@ -51,8 +56,8 @@ public class CardButton  extends Actor {
     static float dealAnimationRectangleDisplayY =0;
     static float dealAnimationRectangleDealX =0;
     static float dealAnimationRectangleDealY =0;
-    static float dealAnimationRectangleWidth=Gdx.graphics.getWidth();
-    static float dealAnimationRectangleHeight=Gdx.graphics.getHeight();
+    static float dealAnimationRectangleWidth=WORLDWIDTH;
+    static float dealAnimationRectangleHeight=WORLDHEIGHT;
     static float dealAnimationTridentEdgeLength=50f;
 
     static float dealAnimationRowMargin=10;
@@ -469,16 +474,16 @@ public class CardButton  extends Actor {
         if(playerIndex==MyServer.player.index){
             /*need to reserve space at the top of the rectangle for trident hand*/
                 dealAnimationSuit=(byte)(dealAnimationPreviousSuit==getSuit()?dealAnimationSuit+1:-1);
-                dealAnimationPreviousSuit=getSuit();dealAnimationPositionY = Gdx.graphics.getHeight()-(+dealAnimationTridentHandHeight+(dealAnimationTridentHeight+dealAnimationRowMargin) *getSuit());
+                dealAnimationPreviousSuit=getSuit();dealAnimationPositionY = WORLDHEIGHT-(+dealAnimationTridentHandHeight+(dealAnimationTridentHeight+dealAnimationRowMargin) *getSuit());
                 dealAnimationPositionX = (float)(dealAnimationRectangleDealX +(dealAnimationTridentWidth*0.5f*Math.floor(dealAnimationSuit/3)));
                 orientation= getSuit()%2==0 ? (Math.floor(dealAnimationSuit/3)%2==0?POINTUP:POINTDOWN) : (Math.floor(dealAnimationSuit/3)%2==0?POINTDOWN:POINTUP);
                 position=(byte)(dealAnimationSuit%3);
         }
         else if(playerIndex==(MyServer.player.index-1%3)){
-            dealAnimationPositionX = -Gdx.graphics.getWidth();
+            dealAnimationPositionX = -WORLDWIDTH;
         }
         else if(playerIndex==(MyServer.player.index+1%3)){
-            dealAnimationPositionX = Gdx.graphics.getWidth()*2;
+            dealAnimationPositionX = WORLDWIDTH*2;
         }
     }
 

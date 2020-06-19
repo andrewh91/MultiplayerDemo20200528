@@ -6,8 +6,13 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.viewport.Viewport;
 
 import java.util.HashMap;
+
+import static com.gmail.andrewahughes.MyGdxGame.WORLDHEIGHT;
+import static com.gmail.andrewahughes.MyGdxGame.WORLDWIDTH;
+
 
 public class DealStage extends Stage {
 
@@ -56,10 +61,15 @@ public class DealStage extends Stage {
 
 
 
-    public DealStage(StageInterface stageInterface) {
+    public DealStage(StageInterface stageInterface, Viewport viewport, SpriteBatch batch,ShapeRenderer shapeRenderer) {
         this.stageInterface = stageInterface;
-        this.spriteBatch = new SpriteBatch();
-        this.shapeRenderer = new ShapeRenderer();
+
+        this.shapeRenderer =shapeRenderer;
+        this.setViewport(viewport);
+        this.spriteBatch = batch;
+
+
+        viewport.update(WORLDWIDTH, WORLDHEIGHT, true);
         createButtons();
     }
 
@@ -206,7 +216,7 @@ public class DealStage extends Stage {
         stageInterface.getTriButton(triButtonArray, ButtonEnum.Tri.DEALNEXTSTAGE).setText("Trident\nBuilding");
         stageInterface.getTriButton(triButtonArray, ButtonEnum.Tri.DEALNEXTSTAGE).setTridentToTextSize();
 
-        stageInterface.addTriButton(new TriButton(stageInterface, Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 2, true, StageInterface.DEALSTAGE, ButtonEnum.Tri.DEALBEGINDEAL), triButtonArray, this);
+        stageInterface.addTriButton(new TriButton(stageInterface, WORLDWIDTH / 2, WORLDHEIGHT / 2, true, StageInterface.DEALSTAGE, ButtonEnum.Tri.DEALBEGINDEAL), triButtonArray, this);
         stageInterface.getTriButton(triButtonArray, ButtonEnum.Tri.DEALBEGINDEAL).setText("Begin Deal");
         stageInterface.getTriButton(triButtonArray, ButtonEnum.Tri.DEALBEGINDEAL).setTridentToTextSize();
         stageInterface.getTriButton(triButtonArray, ButtonEnum.Tri.DEALBEGINDEAL).centre();
@@ -313,7 +323,7 @@ public class DealStage extends Stage {
     public void amendCardsForDealStageAnimation() {
         /*this will set up a rectangle in which the card buttons will be arranged for the
          * deal animation*/
-        CardButton.setDealAnimationRectangle(50, 50, Gdx.graphics.getWidth() - 100, Gdx.graphics.getHeight() - 100);
+        CardButton.setDealAnimationRectangle(50, 50, WORLDWIDTH - 100, WORLDHEIGHT - 100);
         CardButton.updateBounds();
         /*loop through the tridentBuildingStage's cardButtonArray setting all the values
          * so the cardButtons are spread out and oriented correctly */

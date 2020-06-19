@@ -17,6 +17,8 @@ import io.socket.client.IO;
 import io.socket.client.Socket;
 import io.socket.emitter.Emitter;
 
+import static com.gmail.andrewahughes.MyGdxGame.WORLDHEIGHT;
+
 public class MyServer {
 
     private static boolean created =false;
@@ -72,7 +74,7 @@ public class MyServer {
         if(player != null){
             player.draw(spriteBatch);
             bitmapFont.draw(spriteBatch,"[bottomleft] x: "+player.getX()+" y: "+player.getY(),10,20);
-            bitmapFont.draw(spriteBatch," [topleft] x: "+player.getX()+" y: "+player.getY(),10,Gdx.graphics.getHeight()-20);
+            bitmapFont.draw(spriteBatch," [topleft] x: "+player.getX()+" y: "+player.getY(),10,WORLDHEIGHT-20);
         }
         /*for each entry in the hash map, get the value, which remember
          * is a starship class, and call the function draw to draw that
@@ -89,7 +91,7 @@ public class MyServer {
         if(player != null) {
             if (Gdx.input.isTouched()) {
 
-                player.setPosition(Gdx.input.getX(), Gdx.graphics.getHeight()-Gdx.input.getY());
+                player.setPosition(Gdx.input.getX(), WORLDHEIGHT-Gdx.input.getY());
             }
         }
     }

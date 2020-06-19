@@ -2,11 +2,16 @@ package com.gmail.andrewahughes;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.Viewport;
+
+import static com.gmail.andrewahughes.MyGdxGame.WORLDHEIGHT;
+import static com.gmail.andrewahughes.MyGdxGame.WORLDWIDTH;
 
 public class TitleStage extends Stage {
 
@@ -16,33 +21,50 @@ public class TitleStage extends Stage {
     StageInterface stageInterface;
     SpriteBatch spriteBatch;
     ShapeRenderer shapeRenderer;
+    BitmapFont font = new BitmapFont();
+
     /*we need to store an array of TriButtons so we can loop through and call the draw method of each
     need to use my custom method of adding buttons in order to make sure they are added to this array*/
     static Array<TriButton> triButtonArray = new Array<TriButton>();
 
-    public TitleStage(StageInterface stageInterface)
+    public TitleStage(StageInterface stageInterface,Viewport viewport, SpriteBatch batch, ShapeRenderer shapeRenderer)
     {
-        this.stageInterface =stageInterface;
-        this.spriteBatch =new SpriteBatch();
-        this.shapeRenderer = new ShapeRenderer();
-        createButtons();
 
-    }
+        this.stageInterface =stageInterface;
+        this.shapeRenderer = shapeRenderer;
+        this.setViewport(viewport);
+        this.spriteBatch = batch;
+
+
+        viewport.update(WORLDWIDTH, WORLDHEIGHT, true);
+        createButtons();
+}
     @Override
     public void draw() {
         act(Gdx.graphics.getDeltaTime());
         if (visible)
         {
-            this.getViewport().apply();
+
 
             Gdx.gl.glClearColor(1.0f, 0.0f, 0.0f, 1);
             Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
             spriteBatch.begin();
+            spriteBatch.setProjectionMatrix(MyGdxGame.viewport.getCamera().combined);
+
             /*draw all actors of this stage*/
+            font.draw(spriteBatch,"x:"+(int)Gdx.input.getX()+" y:"+(int)Gdx.input.getY(),Gdx.input.getX(),Gdx.input.getY());
             drawTriButtons();
+
             spriteBatch.end();
             shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+
+            shapeRenderer.setProjectionMatrix(MyGdxGame.viewport.getCamera().combined);
+            /*draw a box around the screen 1280 by 720 WORLDWIDTH, WORLDHEIGHT*/
+            shapeRenderer.line(720*0.1f,1280*0.1f,720*0.9f,1280*0.1f);
+            shapeRenderer.line(720*0.9f,1280*0.1f,720*0.9f,1280*0.9f);
+            shapeRenderer.line(720*0.9f,1280*0.9f,720*0.1f,1280*0.9f);
+            shapeRenderer.line(720*0.1f,1280*0.9f,720*0.1f,1280*0.1f);
             /*draw all actors of this stage*/
             drawTriButtonsShape();
             shapeRenderer.end();

@@ -8,9 +8,12 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.viewport.ExtendViewport;
 import com.badlogic.gdx.utils.viewport.FitViewport;
+import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
 public class MyGdxGame extends ApplicationAdapter  implements  StageInterface{
@@ -27,27 +30,42 @@ public class MyGdxGame extends ApplicationAdapter  implements  StageInterface{
 	GameOverStage gameOverStage;
 
 	Deck deck;
+
+	static int WORLDWIDTH;
+	static int WORLDHEIGHT;
+	static OrthographicCamera camera;
+	static Viewport viewport;
+	float aspectRatio ;
 	@Override
 	public void create() {
 
-		Gdx.graphics.setWindowedMode(720/2, 1280/2);
 
+		WORLDHEIGHT=Gdx.graphics.getHeight();
+		WORLDWIDTH=Gdx.graphics.getWidth();
+		aspectRatio = WORLDHEIGHT/WORLDWIDTH;
 
-		//Gdx.graphics.setWindowedMode(720, 1280);
+		/*this will affect how big the window is in desktop mode*/
+		//Gdx.graphics.setWindowedMode(WORLDWIDTH, WORLDHEIGHT);
+		/*to change the screen size in desktop only just change it in teh
+		* desktopLauncher, something like config.width=500;*/
 
 		spriteBatch = new SpriteBatch();
 		bitmapFont = new BitmapFont();
 		shapeRenderer = new ShapeRenderer();
+		camera = new OrthographicCamera();
+		viewport = new FitViewport(720, 1280, camera); // change this to your needed viewport
+        camera.position.set(new Vector2(WORLDWIDTH/2,WORLDHEIGHT/2),0);
+        viewport.apply();
 
 		deck = new Deck();
 		/*pass in this (MyGdxGame) as the stage interface so the stage can use the stage interface methods*/
-		titleStage = new TitleStage(this);
-		optionsStage = new OptionsStage(this);
-		matchMakingStage = new MatchMakingStage(this);
-		dealStage = new DealStage(this);
-		tridentBuildingStage = new TridentBuildingStage(this);
-		gameStage = new GameStage(this);
-		gameOverStage = new GameOverStage(this);
+		titleStage = new TitleStage(						this, viewport, spriteBatch,shapeRenderer);
+		optionsStage = new OptionsStage(					this, viewport, spriteBatch,shapeRenderer);
+		matchMakingStage = new MatchMakingStage(			this, viewport, spriteBatch,shapeRenderer);
+		dealStage = new DealStage(							this, viewport, spriteBatch,shapeRenderer);
+		tridentBuildingStage = new TridentBuildingStage(	this, viewport, spriteBatch,shapeRenderer);
+		gameStage = new GameStage(							this, viewport, spriteBatch,shapeRenderer);
+		gameOverStage = new GameOverStage(					this, viewport, spriteBatch,shapeRenderer);
 
 
 		goToStage(TITLESTAGE);
@@ -55,12 +73,14 @@ public class MyGdxGame extends ApplicationAdapter  implements  StageInterface{
 
 	@Override
 	public void render() {
+		spriteBatch.setProjectionMatrix(viewport.getCamera().combined);
+		shapeRenderer.setProjectionMatrix(viewport.getCamera().combined);
 		Gdx.gl.glClearColor(0, 1, 0, 1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 		shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
 		shapeRenderer.rect(0,
 				0,
-				Gdx.graphics.getWidth(), Gdx.graphics.getHeight(),
+				WORLDWIDTH, WORLDHEIGHT,
 				Color.RED, Color.GREEN, Color.BLUE, Color.WHITE);
 		shapeRenderer.end();
 		/*
@@ -86,6 +106,12 @@ public class MyGdxGame extends ApplicationAdapter  implements  StageInterface{
 	public void resize(int width, int height) {
 		//titleStage.getViewport().update(width,height);
 		Gdx.app.log("Example","resize");
+		Gdx.app.log("Example","Gdx.graphics.getHeight() ="+Gdx.graphics.getHeight());
+		Gdx.app.log("Example","Gdx.graphics.getWidth() ="+Gdx.graphics.getWidth());
+		Gdx.app.log("Example","WORLDHEIGHT ="+WORLDHEIGHT);
+		Gdx.app.log("Example","WORLDWIDTH ="+WORLDWIDTH);
+		camera.update();
+		viewport.apply();
 	}
 
 
@@ -109,6 +135,10 @@ public class MyGdxGame extends ApplicationAdapter  implements  StageInterface{
 		switch (stage) {
 			case TITLESTAGE :{
 				titleStage.setVisible(true);
+				Gdx.app.log("Example","Gdx.graphics.getHeight() ="+Gdx.graphics.getHeight());
+				Gdx.app.log("Example","Gdx.graphics.getWidth() ="+Gdx.graphics.getWidth());
+				Gdx.app.log("Example","WORLDHEIGHT ="+WORLDHEIGHT);
+				Gdx.app.log("Example","WORLDWIDTH ="+WORLDWIDTH);
 				Gdx.input.setInputProcessor(titleStage);
 				break;
 			}

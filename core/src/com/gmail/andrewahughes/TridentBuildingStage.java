@@ -6,8 +6,12 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.viewport.Viewport;
 
 import java.util.HashMap;
+
+import static com.gmail.andrewahughes.MyGdxGame.WORLDHEIGHT;
+import static com.gmail.andrewahughes.MyGdxGame.WORLDWIDTH;
 
 public class TridentBuildingStage extends Stage {
 
@@ -19,14 +23,19 @@ public class TridentBuildingStage extends Stage {
     ShapeRenderer shapeRenderer;
     static Array<CardButton> cardButtonArray = new Array<CardButton>();
     static Array<TriButton> triButtonArray = new Array<TriButton>();
-    public TridentBuildingStage(StageInterface stageInterface )
+    public TridentBuildingStage(StageInterface stageInterface, Viewport viewport, SpriteBatch batch,ShapeRenderer shapeRenderer)
     {
         this.stageInterface =stageInterface;
-        this.spriteBatch =new SpriteBatch();
-        this.shapeRenderer = new ShapeRenderer();
+
+        this.shapeRenderer = shapeRenderer;
+
+        this.setViewport(viewport);
+        this.spriteBatch = batch;
+
+
+        viewport.update(WORLDWIDTH, WORLDHEIGHT, true);
+
         createButtons();
-
-
 
     }
     @Override
