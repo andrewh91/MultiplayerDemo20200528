@@ -39,14 +39,20 @@ public class MatchMakingStage extends Stage {
         if (visible)
         {
             this.getViewport().apply();
-            Gdx.gl.glClearColor(1.0f, 1.0f, 0.0f, 1);
+            Gdx.gl.glClearColor(0.70f, 0.70f, 0.0f, 1);
             Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
             spriteBatch.begin();
+            MyServer.drawPlayers(spriteBatch);
             /*draw all actors of this stage*/
             drawTriButtons();
             spriteBatch.end();
             shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+            /*draw a box around the screen 1280 by 720 WORLDWIDTH, WORLDHEIGHT*/
+            shapeRenderer.line(1    ,1      ,719    ,1);
+            shapeRenderer.line(719  ,1      ,719    ,1279);
+            shapeRenderer.line(719  ,1279   ,1      ,1279);
+            shapeRenderer.line(1    ,1279   ,1      ,1);
             /*draw all actors of this stage*/
             drawTriButtonsShape();
             shapeRenderer.end();
@@ -82,9 +88,9 @@ public class MatchMakingStage extends Stage {
          * when adding to the array the method actually inserts it in the array at the enum.value index
          * this means if we add the buttons out of order it will cause an error, which is good because
          * then i can make sure the buttons are in the correct order*/
-        stageInterface.addTriButton(new TriButton(stageInterface,50,250,false,StageInterface.MATCHMAKINGSTAGE, ButtonEnum.Tri.MATCHMAKINGNEXTSTAGE),triButtonArray,this);
+        stageInterface.addTriButton(new TriButton(stageInterface,0,0,false,StageInterface.MATCHMAKINGSTAGE, ButtonEnum.Tri.MATCHMAKINGNEXTSTAGE),triButtonArray,this);
         stageInterface.getTriButton(triButtonArray,ButtonEnum.Tri.MATCHMAKINGNEXTSTAGE).setText("Deal");
-        stageInterface.getTriButton(triButtonArray,ButtonEnum.Tri.MATCHMAKINGNEXTSTAGE).setTridentToTextSize();
+        //stageInterface.getTriButton(triButtonArray,ButtonEnum.Tri.MATCHMAKINGNEXTSTAGE).setTridentToTextSize();
 
     }
     /**

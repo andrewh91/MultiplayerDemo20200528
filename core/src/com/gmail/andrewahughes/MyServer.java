@@ -46,7 +46,7 @@ public class MyServer {
         if(created==false){
 
             created=true;
-            spriteBatch = new SpriteBatch();
+            /*spriteBatch = new SpriteBatch();*/
             bitmapFont = new BitmapFont();
             shapeRenderer = new ShapeRenderer();
             friendlyPlayers = new HashMap<String, Player>();
@@ -62,19 +62,19 @@ public class MyServer {
      * don't really need a draw method, i don't think,
      */
     public static void update(){
-
         handleInput(Gdx.graphics.getDeltaTime());
         updateServer(Gdx.graphics.getDeltaTime());
+        /*
         spriteBatch.begin();
         drawPlayers();
         spriteBatch.end();
-
+        */
     }
-    public static void drawPlayers(){
+    public static void drawPlayers(SpriteBatch spriteBatch){
         if(player != null){
             player.draw(spriteBatch);
             bitmapFont.draw(spriteBatch,"[bottomleft] x: "+player.getX()+" y: "+player.getY(),10,20);
-            bitmapFont.draw(spriteBatch," [topleft] x: "+player.getX()+" y: "+player.getY(),10,WORLDHEIGHT-20);
+            bitmapFont.draw(spriteBatch," [topleft] x: "+player.getX()+" y: "+player.getY(),10,1280-20);
         }
         /*for each entry in the hash map, get the value, which remember
          * is a starship class, and call the function draw to draw that
@@ -91,7 +91,7 @@ public class MyServer {
         if(player != null) {
             if (Gdx.input.isTouched()) {
 
-                player.setPosition(Gdx.input.getX(), WORLDHEIGHT-Gdx.input.getY());
+                player.setPosition(Gdx.input.getX(), 1280-Gdx.input.getY());
             }
         }
     }

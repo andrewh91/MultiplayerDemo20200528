@@ -165,6 +165,7 @@ public class MyGdxGame extends ApplicationAdapter  implements  StageInterface{
 				break;
 			}
 			case TRIDENTBUILDINGSTAGE :{
+
 				tridentBuildingStage.setVisible(true);
 				/*all of the tridentStage should have been set up in the deal stage
 				* so we just need to amend some values*/

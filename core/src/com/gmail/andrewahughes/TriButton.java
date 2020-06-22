@@ -17,7 +17,9 @@ public class TriButton extends Actor {
     private static boolean POINTUP = true;
     private static boolean POINTDOWN = false;
     boolean orientation = POINTDOWN;
-    float edgeLength = 50.0f;
+
+    boolean drawMirror=false;
+    float edgeLength = 130;
     /*the altitude of an equilateral triangle will always be edgelength * 0.86602540378443864676372317075294 = sin(60)*/
     float altitude = (float)(edgeLength * Math.sin(Math.PI/3));
     float halfEdgeLength = edgeLength/2;
@@ -44,6 +46,7 @@ public class TriButton extends Actor {
      */
     public TriButton(StageInterface stageInterface, float startingX, float startingY, boolean isPointUp, final byte stageIndex, ButtonEnum.Tri triButtonIndex)
     {
+        font.getData().setScale(2);
         texture = new Texture(Gdx.files.internal("badlogic.jpg"));
         orientation = isPointUp;
         this.stageIndex=stageIndex;
@@ -95,6 +98,7 @@ public class TriButton extends Actor {
                 glyphLayout.setText(font, text);
                 /*draw the text centred in the x axis, and at the top if it's POINTDOWN and at the bottom if it's POINTUP*/
                 font.draw(batch, text, getX() + halfEdgeLength - glyphLayout.width / 2, getY() + (orientation ? +altitude * textMargin + glyphLayout.height : +altitude * (1 - textMargin)));
+
             }
         }
 
@@ -117,6 +121,28 @@ public class TriButton extends Actor {
                         getY() + altitude,
                         getX() + halfEdgeLength,
                         getY());
+            }
+            /*to help the player realise how orientation works
+            * i want to draw a mirror image of the trident hand*/
+            if(drawMirror){
+                if (orientation == POINTDOWN) {
+                    shapeRenderer.triangle(
+                            getX(),
+                            getY()+altitude,
+                            getX() + halfEdgeLength,
+                            getY() + altitude+altitude,
+                            getX() + edgeLength,
+                            getY()+altitude);
+                } else if (orientation == POINTUP) {
+                    shapeRenderer.triangle(
+                            getX(),
+                            getY() + altitude-altitude,
+                            getX() + edgeLength,
+                            getY() + altitude-altitude,
+                            getX() + halfEdgeLength,
+                            getY()-altitude);
+                }
+
             }
         }
     }
@@ -187,8 +213,8 @@ public class TriButton extends Actor {
     public void touchLogic(float x, float y)
     {
 
-        setX( x);
-        setY( y);
+        //setX( x);
+        //setY( y);
         switch(this.stageIndex)
         {
             case StageInterface.TITLESTAGE:
@@ -286,7 +312,7 @@ public class TriButton extends Actor {
         }
 
     }
-    private void updateBounds() {
+    public void updateBounds() {
         /*the altitude of an equilateral triangle will always be edgelength * 0.86602540378443864676372317075294 = sin(60)*/
         altitude = (float)(edgeLength * Math.sin(Math.PI/3));
         halfEdgeLength = edgeLength/2;

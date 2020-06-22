@@ -11,8 +11,6 @@ import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 
-import static com.gmail.andrewahughes.MyGdxGame.WORLDHEIGHT;
-import static com.gmail.andrewahughes.MyGdxGame.WORLDWIDTH;
 
 
 public class CardButton  extends Actor {
@@ -29,7 +27,7 @@ public class CardButton  extends Actor {
     byte position = VERTICAL;
 
     /*the longest edge length, should be the same as the edge length of the trident*/
-    static float edgeLength = 50;
+    static public float edgeLength = 130;
     /*assuming the isosceles card shape has the longest edge parallel to the horizon
     * the altitude is tan(30) * edgeLength /2    = 0.28867513459481288225457439025098 * edgeLength*/
     static float altitude = (float)( Math.tan(Math.PI/6) * edgeLength /2);
@@ -56,9 +54,9 @@ public class CardButton  extends Actor {
     static float dealAnimationRectangleDisplayY =0;
     static float dealAnimationRectangleDealX =0;
     static float dealAnimationRectangleDealY =0;
-    static float dealAnimationRectangleWidth=WORLDWIDTH;
-    static float dealAnimationRectangleHeight=WORLDHEIGHT;
-    static float dealAnimationTridentEdgeLength=50f;
+    static float dealAnimationRectangleWidth=720;
+    static float dealAnimationRectangleHeight=1280;
+    static float dealAnimationTridentEdgeLength=130f;
 
     static float dealAnimationRowMargin=10;
 
@@ -91,7 +89,9 @@ public class CardButton  extends Actor {
      */
     public CardButton(StageInterface stageInterface,float startingX, float startingY, boolean isPointUp, byte position, final byte stageIndex, ButtonEnum.Card cardButtonIndex)
     {
-        texture = new Texture(Gdx.files.internal("badlogic.jpg"));
+        font.getData().setScale(2);
+        fadeFont.getData().setScale(2);
+        //texture = new Texture(Gdx.files.internal("badlogic.jpg"));
         orientation = isPointUp;
         this.position = position;
         this.stageIndex = stageIndex;
@@ -241,14 +241,14 @@ public class CardButton  extends Actor {
      */
     public void overlapAnimation(float percentage){
         if(percentage<=0.5f){
-            setX(getX()+((dealAnimationRectangleDisplayX +dealAnimationRectangleWidth/2 ) - getX())*(percentage*2));
+            setX(getX()+((dealAnimationRectangleDisplayX +dealAnimationRectangleWidth/2 -edgeLength/2) - getX())*(percentage*2));
         }
         else if(percentage<1) {
-            setX(dealAnimationRectangleDisplayX +dealAnimationRectangleWidth/2 );
+            setX(dealAnimationRectangleDisplayX +dealAnimationRectangleWidth/2 -edgeLength/2);
             setY(getY() + ((dealAnimationRectangleDisplayY + dealAnimationRectangleHeight / 2) - getY()) * (percentage-0.5f)*2);
         }
         else{
-            setX(dealAnimationRectangleDisplayX +dealAnimationRectangleWidth/2 );
+            setX(dealAnimationRectangleDisplayX +dealAnimationRectangleWidth/2-edgeLength/2 );
             setY(dealAnimationRectangleDisplayY +dealAnimationRectangleHeight/2 );
         }
     }
@@ -409,17 +409,18 @@ public class CardButton  extends Actor {
             dealAnimationTridentEdgeLength=altEdgeLength;
         }
         edgeLength=dealAnimationTridentEdgeLength;
+
         /*now work out how to centre the grid of tridents*/
         float triGridWidth = dealAnimationTridentEdgeLength*2.5f;
-        float triGridHeight = (float)(dealAnimationTridentEdgeLength * 5 * Math.sin(Math.PI/3));
+        float triGridHeight = (float)(dealAnimationTridentEdgeLength * 4 * Math.sin(Math.PI/3));
         dealAnimationRectangleDisplayX = dealAnimationRectangleDisplayX + dealAnimationRectangleWidth/2f - triGridWidth/2f;
-        dealAnimationRectangleDisplayY = dealAnimationRectangleDisplayY + dealAnimationRectangleHeight/2f - triGridHeight/2f;
+        dealAnimationRectangleDisplayY = dealAnimationRectangleDisplayY + dealAnimationRectangleHeight/2f - triGridHeight/2f-(float)(dealAnimationTridentEdgeLength * Math.sin(Math.PI/3));
     }
 
     /**
      * this is a helper method to set up the vertical, left or right position,
      * the x and y position, and orientation, for when the cards are displayed in the dealStage
-     * the app should appear in portrait mode and be roughly 720 by 1280
+     * the app should appear in portrait mode and be 720 by 1280
      */
     public void setDealAnimationValues(int index){
         /*the size of the cards will have been amended before calling this method
@@ -473,17 +474,19 @@ public class CardButton  extends Actor {
         /*if the cardbutton belongs to the current player*/
         if(playerIndex==MyServer.player.index){
             /*need to reserve space at the top of the rectangle for trident hand*/
+            /*this helps figure out what suit each card is in*/
                 dealAnimationSuit=(byte)(dealAnimationPreviousSuit==getSuit()?dealAnimationSuit+1:-1);
-                dealAnimationPreviousSuit=getSuit();dealAnimationPositionY = WORLDHEIGHT-(+dealAnimationTridentHandHeight+(dealAnimationTridentHeight+dealAnimationRowMargin) *getSuit());
+                dealAnimationPreviousSuit=getSuit();
+                dealAnimationPositionY = 1280-(+dealAnimationTridentHandHeight+dealAnimationTridentHeight+(dealAnimationTridentHeight+dealAnimationRowMargin) *getSuit());
                 dealAnimationPositionX = (float)(dealAnimationRectangleDealX +(dealAnimationTridentWidth*0.5f*Math.floor(dealAnimationSuit/3)));
                 orientation= getSuit()%2==0 ? (Math.floor(dealAnimationSuit/3)%2==0?POINTUP:POINTDOWN) : (Math.floor(dealAnimationSuit/3)%2==0?POINTDOWN:POINTUP);
                 position=(byte)(dealAnimationSuit%3);
         }
         else if(playerIndex==(MyServer.player.index-1%3)){
-            dealAnimationPositionX = -WORLDWIDTH;
+            dealAnimationPositionX = -720;
         }
         else if(playerIndex==(MyServer.player.index+1%3)){
-            dealAnimationPositionX = WORLDWIDTH*2;
+            dealAnimationPositionX = 720*2;
         }
     }
 
@@ -493,11 +496,12 @@ public class CardButton  extends Actor {
      * of the trident hand plus row margin *2 + dealAnimationRectangleY
      */
     public static void setTridentHandHeight(){
-        dealAnimationTridentWidth =dealAnimationRectangleWidth/5f;
+        dealAnimationTridentWidth =dealAnimationRectangleWidth/5;
         edgeLength=dealAnimationTridentWidth;
-        updateBounds();
         dealAnimationTridentHeight =(float)(dealAnimationTridentWidth*Math.sin(Math.PI/3));
-        dealAnimationTridentHandHeight = dealAnimationRectangleDealY + dealAnimationTridentHeight *3+dealAnimationRowMargin*2;
+        dealAnimationRowMargin = (dealAnimationRectangleHeight - (dealAnimationTridentHeight*7)) / 4.5f;
+        updateBounds();
+        dealAnimationTridentHandHeight = dealAnimationRowMargin + dealAnimationTridentHeight *3;
     }
 
     /**

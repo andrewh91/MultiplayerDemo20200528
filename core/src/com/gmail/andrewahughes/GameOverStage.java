@@ -49,6 +49,11 @@ public class GameOverStage extends Stage {
             drawTriButtons();
             spriteBatch.end();
             shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+            /*draw a box around the screen 1280 by 720 WORLDWIDTH, WORLDHEIGHT*/
+            shapeRenderer.line(1    ,1      ,719    ,1);
+            shapeRenderer.line(719  ,1      ,719    ,1279);
+            shapeRenderer.line(719  ,1279   ,1      ,1279);
+            shapeRenderer.line(1    ,1279   ,1      ,1);
             /*draw all actors of this stage*/
             drawTriButtonsShape();
             shapeRenderer.end();
@@ -83,9 +88,9 @@ public class GameOverStage extends Stage {
          * when adding to the array the method actually inserts it in the array at the enum.value index
          * this means if we add the buttons out of order it will cause an error, which is good because
          * then i can make sure the buttons are in the correct order*/
-        stageInterface.addTriButton(new TriButton(stageInterface,50,250,false,StageInterface.GAMEOVERSTAGE, ButtonEnum.Tri.GAMEOVERNEXTSTAGE),triButtonArray,this);
+        stageInterface.addTriButton(new TriButton(stageInterface,0,0,false,StageInterface.GAMEOVERSTAGE, ButtonEnum.Tri.GAMEOVERNEXTSTAGE),triButtonArray,this);
         stageInterface.getTriButton(triButtonArray,ButtonEnum.Tri.GAMEOVERNEXTSTAGE).setText("Title");
-        stageInterface.getTriButton(triButtonArray,ButtonEnum.Tri.GAMEOVERNEXTSTAGE).setTridentToTextSize();
+        //stageInterface.getTriButton(triButtonArray,ButtonEnum.Tri.GAMEOVERNEXTSTAGE).setTridentToTextSize();
 
     }
     /**

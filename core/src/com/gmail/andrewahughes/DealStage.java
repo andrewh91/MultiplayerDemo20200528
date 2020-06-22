@@ -83,11 +83,22 @@ public class DealStage extends Stage {
             Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
             spriteBatch.begin();
+            MyServer.drawPlayers(spriteBatch);
             /*draw all actors of this stage*/
             drawTriButtons();
             drawAnimation();
             spriteBatch.end();
             shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+            /*draw a box around the screen 1280 by 720 WORLDWIDTH, WORLDHEIGHT*/
+            shapeRenderer.line(1    ,1      ,719    ,1);
+            shapeRenderer.line(719  ,1      ,719    ,1279);
+            shapeRenderer.line(719  ,1279   ,1      ,1279);
+            shapeRenderer.line(1    ,1279   ,1      ,1);
+            /*this is the dealAnimationRectangle*/
+            shapeRenderer.line(35    ,35      ,685     ,35);
+            shapeRenderer.line(685   ,35      ,685     ,1245);
+            shapeRenderer.line(685   ,1245    ,35      ,1245);
+            shapeRenderer.line(35    ,1245    ,35      ,35);
             /*draw all actors of this stage*/
             drawTriButtonsShape();
             drawAnimationShape();
@@ -127,11 +138,16 @@ public class DealStage extends Stage {
                 CardButton.setTridentHandHeight();
                 for (int i = 0; i < Deck.cardArray.size; i++) {
                     TridentBuildingStage.cardButtonArray.get(i).setText();
+                    TridentBuildingStage.cardButtonArray.get(i).edgeLength = CardButton.dealAnimationTridentEdgeLength/2;
+                    TridentBuildingStage.cardButtonArray.get(i).updateBounds();
                     TridentBuildingStage.cardButtonArray.get(i).setDealAnimationPosition();
                 }
+                /*the TRIDENTBUILDINGSTAGE has a trident hand big enough for 9 tridents
+                * but if we are using less than that many keep the others invisible*/
+                TridentBuildingStage.updatePlayerTridentHand();
             }
             /*fade the text back in as the cards move to their player's card hand*/
-            CardButton.fadeFont.setColor(1,1,1,((animationTimer-ANIMATIONDEALCARDSTIMER+ANIMATIONOVERLAPCARDSTIMER)/ANIMATIONDEALCARDSTIMER*4));
+            CardButton.fadeFont.setColor(1,1,1,((animationTimer-ANIMATIONDEALCARDSTIMER-ANIMATIONOVERLAPCARDSTIMER-1)/ANIMATIONDEALCARDSTIMER*4));
             /* actually don't fade the text back in until we've resolved par*/
 
             for (int i = 0; i < Deck.cardArray.size; i++) {
@@ -160,6 +176,8 @@ public class DealStage extends Stage {
         * position in their player's card hand*/
         else if (ANIMATIONSTAGE == ANIMATIONDEALCARDS ){
             animationTimer+=Gdx.graphics.getDeltaTime();
+
+            TridentBuildingStage.drawTriButtons(spriteBatch);
             if(OptionsStage.openMode ) {
                 for (int i = 0; i < Deck.cardArray.size; i++) {
                     TridentBuildingStage.cardButtonArray.get(i).draw(spriteBatch, 1.0f);
@@ -182,6 +200,8 @@ public class DealStage extends Stage {
             }
         }
         if (ANIMATIONSTAGE == ANIMATIONDEALCARDS) {
+
+            TridentBuildingStage.drawTriButtonsShape(shapeRenderer);
             for (int i = 0; i < Deck.cardArray.size; i++) {
                 TridentBuildingStage.cardButtonArray.get(i).drawShape(shapeRenderer);
             }
@@ -214,11 +234,11 @@ public class DealStage extends Stage {
          * then i can make sure the buttons are in the correct order*/
         stageInterface.addTriButton(new TriButton(stageInterface, 0, 0, false, StageInterface.DEALSTAGE, ButtonEnum.Tri.DEALNEXTSTAGE), triButtonArray, this);
         stageInterface.getTriButton(triButtonArray, ButtonEnum.Tri.DEALNEXTSTAGE).setText("Trident\nBuilding");
-        stageInterface.getTriButton(triButtonArray, ButtonEnum.Tri.DEALNEXTSTAGE).setTridentToTextSize();
+        //stageInterface.getTriButton(triButtonArray, ButtonEnum.Tri.DEALNEXTSTAGE).setTridentToTextSize();
 
-        stageInterface.addTriButton(new TriButton(stageInterface, WORLDWIDTH / 2, WORLDHEIGHT / 2, true, StageInterface.DEALSTAGE, ButtonEnum.Tri.DEALBEGINDEAL), triButtonArray, this);
-        stageInterface.getTriButton(triButtonArray, ButtonEnum.Tri.DEALBEGINDEAL).setText("Begin Deal");
-        stageInterface.getTriButton(triButtonArray, ButtonEnum.Tri.DEALBEGINDEAL).setTridentToTextSize();
+        stageInterface.addTriButton(new TriButton(stageInterface, 720 / 2, 1280 / 2, true, StageInterface.DEALSTAGE, ButtonEnum.Tri.DEALBEGINDEAL), triButtonArray, this);
+        stageInterface.getTriButton(triButtonArray, ButtonEnum.Tri.DEALBEGINDEAL).setText("Begin\nDeal");
+        ///stageInterface.getTriButton(triButtonArray, ButtonEnum.Tri.DEALBEGINDEAL).setTridentToTextSize();
         stageInterface.getTriButton(triButtonArray, ButtonEnum.Tri.DEALBEGINDEAL).centre();
 
     }
@@ -323,7 +343,7 @@ public class DealStage extends Stage {
     public void amendCardsForDealStageAnimation() {
         /*this will set up a rectangle in which the card buttons will be arranged for the
          * deal animation*/
-        CardButton.setDealAnimationRectangle(50, 50, WORLDWIDTH - 100, WORLDHEIGHT - 100);
+        CardButton.setDealAnimationRectangle(35, 35, 720 - 70, 1280 - 70);
         CardButton.updateBounds();
         /*loop through the tridentBuildingStage's cardButtonArray setting all the values
          * so the cardButtons are spread out and oriented correctly */

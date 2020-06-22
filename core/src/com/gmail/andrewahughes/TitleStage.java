@@ -53,7 +53,6 @@ public class TitleStage extends Stage {
             spriteBatch.setProjectionMatrix(MyGdxGame.viewport.getCamera().combined);
 
             /*draw all actors of this stage*/
-            font.draw(spriteBatch,"x:"+(int)Gdx.input.getX()+" y:"+(int)Gdx.input.getY(),Gdx.input.getX(),Gdx.input.getY());
             drawTriButtons();
 
             spriteBatch.end();
@@ -61,10 +60,10 @@ public class TitleStage extends Stage {
 
             shapeRenderer.setProjectionMatrix(MyGdxGame.viewport.getCamera().combined);
             /*draw a box around the screen 1280 by 720 WORLDWIDTH, WORLDHEIGHT*/
-            shapeRenderer.line(720*0.1f,1280*0.1f,720*0.9f,1280*0.1f);
-            shapeRenderer.line(720*0.9f,1280*0.1f,720*0.9f,1280*0.9f);
-            shapeRenderer.line(720*0.9f,1280*0.9f,720*0.1f,1280*0.9f);
-            shapeRenderer.line(720*0.1f,1280*0.9f,720*0.1f,1280*0.1f);
+            shapeRenderer.line(1    ,1      ,719    ,1);
+            shapeRenderer.line(719  ,1      ,719    ,1279);
+            shapeRenderer.line(719  ,1279   ,1      ,1279);
+            shapeRenderer.line(1    ,1279   ,1      ,1);
             /*draw all actors of this stage*/
             drawTriButtonsShape();
             shapeRenderer.end();
@@ -100,13 +99,14 @@ public class TitleStage extends Stage {
          * when adding to the array the method actually inserts it in the array at the enum.value index
          * this means if we add the buttons out of order it will cause an error, which is good because
          * then i can make sure the buttons are in the correct order*/
-        stageInterface.addTriButton(new TriButton(stageInterface,25,200,true,StageInterface.TITLESTAGE, ButtonEnum.Tri.TITLEEXIT),triButtonArray,this);
+        stageInterface.addTriButton(new TriButton(stageInterface,720/2,1280/3,true,StageInterface.TITLESTAGE, ButtonEnum.Tri.TITLEEXIT),triButtonArray,this);
         stageInterface.getTriButton(triButtonArray,ButtonEnum.Tri.TITLEEXIT).setText("Exit");
-        stageInterface.getTriButton(triButtonArray,ButtonEnum.Tri.TITLEEXIT).setTridentToTextSize();
-        stageInterface.addTriButton(new TriButton(stageInterface,100,200,false,StageInterface.TITLESTAGE, ButtonEnum.Tri.TITLEOTHER),triButtonArray,this);
-        stageInterface.addTriButton(new TriButton(stageInterface,50,200,false,StageInterface.TITLESTAGE, ButtonEnum.Tri.TITLENEXTSTAGE),triButtonArray,this);
+        stageInterface.getTriButton(triButtonArray,ButtonEnum.Tri.TITLEEXIT).centre();
+        //stageInterface.getTriButton(triButtonArray,ButtonEnum.Tri.TITLEEXIT).setTridentToTextSize();
+       stageInterface.addTriButton(new TriButton(stageInterface,720/2,1280/3*2,false,StageInterface.TITLESTAGE, ButtonEnum.Tri.TITLENEXTSTAGE),triButtonArray,this);
         stageInterface.getTriButton(triButtonArray,ButtonEnum.Tri.TITLENEXTSTAGE).setText("Options");
-        stageInterface.getTriButton(triButtonArray,ButtonEnum.Tri.TITLENEXTSTAGE).setTridentToTextSize();
+        stageInterface.getTriButton(triButtonArray,ButtonEnum.Tri.TITLENEXTSTAGE).centre();
+        //stageInterface.getTriButton(triButtonArray,ButtonEnum.Tri.TITLENEXTSTAGE).setTridentToTextSize();
 
 
 
@@ -142,10 +142,6 @@ public class TitleStage extends Stage {
         switch(triButtonIndex){
             case TITLEEXIT: {
                 Gdx.app.log("Example", "EXIT "+triButtonIndex.value);
-                break;
-            }
-            case TITLEOTHER: {
-                Gdx.app.log("Example", "OTHER "+triButtonIndex.value);
                 break;
             }
             case TITLENEXTSTAGE: {

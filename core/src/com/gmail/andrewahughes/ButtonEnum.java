@@ -9,8 +9,7 @@ public class ButtonEnum {
     */
     enum Tri {
         TITLEEXIT                   (0),
-        TITLEOTHER                  (1),
-        TITLENEXTSTAGE              (2),
+        TITLENEXTSTAGE              (1),
 
         /*buttons for a new stage must begin again at value 0*/
         OPTIONSNEXTSTAGE            (0),
@@ -21,6 +20,15 @@ public class ButtonEnum {
         DEALBEGINDEAL               (1),
 
         TRIDENTBUILDINGNEXTSTAGE    (0),
+        TRIDENTBUILDINGPLAYERTRIDENTARRAY1    (1),
+        TRIDENTBUILDINGPLAYERTRIDENTARRAY2    (2),
+        TRIDENTBUILDINGPLAYERTRIDENTARRAY3    (3),
+        TRIDENTBUILDINGPLAYERTRIDENTARRAY4    (4),
+        TRIDENTBUILDINGPLAYERTRIDENTARRAY5    (5),
+        TRIDENTBUILDINGPLAYERTRIDENTARRAY6    (6),
+        TRIDENTBUILDINGPLAYERTRIDENTARRAY7    (7),
+        TRIDENTBUILDINGPLAYERTRIDENTARRAY8    (8),
+        TRIDENTBUILDINGPLAYERTRIDENTARRAY9    (9),
 
         GAMENEXTSTAGE               (0),
 
