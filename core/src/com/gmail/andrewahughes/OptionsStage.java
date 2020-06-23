@@ -41,7 +41,7 @@ public class OptionsStage extends Stage {
     /**
      * number of players will be either 2 or 3
      */
-    public static byte numberOfPlayers = 2;
+    public static byte numberOfPlayers = 3;
     public static boolean preAndPostGameCard = true;
     public OptionsStage(StageInterface stageInterface, Viewport viewport, SpriteBatch batch,ShapeRenderer shapeRenderer)
     {

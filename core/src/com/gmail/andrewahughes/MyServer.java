@@ -115,6 +115,29 @@ public class MyServer {
         }
 
     }
+
+    /**
+     * this will be called in the deal stage after the cards have been dealt,
+     * emit that data to the other players
+     */
+    public static void emitDeal(){
+        JSONObject data = new JSONObject();
+        try{
+            /*data needs to contain the value 'v' of each card and who owns 'p' that card*/
+            for(int i =0; i <52; i++) {
+                data.put("v"+i,TridentBuildingStage.cardButtonArray.get(i).value);
+                data.put("p"+i,TridentBuildingStage.cardButtonArray.get(i).playerIndex);
+            }
+
+            /*the player emits data to the server here
+             * the server has a corresponding method to
+             * interpret this data*/
+            socket.emit("emitDealDataToServer",data);
+
+        } catch(JSONException e) {
+            Gdx.app.log("SOCKET.IO","Error sending deal data");
+        }
+    }
     public static void connectSocket() {
         try {
             socket = IO.socket("http://192.168.1.6:8080");
@@ -155,9 +178,12 @@ public class MyServer {
                     /*put the new player's id and the starship class in our hashmap*/
                     friendlyPlayers.put(playerId, new Player(friendlyShip));
                     Gdx.app.log("SocketIO", "total players in hashmap: " + friendlyPlayers.size());
-                    /*call the gotAllPlayers method which will set the player indexes
-                    * if we have the correct number of players*/
-                    gotAllPlayers();
+                    for(HashMap.Entry<String, Player> entry : friendlyPlayers.entrySet()){
+
+                        Gdx.app.log("SocketIO", "new player: hashmap ids : " + entry.getKey());
+                    }
+
+
                 }catch(JSONException e){
                     Gdx.app.log("SocketIO", "Error getting New PlayerID");
                 }
@@ -199,6 +225,55 @@ public class MyServer {
                 }catch(JSONException e){
                 }
             }
+        }).on("emitDealDataToPlayers", new Emitter.Listener() {
+            @Override
+            public void call(Object... args) {
+                /*player 1 will have called emitDeal,
+                that will have called emitDealDataToServer
+                when the server receives that emitDealDataToServer
+                it calls emitDealDataToPlayers
+                each player listens for the emitDealDataToPlayers
+                emitDealDataToPlayers is received here
+                 */
+                JSONObject data = (JSONObject) args[0];
+                try {
+
+                    TridentBuildingStage.cardButtonArray.get(0).value= data.getInt("v");
+                    TridentBuildingStage.cardButtonArray.get(0).playerIndex= data.getInt("p");
+
+
+                }catch(JSONException e){
+                }
+            }
+        }).on("emitPlayerIndexToPlayers", new Emitter.Listener() {
+            @Override
+            public void call(Object... args) {
+                /*when the number of players equals the number of players needed
+                players will emit the player indexes, they are always just 0,1,2
+                server will send player id and index, so set this player's index
+                to the index paired with the player's id
+                 */
+                Gdx.app.log("Server: ", " call emitPlayerIndexToPlayers");
+                JSONObject data = (JSONObject) args[0];
+                Gdx.app.log("Server: ", " data "+data);
+
+                try {
+
+                    if(id.equals(data.getString("id0"))) {
+                        player.index = data.getInt("index0");
+                    }
+                    else if(id.equals(data.getString("id1"))) {
+                        player.index = data.getInt("index1");
+                    }
+                    else if(id.equals(data.getString("id2"))) {
+                        player.index = data.getInt("index2");
+                    }
+
+                    Gdx.app.log("Server: ", " player.index " + player.index);
+
+                }catch(JSONException e){
+                }
+            }
         }).on("getPlayers", new Emitter.Listener() {
             /*getPlayers is for when the new player arrives and needs to know the
              * info about all the players that were there before it*/
@@ -220,6 +295,12 @@ public class MyServer {
                         coopPlayer.setPosition(position.x, position.y);
                         /*add the new starship to the hash map*/
                         friendlyPlayers.put(objects.getJSONObject(i).getString("id"), coopPlayer);
+                        Gdx.app.log("SocketIO", "current Players: " + objects.getJSONObject(i).getString("id")+ " index "+objects.getJSONObject(i).getString("index"));
+                        for(HashMap.Entry<String, Player> entry : friendlyPlayers.entrySet()){
+
+                            Gdx.app.log("SocketIO", "get players: hashmap ids : " + entry.getKey());
+                        }
+
                     }
                 } catch(JSONException e){
 
@@ -239,16 +320,45 @@ public class MyServer {
     }
 
     /**
-     * called when a new player is added, this will test to see if we have the
+     * called when when a player clicks deal stage button
+     * , this will test to see if we have the
      * specified number of players, if so it will give them either a 0,1 or 2 index
      */
-    public static void gotAllPlayers(){
+    public static boolean gotAllPlayers(){
+        Gdx.app.log("SocketIO", " call gotAllPlayers hashmap size = "+friendlyPlayers.size()+" num  of players needed = "+ (OptionsStage.numberOfPlayers-1));
+
+        /*if we have the right number of players*/
         if(friendlyPlayers.size() == OptionsStage.numberOfPlayers){
-            byte i =0;
-            for(HashMap.Entry<String, Player> entry : friendlyPlayers.entrySet()){
-                entry.getValue().setIndex(i);
-                i++;
+                /*the player emits data to the server here
+                 * this will trigger the server sending data back*/
+            JSONObject data = new JSONObject();
+            try{
+                data.put("size",friendlyPlayers.size());
+                data.put("index0",0);
+                data.put("id0",0);
+                data.put("index1",1);
+                data.put("id1",1);
+                if(friendlyPlayers.size() == 3) {
+
+                    data.put("index2", 2);
+                    data.put("id2", 2);
+                }
+                /*the player emits data to the server here
+                 * the server has a corresponding method to
+                 * interpret this data*/
+                socket.emit("emitPlayerIndexToServer",data);
+                Gdx.app.log("SocketIO", " call emitPlayerIndexToServer");
+                return true;
+
+
+            } catch(JSONException e) {
+                Gdx.app.log("SOCKET.IO","Error sending index data");
+                return false;
             }
         }
+        else {
+            return false;
+        }
     }
+
 }

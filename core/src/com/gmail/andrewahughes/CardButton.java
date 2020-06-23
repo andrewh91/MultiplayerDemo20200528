@@ -72,13 +72,13 @@ public class CardButton  extends Actor {
     static byte dealAnimationSuit =-1;
     static byte dealAnimationPreviousSuit =0;
 
-    byte value;
+    int value;
 
     /*when the cards are dealt to the player, all that happens is this
     * variable is set to the player's index, which will be used in the
-    * touch logic, deafult is 0 so we know it doesn't have a player,
+    * touch logic, default is 0 so we know it doesn't have a player,
     * otherwise value will be 1, 2 or 3*/
-    byte playerIndex =0;
+    int playerIndex =0;
 
     /**constructor for triButton
      *
@@ -258,8 +258,7 @@ public class CardButton  extends Actor {
      * been set in setDealAnimationPosition method
      */
     public void moveToPositionAnimation(float percentage){
-        /*first we need to work out the correct position for this cardButton based
-        * on the playerIndex and the index - as well as the numberOfPlayers*/
+        /*first we need to work out the correct position for this cardButton */
 
         if(percentage<=0.5f){
             setX(getX()+((dealAnimationPositionX) - getX())*(percentage*2));

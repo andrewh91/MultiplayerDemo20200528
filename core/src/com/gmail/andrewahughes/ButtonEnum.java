@@ -18,6 +18,9 @@ public class ButtonEnum {
 
         DEALNEXTSTAGE               (0),
         DEALBEGINDEAL               (1),
+        DEALINCREASEPAR             (2),
+        DEALDECREASEPAR             (3),
+        DEALCONFIRMPAR              (4),
 
         TRIDENTBUILDINGNEXTSTAGE    (0),
         TRIDENTBUILDINGPLAYERTRIDENTARRAY1    (1),

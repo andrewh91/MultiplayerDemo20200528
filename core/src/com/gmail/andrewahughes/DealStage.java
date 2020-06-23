@@ -42,10 +42,14 @@ public class DealStage extends Stage {
      */
     final static float ANIMATIONOVERLAPCARDSTIMER = 1;
     /**
+     * animation pauses while all cards are overlapped to allow user to decide par
+     */
+    final byte ANIMATIONPAR = 3;
+    /**
      * animation moves cards to their correct positions in their player's
      * card hand
      */
-    final byte ANIMATIONDEALCARDS = 3;
+    final byte ANIMATIONDEALCARDS = 4;
     /**
      * how much time passes in seconds from the start of the animation until
      * ANIMATIONDEALCARDS begins
@@ -57,8 +61,13 @@ public class DealStage extends Stage {
      * this flag ensures it's only called once,
      */
     boolean ANIMATIONSETTEXTFLAG=true;
+    boolean ANIMATIONSETPARFLAG=true;
     float animationTimer = 0;
+    byte par=0;
 
+    /*when the cards are dealt, add up all the pip values of the cards
+    * this will help with working out par */
+    static Array<Integer> playerHandValue = new Array<Integer>();
 
 
     public DealStage(StageInterface stageInterface, Viewport viewport, SpriteBatch batch,ShapeRenderer shapeRenderer) {
@@ -128,32 +137,60 @@ public class DealStage extends Stage {
         }
         /*end the overlap animation and begin the deal animation*/
         if (animationTimer>ANIMATIONDEALCARDSTIMER+ANIMATIONOVERLAPCARDSTIMER){
-            /*the cardbuttons will have already been set a random number,
-            * this will actually display that number */
-            if(ANIMATIONSETTEXTFLAG) {
-                ANIMATIONSETTEXTFLAG=false;
-                /*when the cards are moved to their player's card hand
-                * we need to reserve some space at the top for the trident hand
-                * this method determines how much space */
-                CardButton.setTridentHandHeight();
-                for (int i = 0; i < Deck.cardArray.size; i++) {
-                    TridentBuildingStage.cardButtonArray.get(i).setText();
-                    TridentBuildingStage.cardButtonArray.get(i).edgeLength = CardButton.dealAnimationTridentEdgeLength/2;
-                    TridentBuildingStage.cardButtonArray.get(i).updateBounds();
-                    TridentBuildingStage.cardButtonArray.get(i).setDealAnimationPosition();
-                }
-                /*the TRIDENTBUILDINGSTAGE has a trident hand big enough for 9 tridents
-                * but if we are using less than that many keep the others invisible*/
-                TridentBuildingStage.updatePlayerTridentHand();
-            }
-            /*fade the text back in as the cards move to their player's card hand*/
-            CardButton.fadeFont.setColor(1,1,1,((animationTimer-ANIMATIONDEALCARDSTIMER-ANIMATIONOVERLAPCARDSTIMER-1)/ANIMATIONDEALCARDSTIMER*4));
-            /* actually don't fade the text back in until we've resolved par*/
 
-            for (int i = 0; i < Deck.cardArray.size; i++) {
-                TridentBuildingStage.cardButtonArray.get(i).moveToPositionAnimation((animationTimer-ANIMATIONDEALCARDSTIMER-ANIMATIONOVERLAPCARDSTIMER)/ANIMATIONDEALCARDSTIMER);
+            /*use this flag to set some things once only*/
+            /*as soon as we enter this phase of the animation, we will set the ANIMATIONSTAGE to
+            * ANIMATIONPAR, which will pause all the animation, and the timer, while the user
+            * interacts with the par buttons, everything will resume when user clicks confirm*/
+            if (ANIMATIONSETPARFLAG) {
+                ANIMATIONSETPARFLAG = false;
+                /*display the par buttons*/
+                stageInterface.getTriButton(triButtonArray, ButtonEnum.Tri.DEALINCREASEPAR).setVisible(true);
+                stageInterface.getTriButton(triButtonArray, ButtonEnum.Tri.DEALDECREASEPAR).setVisible(true);
+                stageInterface.getTriButton(triButtonArray, ButtonEnum.Tri.DEALCONFIRMPAR).setVisible(true);
+                stageInterface.getTriButton(triButtonArray, ButtonEnum.Tri.DEALINCREASEPAR).setY(1280 / 2 -35 - (float)(CardButton.dealAnimationTridentEdgeLength*Math.sin(Math.PI/3)));
+                stageInterface.getTriButton(triButtonArray, ButtonEnum.Tri.DEALDECREASEPAR).setY(1280 / 2 -35 - (float)(CardButton.dealAnimationTridentEdgeLength*Math.sin(Math.PI/3)));
+                stageInterface.getTriButton(triButtonArray, ButtonEnum.Tri.DEALCONFIRMPAR).setY(1280 / 2 -35 - (float)(CardButton.dealAnimationTridentEdgeLength*Math.sin(Math.PI/3)));
+
+                stageInterface.getTriButton(triButtonArray, ButtonEnum.Tri.DEALINCREASEPAR).setX(720/2-stageInterface.getTriButton(triButtonArray,ButtonEnum.Tri.DEALINCREASEPAR).edgeLength);
+                stageInterface.getTriButton(triButtonArray, ButtonEnum.Tri.DEALDECREASEPAR).setX(720/2-stageInterface.getTriButton(triButtonArray,ButtonEnum.Tri.DEALDECREASEPAR).edgeLength/2);
+                stageInterface.getTriButton(triButtonArray, ButtonEnum.Tri.DEALCONFIRMPAR). setX(720/2);
+
+
+                ANIMATIONSTAGE=ANIMATIONPAR;
             }
-            ANIMATIONSTAGE=ANIMATIONDEALCARDS;
+
+            if(ANIMATIONSTAGE==ANIMATIONPAR){
+                /*don't actually need to do anything here, but the par buttons will be visible.
+                * they will be handled in the touch logic*/
+            }
+            else if (ANIMATIONSTAGE==ANIMATIONDEALCARDS) {
+                /*the cardbuttons will have already been set a random number,
+                 * this will actually display that number */
+                if (ANIMATIONSETTEXTFLAG) {
+                    ANIMATIONSETTEXTFLAG = false;
+                    /*when the cards are moved to their player's card hand
+                     * we need to reserve some space at the top for the trident hand
+                     * this method determines how much space */
+                    CardButton.setTridentHandHeight();
+                    for (int i = 0; i < Deck.cardArray.size; i++) {
+                        TridentBuildingStage.cardButtonArray.get(i).setText();
+                        TridentBuildingStage.cardButtonArray.get(i).edgeLength = CardButton.dealAnimationTridentEdgeLength /2;
+                        TridentBuildingStage.cardButtonArray.get(i).updateBounds();
+                        TridentBuildingStage.cardButtonArray.get(i).setDealAnimationPosition();
+                    }
+                    /*the TRIDENTBUILDINGSTAGE has a trident hand big enough for 9 tridents
+                     * but if we are using less than that many keep the others invisible*/
+                    TridentBuildingStage.updatePlayerTridentHand();
+                }
+                /*fade the text back in as the cards move to their player's card hand*/
+                CardButton.fadeFont.setColor(1, 1, 1, ((animationTimer - ANIMATIONDEALCARDSTIMER - ANIMATIONOVERLAPCARDSTIMER - 1) / ANIMATIONDEALCARDSTIMER * 4));
+                /* actually don't fade the text back in until we've resolved par*/
+
+                for (int i = 0; i < Deck.cardArray.size; i++) {
+                    TridentBuildingStage.cardButtonArray.get(i).moveToPositionAnimation((animationTimer - ANIMATIONDEALCARDSTIMER - ANIMATIONOVERLAPCARDSTIMER) / ANIMATIONDEALCARDSTIMER);
+                }
+            }
         }
         /*if the begin deal button is clicked, display all the cards spread out
         * across the screen*/
@@ -166,6 +203,16 @@ public class DealStage extends Stage {
         /*after a set amount of time the cards will all move to the centre*/
         else if (ANIMATIONSTAGE == ANIMATIONOVERLAPCARDS ){
             animationTimer+=Gdx.graphics.getDeltaTime();
+            if(OptionsStage.openMode ) {
+                for (int i = 0; i < Deck.cardArray.size; i++) {
+                    TridentBuildingStage.cardButtonArray.get(i).draw(spriteBatch, 1.0f);
+                }
+            }
+        }
+        /*once all cards have overlapped begin the par consideration*/
+        else if (ANIMATIONSTAGE == ANIMATIONPAR ){
+            /*don't increment the timer while waiting for user input*/
+            //animationTimer+=Gdx.graphics.getDeltaTime();
             if(OptionsStage.openMode ) {
                 for (int i = 0; i < Deck.cardArray.size; i++) {
                     TridentBuildingStage.cardButtonArray.get(i).draw(spriteBatch, 1.0f);
@@ -194,13 +241,18 @@ public class DealStage extends Stage {
                 TridentBuildingStage.cardButtonArray.get(i).drawShape(shapeRenderer);
             }
         }
-        if (ANIMATIONSTAGE == ANIMATIONOVERLAPCARDS) {
+        else if (ANIMATIONSTAGE == ANIMATIONOVERLAPCARDS) {
             for (int i = 0; i < Deck.cardArray.size; i++) {
                 TridentBuildingStage.cardButtonArray.get(i).drawShape(shapeRenderer);
             }
         }
-        if (ANIMATIONSTAGE == ANIMATIONDEALCARDS) {
-
+        else if (ANIMATIONSTAGE == ANIMATIONPAR) {
+            for (int i = 0; i < Deck.cardArray.size; i++) {
+                TridentBuildingStage.cardButtonArray.get(i).drawShape(shapeRenderer);
+            }
+        }
+        else if (ANIMATIONSTAGE == ANIMATIONDEALCARDS) {
+            /*this will draw the trident hand array from the TRIDENTBUILDINGSTAGE*/
             TridentBuildingStage.drawTriButtonsShape(shapeRenderer);
             for (int i = 0; i < Deck.cardArray.size; i++) {
                 TridentBuildingStage.cardButtonArray.get(i).drawShape(shapeRenderer);
@@ -241,6 +293,22 @@ public class DealStage extends Stage {
         ///stageInterface.getTriButton(triButtonArray, ButtonEnum.Tri.DEALBEGINDEAL).setTridentToTextSize();
         stageInterface.getTriButton(triButtonArray, ButtonEnum.Tri.DEALBEGINDEAL).centre();
 
+        /*the par buttons are created here, but i'll need to update the y position later, once we know how big the
+        * TRIDENTBUILDINGSTAGE cardbuttons are*/
+        stageInterface.addTriButton(new TriButton(stageInterface, 0, 0, true, StageInterface.DEALSTAGE, ButtonEnum.Tri.DEALINCREASEPAR), triButtonArray, this);
+        stageInterface.getTriButton(triButtonArray, ButtonEnum.Tri.DEALINCREASEPAR).setText("Increase\nPar");
+        stageInterface.getTriButton(triButtonArray, ButtonEnum.Tri.DEALINCREASEPAR).setVisible(false);
+        /*here we are increasing the size of the increase par button, so it will fit the decrease par button text
+        * we are not setting the text to anything, just making sure all 3 par buttons are the same size as the decrease par button*/
+        stageInterface.getTriButton(triButtonArray, ButtonEnum.Tri.DEALINCREASEPAR).setTridentToTextSize("Decrease\nPar");
+        stageInterface.addTriButton(new TriButton(stageInterface, 0, 0, false, StageInterface.DEALSTAGE, ButtonEnum.Tri.DEALDECREASEPAR), triButtonArray, this);
+        stageInterface.getTriButton(triButtonArray, ButtonEnum.Tri.DEALDECREASEPAR).setText("Decrease\nPar");
+        stageInterface.getTriButton(triButtonArray, ButtonEnum.Tri.DEALDECREASEPAR).setVisible(false);
+        stageInterface.getTriButton(triButtonArray, ButtonEnum.Tri.DEALDECREASEPAR).setTridentToTextSize("Decrease\nPar");
+        stageInterface.addTriButton(new TriButton(stageInterface, 0 , 0, true, StageInterface.DEALSTAGE, ButtonEnum.Tri.DEALCONFIRMPAR), triButtonArray, this);
+        stageInterface.getTriButton(triButtonArray, ButtonEnum.Tri.DEALCONFIRMPAR).setText("Confirm:"+par+"\nPar");
+        stageInterface.getTriButton(triButtonArray, ButtonEnum.Tri.DEALCONFIRMPAR).setVisible(false);
+        stageInterface.getTriButton(triButtonArray, ButtonEnum.Tri.DEALCONFIRMPAR).setTridentToTextSize("Decrease\nPar");
     }
 
     /**
@@ -273,6 +341,14 @@ public class DealStage extends Stage {
         stageInterface.getTriButton(triButtonArray, ButtonEnum.Tri.DEALBEGINDEAL).setVisible(true);
         CardButton.fadeFont.setColor(1,1,1,1);
         ANIMATIONSETTEXTFLAG=true;
+        ANIMATIONSETPARFLAG=true;
+
+        stageInterface.getTriButton(triButtonArray,ButtonEnum.Tri.DEALCONFIRMPAR).setVisible(false);
+        stageInterface.getTriButton(triButtonArray,ButtonEnum.Tri.DEALINCREASEPAR).setVisible(false);
+        stageInterface.getTriButton(triButtonArray,ButtonEnum.Tri.DEALDECREASEPAR).setVisible(false);
+
+        playerHandValue.clear();
+
     }
 
     /** when the begindeal button is clicked;
@@ -302,12 +378,61 @@ public class DealStage extends Stage {
      *
      */
     private void deal() {
+        /*call the gotAllPlayers method which will set the player indexes
+         * if we have the correct number of players, if we do not have the correct number of players it does nothing*/
+        if (MyServer.gotAllPlayers()) {
+            /*if this player is player 1, deal the cards, otherwise receive data from player1's deal*/
+            if (MyServer.player.index == 0) {
+                for (byte p = 0; p < OptionsStage.numberOfPlayers; p++) {
+                    for (int i = 0; i < OptionsStage.cardsEach; i++) {
+                        TridentBuildingStage.cardButtonArray.get(OptionsStage.cardsEach * p + i).setPlayerIndex(p);
+                    }
+                }
+                /*player 1 will send the results of the deal to all players, only the value and the
+                 * player index of each of the 52 cards are sent*/
+                MyServer.emitDeal();
+                Gdx.app.log("Deal Stage", "Send deal");
 
-        for (byte p = 0; p < OptionsStage.numberOfPlayers; p++) {
-            for (int i = 0; i < OptionsStage.cardsEach; i++) {
-                TridentBuildingStage.cardButtonArray.get(OptionsStage.cardsEach*p+i).setPlayerIndex(p);
+            } else {
+                /*if the current player is not player 1 the MyServer class will receive data
+                 * from player1's deal, which will alter the TridentBuildingStage's cardbuttonArray*/
+                Gdx.app.log("Deal Stage", "receive deal");
             }
+            Gdx.app.log("Deal Stage", "MyServer.player.index" + MyServer.player.index);
+        }
+    }
 
+    /**
+     * this will help with the par method
+     * each card will have been given a playerIndex value, either 1,2 or 3
+     * that will tell you who owns the card, a value of 0 means it was not
+     * dealt at all
+     */
+    private void calculateValueOfHand() {
+        playerHandValue.clear();
+        /*add one player to the player hand value array,
+        * this will intercept any cards that were not dealt*/
+        playerHandValue.add(0);
+
+        /*for each player add a 0 value to the array, combined with the one
+        * we have just made above, the array should now have 1 more item
+        * that the number of players*/
+        for (byte p = 0; p < OptionsStage.numberOfPlayers; p++) {
+            playerHandValue.add(0);
+        }
+        /*for all 52 cards*/
+        for (int i = 0; i < TridentBuildingStage.cardButtonArray.size; i++) {
+            /*basically, for each card, this will add the value of the card to the
+            relevant item in the playerHandValue array*/
+            playerHandValue.set((int) TridentBuildingStage.cardButtonArray.get(i).playerIndex,playerHandValue.get(TridentBuildingStage.cardButtonArray.get(i).playerIndex)+TridentBuildingStage.cardButtonArray.get(i).value%13+1);
+        }
+        for (int i = 0; i < playerHandValue.size; i++) {
+            if(i==0){
+                Gdx.app.log("playerHandValue", "value of undealt cards = " + playerHandValue.get(i));
+            }
+            else {
+                Gdx.app.log("playerHandValue", "value of player" + i + "'s cards = " + playerHandValue.get(i));
+            }
         }
     }
 
@@ -327,10 +452,71 @@ public class DealStage extends Stage {
             case DEALBEGINDEAL:
                 beginDeal();
                 break;
+            case DEALINCREASEPAR:
+                increasePar();
+                calculateValueOfHand();
+                break;
+            case DEALDECREASEPAR:
+                decreasePar();
+                calculateValueOfHand();
+                break;
+            case DEALCONFIRMPAR:
+                confirmPar();
+                break;
             default:
                 Gdx.app.log("Example", "DEFAULT " + triButtonIndex.value);
                 throw new IllegalStateException("Unexpected value: " + triButtonIndex);
         }
+    }
+    private void increasePar(){
+        par++;
+        stageInterface.getTriButton(triButtonArray,ButtonEnum.Tri.DEALCONFIRMPAR).setText("Confirm:"+par+"\nPar");
+    }
+    private void decreasePar(){
+        par--;
+        stageInterface.getTriButton(triButtonArray,ButtonEnum.Tri.DEALCONFIRMPAR).setText("Confirm:"+par+"\nPar");
+    }
+
+    /**
+     * There will be a circle with your par, to the left and right there is a minus and plus arrow respectively. You can lower or increase your par, lowering it would make it more difficult for you and raising it would make it harder for you. The opponent will be doing the same.
+     * You should be able to see how the opponent is altering their par in real time
+     * When you are finished you can click deal.
+     * The par values that have been chosen will be analysed, and a fair compromise will be attempted.
+     * I’ve worked out a way to do this, as close to the chosen values as possible while still maintaining the difference in those values.
+     *
+     * N = number of players either 2 or 3
+     * P[N] player array hold a value for that player’s par
+     * X = Round( (P[0]+ P[1] + P[2]) / N ) // X is the average par, rounded
+     *
+     * For each p in P
+     * P2 = P - X  //this is the first approximate of the correct par, it might be 1 out
+     *
+     * X2 = (P2[0]+P2[1]+P2[2])  // X2 is the total of the first approximate par, it should be either 1 or 0
+     *
+     * If (X2=0)  //if the first approximate par total is 0 then set par to that value and end
+     *  End and ignore the below
+     * Else //do the rest of this several lines below
+     *
+     *
+     * For each p in P
+     * P3 = ABS(P)//this is the absolute value
+     *
+     * P3.sort // sort that array
+     *
+     *
+     * If P3[0] == P3[1] // if the 2 highest numbers are the same
+     * P2[2] = P2[2]  - X2  // subtract X2 from the lowest number in the first approx par
+     * Else
+     * P2[0] = P2[0]  - X2  // subtract X2 from the highest number in the first approx par
+     *
+     * This should work for 2 or 3 players and it should keep the total par to 0 which is important,
+     */
+    private void confirmPar(){
+        ANIMATIONSTAGE=ANIMATIONDEALCARDS;
+        stageInterface.getTriButton(triButtonArray,ButtonEnum.Tri.DEALCONFIRMPAR).setVisible(false);
+        stageInterface.getTriButton(triButtonArray,ButtonEnum.Tri.DEALINCREASEPAR).setVisible(false);
+        stageInterface.getTriButton(triButtonArray,ButtonEnum.Tri.DEALDECREASEPAR).setVisible(false);
+
     }
 
     /**
@@ -355,6 +541,7 @@ public class DealStage extends Stage {
         /*we will deal the cards to the players here,
         but the effect of the deal won't be visible yet*/
         deal();
+        calculateValueOfHand();
     }
 
     /**

@@ -12,14 +12,8 @@ public class Player extends Sprite {
     /*this will be the player's number, will be 0 , 1 or 2
     * this value will be asssigned to the cardButtons and TriButtons
     * associated with this player*/
-    byte index ;
-    /**
-     * this will essentially be the hand the player is dealt,
-     * this will store a reference to all the cards that have been
-     * dealt to this player
-     */
-    /*this is just so the player know if it's player 1 2 or 3*/
-    private byte playerNumber=0;
+    int index ;
+
     public Player(Texture texture){
         super(texture);
         previousPosition = new Vector2(getX(), getY());
@@ -41,7 +35,7 @@ public class Player extends Sprite {
      * set it after we've got our players confirmed
      * @param index
      */
-    public void setIndex(byte index) {
+    public void setIndex(int index) {
         this.index=index;
     }
 

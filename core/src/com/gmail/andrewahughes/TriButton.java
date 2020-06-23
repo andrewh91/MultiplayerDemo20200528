@@ -260,6 +260,19 @@ public class TriButton extends Actor {
     }
 
     /**
+     * increase or decrease the size of the trident to match the text that is provided as
+     * an argument, note the text provided in the argument will not be set to the triButton
+     */
+    public void setTridentToTextSize(String alttext){
+        if (alttext != null) {
+            glyphLayout.setText(font,alttext);
+            edgeLength = ((glyphLayout.width*(float)Math.sin(Math.PI/3)  + glyphLayout.height) / (1-textMargin))/(float)Math.sin(Math.PI/3);
+            /*need the bounding box to take on the new values */
+            updateBounds();
+        }
+
+    }
+    /**
      * increase or decrease the size of the trident to match the text that it has been given
      */
     public void setTridentToTextSize(){
