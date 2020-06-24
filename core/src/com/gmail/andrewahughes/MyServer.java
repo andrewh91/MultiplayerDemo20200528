@@ -51,7 +51,7 @@ public class MyServer {
             shapeRenderer = new ShapeRenderer();
             friendlyPlayers = new HashMap<String, Player>();
             playerShip = new Texture("badlogic.jpg");
-            friendlyShip = new Texture("badlogic.jpg");
+            friendlyShip = new Texture("badlogic1.jpg");
             startServer();
         }
     }
@@ -121,21 +121,43 @@ public class MyServer {
      * emit that data to the other players
      */
     public static void emitDeal(){
-        JSONObject data = new JSONObject();
+        JSONArray objects = new JSONArray();
         try{
             /*data needs to contain the value 'v' of each card and who owns 'p' that card*/
             for(int i =0; i <52; i++) {
-                data.put("v"+i,TridentBuildingStage.cardButtonArray.get(i).value);
-                data.put("p"+i,TridentBuildingStage.cardButtonArray.get(i).playerIndex);
+
+                JSONObject data = new JSONObject();
+                data.put("v" , TridentBuildingStage.cardButtonArray.get(i).value);
+                data.put("p" , TridentBuildingStage.cardButtonArray.get(i).playerIndex);
+                objects.put(data);
             }
+            Gdx.app.log("Server","JSONarray: "+objects);
+            /*the player emits data to the server here
+             * the server has a corresponding method to
+             * interpret this data*/
+            socket.emit("emitDealDataToServer",objects);
+
+        } catch(JSONException e) {
+            Gdx.app.log("SOCKET.IO","Error sending deal data");
+        }
+    }/**
+     * this will be called in the deal stage when the player clicks confirm par
+     * once all players have done so we can start sending the deal
+     */
+    public static void emitConfirmPar(int par){
+        JSONObject data = new JSONObject();
+        try{
+            data.put("size",OptionsStage.numberOfPlayers);
+            data.put("index",player.index);
+            data.put("par",par);
 
             /*the player emits data to the server here
              * the server has a corresponding method to
              * interpret this data*/
-            socket.emit("emitDealDataToServer",data);
+            socket.emit("emitConfirmParToServer",data);
 
         } catch(JSONException e) {
-            Gdx.app.log("SOCKET.IO","Error sending deal data");
+            Gdx.app.log("SOCKET.IO","Error sending confrim par data");
         }
     }
     public static void connectSocket() {
@@ -235,13 +257,31 @@ public class MyServer {
                 each player listens for the emitDealDataToPlayers
                 emitDealDataToPlayers is received here
                  */
+                JSONArray objects = (JSONArray) args[0];
+                try {
+                    for(int i=0; i<52;i++){
+                        TridentBuildingStage.cardButtonArray.get(i).value= objects.getJSONObject(i).getInt("v");
+                        TridentBuildingStage.cardButtonArray.get(i).playerIndex= objects.getJSONObject(i).getInt("p");
+                    }
+                    DealStage.dealLoaded();
+Gdx.app.log("Server: ","Deal received: "+objects);
+
+                }catch(JSONException e){
+                }
+            }
+        }).on("emitParConfirmedToPlayers", new Emitter.Listener() {
+            @Override
+            public void call(Object... args) {
+               /*when player clicked confirm par in the dealStage, that calls
+               * emitConfirmPar() on the server which emits
+               * emitConfirmParToServer
+               * the server receives that and tests if all players have emitted par, if so
+               * the server emits
+               * emitParConfirmedToPlayers
+               * to all players, this will simply call DealStage.parConfirmedByServer();*/
                 JSONObject data = (JSONObject) args[0];
                 try {
-
-                    TridentBuildingStage.cardButtonArray.get(0).value= data.getInt("v");
-                    TridentBuildingStage.cardButtonArray.get(0).playerIndex= data.getInt("p");
-
-
+                    DealStage.parConfirmedByServer(data.getInt("par0"),data.getInt("par1"),data.getInt("par2"));
                 }catch(JSONException e){
                 }
             }
@@ -269,7 +309,10 @@ public class MyServer {
                         player.index = data.getInt("index2");
                     }
 
-                    Gdx.app.log("Server: ", " player.index " + player.index);
+                    /*let the deal stage know that the data has been received */
+                    DealStage.dealReady();
+
+                    Gdx.app.log("Server: ", " deal ready, player.index " + player.index);
 
                 }catch(JSONException e){
                 }
@@ -324,8 +367,8 @@ public class MyServer {
      * , this will test to see if we have the
      * specified number of players, if so it will give them either a 0,1 or 2 index
      */
-    public static boolean gotAllPlayers(){
-        Gdx.app.log("SocketIO", " call gotAllPlayers hashmap size = "+friendlyPlayers.size()+" num  of players needed = "+ (OptionsStage.numberOfPlayers-1));
+    public static void gotAllPlayers(){
+        Gdx.app.log("SocketIO", " call gotAllPlayers hashmap size = "+friendlyPlayers.size()+" num  of players needed = "+ (OptionsStage.numberOfPlayers));
 
         /*if we have the right number of players*/
         if(friendlyPlayers.size() == OptionsStage.numberOfPlayers){
@@ -333,6 +376,7 @@ public class MyServer {
                  * this will trigger the server sending data back*/
             JSONObject data = new JSONObject();
             try{
+                /*doesn't matter what the ids are here they will be overwritten*/
                 data.put("size",friendlyPlayers.size());
                 data.put("index0",0);
                 data.put("id0",0);
@@ -348,16 +392,13 @@ public class MyServer {
                  * interpret this data*/
                 socket.emit("emitPlayerIndexToServer",data);
                 Gdx.app.log("SocketIO", " call emitPlayerIndexToServer");
-                return true;
 
 
             } catch(JSONException e) {
                 Gdx.app.log("SOCKET.IO","Error sending index data");
-                return false;
             }
         }
         else {
-            return false;
         }
     }
 

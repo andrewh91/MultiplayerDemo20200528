@@ -244,6 +244,7 @@ static void updatePlayerTridentHand(){
             System.out.println(cardEnum);
             stageInterface.addCardButton(new CardButton(stageInterface, 0, 0, true, (byte) 0, stageInterface.TRIDENTBUILDINGSTAGE, cardEnum), cardButtonArray, this);
         }
+        Gdx.app.log("TridentBuildingStage","cardButtonArray size :"+cardButtonArray.size);
     }
     public void amendCardsForTridentBuildingStage() {
 

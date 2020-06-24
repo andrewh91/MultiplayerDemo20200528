@@ -12,7 +12,7 @@ public class Player extends Sprite {
     /*this will be the player's number, will be 0 , 1 or 2
     * this value will be asssigned to the cardButtons and TriButtons
     * associated with this player*/
-    int index ;
+    int index =-1;
 
     public Player(Texture texture){
         super(texture);

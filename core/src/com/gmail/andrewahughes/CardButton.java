@@ -69,7 +69,7 @@ public class CardButton  extends Actor {
     /**
      * this is just used to help position the cardButtons in the setDealAnimationPosition method
      */
-    static byte dealAnimationSuit =-1;
+    static byte dealAnimationSuit =0;
     static byte dealAnimationPreviousSuit =0;
 
     int value;
@@ -465,7 +465,7 @@ public class CardButton  extends Actor {
     /**
      * this will be called in the deal method after the card buttons
      * have been assigned a playerIndex, this method will work out where
-     * the cardButton's position on in the dealAnimationRectangle should be
+     * the cardButton's position in the dealAnimationRectangle should be
      * so that it appears in the player's card hand, the method
      * moveToPositionAnimation will then move the cardButton to that location
      */
@@ -474,12 +474,15 @@ public class CardButton  extends Actor {
         if(playerIndex==MyServer.player.index){
             /*need to reserve space at the top of the rectangle for trident hand*/
             /*this helps figure out what suit each card is in*/
-                dealAnimationSuit=(byte)(dealAnimationPreviousSuit==getSuit()?dealAnimationSuit+1:-1);
+                dealAnimationSuit=(byte)(dealAnimationPreviousSuit==getSuit()?dealAnimationSuit+1:0);
                 dealAnimationPreviousSuit=getSuit();
                 dealAnimationPositionY = 1280-(+dealAnimationTridentHandHeight+dealAnimationTridentHeight+(dealAnimationTridentHeight+dealAnimationRowMargin) *getSuit());
                 dealAnimationPositionX = (float)(dealAnimationRectangleDealX +(dealAnimationTridentWidth*0.5f*Math.floor(dealAnimationSuit/3)));
                 orientation= getSuit()%2==0 ? (Math.floor(dealAnimationSuit/3)%2==0?POINTUP:POINTDOWN) : (Math.floor(dealAnimationSuit/3)%2==0?POINTDOWN:POINTUP);
                 position=(byte)(dealAnimationSuit%3);
+            Gdx.app.log("CardButton","card's player index: "+playerIndex+" player's index: "+MyServer.player.index);
+            Gdx.app.log("CardButton","card value: "+value+" x: "+dealAnimationPositionX+" y: "+dealAnimationPositionY);
+
         }
         else if(playerIndex==(MyServer.player.index-1%3)){
             dealAnimationPositionX = -720;

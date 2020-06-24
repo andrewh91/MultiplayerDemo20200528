@@ -26,7 +26,7 @@ public class DealStage extends Stage {
     /**
      * no animation is playing, this is the default
      */
-    final byte ANIMATIONSTOPPED = 0;
+    final static byte ANIMATIONSTOPPED = 0;
     /**
      * animation has begun, display the cards in a grid
      */
@@ -49,13 +49,13 @@ public class DealStage extends Stage {
      * animation moves cards to their correct positions in their player's
      * card hand
      */
-    final byte ANIMATIONDEALCARDS = 4;
+    final static byte ANIMATIONDEALCARDS = 4;
     /**
      * how much time passes in seconds from the start of the animation until
      * ANIMATIONDEALCARDS begins
      */
     final static float ANIMATIONDEALCARDSTIMER = 2;
-    byte ANIMATIONSTAGE = ANIMATIONSTOPPED;
+    static byte  ANIMATIONSTAGE = ANIMATIONSTOPPED;
     /**
      * half way through the animation a method called set text will be called
      * this flag ensures it's only called once,
@@ -63,11 +63,14 @@ public class DealStage extends Stage {
     boolean ANIMATIONSETTEXTFLAG=true;
     boolean ANIMATIONSETPARFLAG=true;
     float animationTimer = 0;
-    byte par=0;
+    static int par=0;
 
     /*when the cards are dealt, add up all the pip values of the cards
     * this will help with working out par */
     static Array<Integer> playerHandValue = new Array<Integer>();
+
+    static boolean dealReady=false;
+    static boolean parReady=false;
 
 
     public DealStage(StageInterface stageInterface, Viewport viewport, SpriteBatch batch,ShapeRenderer shapeRenderer) {
@@ -164,6 +167,7 @@ public class DealStage extends Stage {
                 /*don't actually need to do anything here, but the par buttons will be visible.
                 * they will be handled in the touch logic*/
             }
+            /*this will be set when the user clicks confirm par*/
             else if (ANIMATIONSTAGE==ANIMATIONDEALCARDS) {
                 /*the cardbuttons will have already been set a random number,
                  * this will actually display that number */
@@ -173,6 +177,7 @@ public class DealStage extends Stage {
                      * we need to reserve some space at the top for the trident hand
                      * this method determines how much space */
                     CardButton.setTridentHandHeight();
+                    Gdx.app.log("DealStage","set position of all cards in card hand");
                     for (int i = 0; i < Deck.cardArray.size; i++) {
                         TridentBuildingStage.cardButtonArray.get(i).setText();
                         TridentBuildingStage.cardButtonArray.get(i).edgeLength = CardButton.dealAnimationTridentEdgeLength /2;
@@ -220,7 +225,7 @@ public class DealStage extends Stage {
             }
         }
         /*once moved to the centre the cards will then move to their
-        * position in their player's card hand*/
+        * position in their player's card hand after the player clicks confirm par*/
         else if (ANIMATIONSTAGE == ANIMATIONDEALCARDS ){
             animationTimer+=Gdx.graphics.getDeltaTime();
 
@@ -348,6 +353,8 @@ public class DealStage extends Stage {
         stageInterface.getTriButton(triButtonArray,ButtonEnum.Tri.DEALDECREASEPAR).setVisible(false);
 
         playerHandValue.clear();
+        dealReady=false;
+        parReady=false;
 
     }
 
@@ -368,19 +375,57 @@ public class DealStage extends Stage {
     }
 
     /**
-     * this is where we actually deal each card to a player, however actually,
-     * the player index is added to the cardButton
-     * the amendCardsForDeal method has already set the random cards to
-     * TridentBuildingStage.cardButtonArray and it did it in such a way that
-     * the contents of the array includes a section of one player's cards which are sorted
-     * in order, then another section of another player's cards after that which are also sorted
-     * as such we can just loop through and assign the player index to each section
+     * this will be called from the server when all players have been sent their
+     * index numbers
+     */
+    static void dealReady(){
+        if (dealReady==false) {
+            dealReady = true;
+        }
+    }
+
+    /**
+     * this will be called when all players have clicked confirm par
+     */
+    static void parReady(){
+        if (parReady==false) {
+            parReady = true;
+        }
+    }
+    /**
+    *assign a player index to all players, this will be called everytime a player goes to the dealStage
+    *but it will only do something when the number of players equals the required number of players
+     * it will assign the players a number, either 0 1 or 2
      *
      */
-    private void deal() {
-        /*call the gotAllPlayers method which will set the player indexes
-         * if we have the correct number of players, if we do not have the correct number of players it does nothing*/
-        if (MyServer.gotAllPlayers()) {
+    private static void assignPlayerIndex() {
+        /*this will be called when each player goes to the dealStage
+        * call the gotAllPlayers method which will check if we have the correct number of players
+        * if so then it sends a message using the server class, message is received in the index.js
+        * which will send an array to all players, the array contains each player id and a unique
+        * index number which will be 0, 1 or 2, this index number will be recorded on each player's
+        * server class, once that is complete DealStage.dealReady() is called, which sets the
+        * dealReady bool to true and calls deal() again*/
+        if(dealReady==false) {
+            MyServer.gotAllPlayers();
+            Gdx.app.log("Deal Stage", "MyServer.player.index: " + MyServer.player.index);
+        }
+
+    }
+    static void deal(){
+        /* this should be called from the server after all players have confirmed par
+         * the assignPlayerIndex should have already been called
+         * gotAllPlayers will be called everytime a player goes to the deal stage,
+         * but that method will only do something if all the players are there,
+         * so when the last person goes to the deal stage, it will sort all players
+         * out with an index number, as soon as that happens we should prompt player one to
+         * send the deal, when it's confirmed that it is sent the other players should receive it
+         * but this should only happen after resolving par,
+         * so set a flag when all players have a player index, then when all player click begin deal
+         * stop the deal halfway and show the par buttons,
+         * when all players confirm par, force player one to send the deal */
+        /*deal will  be called again after the server has sorted out each player's index*/
+        if(dealReady&&parReady) {
             /*if this player is player 1, deal the cards, otherwise receive data from player1's deal*/
             if (MyServer.player.index == 0) {
                 for (byte p = 0; p < OptionsStage.numberOfPlayers; p++) {
@@ -388,17 +433,23 @@ public class DealStage extends Stage {
                         TridentBuildingStage.cardButtonArray.get(OptionsStage.cardsEach * p + i).setPlayerIndex(p);
                     }
                 }
+                Gdx.app.log("Deal Stage", "complete deal");
+                for(int i=0; i < TridentBuildingStage.cardButtonArray.size;i++){
+                    Gdx.app.log("Deal Stage", "card: "+i + " value: "+ TridentBuildingStage.cardButtonArray.get(i).value+ " player: " + TridentBuildingStage.cardButtonArray.get(i).playerIndex);
+                }
+
                 /*player 1 will send the results of the deal to all players, only the value and the
                  * player index of each of the 52 cards are sent*/
                 MyServer.emitDeal();
                 Gdx.app.log("Deal Stage", "Send deal");
+                calculateValueOfHand();
+
 
             } else {
                 /*if the current player is not player 1 the MyServer class will receive data
                  * from player1's deal, which will alter the TridentBuildingStage's cardbuttonArray*/
                 Gdx.app.log("Deal Stage", "receive deal");
             }
-            Gdx.app.log("Deal Stage", "MyServer.player.index" + MyServer.player.index);
         }
     }
 
@@ -408,7 +459,7 @@ public class DealStage extends Stage {
      * that will tell you who owns the card, a value of 0 means it was not
      * dealt at all
      */
-    private void calculateValueOfHand() {
+    private static void calculateValueOfHand() {
         playerHandValue.clear();
         /*add one player to the player hand value array,
         * this will intercept any cards that were not dealt*/
@@ -428,10 +479,10 @@ public class DealStage extends Stage {
         }
         for (int i = 0; i < playerHandValue.size; i++) {
             if(i==0){
-                Gdx.app.log("playerHandValue", "value of undealt cards = " + playerHandValue.get(i));
+                Gdx.app.log("dealStage", "value of undealt cards = " + playerHandValue.get(i));
             }
             else {
-                Gdx.app.log("playerHandValue", "value of player" + i + "'s cards = " + playerHandValue.get(i));
+                Gdx.app.log("dealStage", "value of player" + i + "'s cards = " + playerHandValue.get(i));
             }
         }
     }
@@ -454,11 +505,9 @@ public class DealStage extends Stage {
                 break;
             case DEALINCREASEPAR:
                 increasePar();
-                calculateValueOfHand();
                 break;
             case DEALDECREASEPAR:
                 decreasePar();
-                calculateValueOfHand();
                 break;
             case DEALCONFIRMPAR:
                 confirmPar();
@@ -477,46 +526,34 @@ public class DealStage extends Stage {
         stageInterface.getTriButton(triButtonArray,ButtonEnum.Tri.DEALCONFIRMPAR).setText("Confirm:"+par+"\nPar");
     }
 
-    /**
-     * There will be a circle with your par, to the left and right there is a minus and plus arrow respectively. You can lower or increase your par, lowering it would make it more difficult for you and raising it would make it harder for you. The opponent will be doing the same.
-     * You should be able to see how the opponent is altering their par in real time
-     * When you are finished you can click deal.
-     * The par values that have been chosen will be analysed, and a fair compromise will be attempted.
-     * I’ve worked out a way to do this, as close to the chosen values as possible while still maintaining the difference in those values.
-     *
-     * N = number of players either 2 or 3
-     * P[N] player array hold a value for that player’s par
-     * X = Round( (P[0]+ P[1] + P[2]) / N ) // X is the average par, rounded
-     *
-     * For each p in P
-     * P2 = P - X  //this is the first approximate of the correct par, it might be 1 out
-     *
-     * X2 = (P2[0]+P2[1]+P2[2])  // X2 is the total of the first approximate par, it should be either 1 or 0
-     *
-     * If (X2=0)  //if the first approximate par total is 0 then set par to that value and end
-     *  End and ignore the below
-     * Else //do the rest of this several lines below
-     *
-     *
-     * For each p in P
-     * P3 = ABS(P)//this is the absolute value
-     *
-     * P3.sort // sort that array
-     *
-     *
-     * If P3[0] == P3[1] // if the 2 highest numbers are the same
-     * P2[2] = P2[2]  - X2  // subtract X2 from the lowest number in the first approx par
-     * Else
-     * P2[0] = P2[0]  - X2  // subtract X2 from the highest number in the first approx par
-     *
-     * This should work for 2 or 3 players and it should keep the total par to 0 which is important,
-     */
+    /**called when user clicks the confirm par button
+     * will emit this player's chosen par to the server
+     * */
     private void confirmPar(){
-        ANIMATIONSTAGE=ANIMATIONDEALCARDS;
         stageInterface.getTriButton(triButtonArray,ButtonEnum.Tri.DEALCONFIRMPAR).setVisible(false);
         stageInterface.getTriButton(triButtonArray,ButtonEnum.Tri.DEALINCREASEPAR).setVisible(false);
         stageInterface.getTriButton(triButtonArray,ButtonEnum.Tri.DEALDECREASEPAR).setVisible(false);
+        MyServer.emitConfirmPar(par);
+    }
+    static void parConfirmedByServer(int par0,int par1, int par2){
+        parReady();
+        if(MyServer.player.index ==0){
+            par = par0;
+        }
+        else if(MyServer.player.index ==1){
+            par = par1;
+        }
+        else if(MyServer.player.index ==2){
+            par = par2;
+        }
+        Gdx.app.log("DealStage","par : "+par);
+        deal();
 
+    }
+    static void dealLoaded(){
+
+        /*should only call this once deal data received*/
+        ANIMATIONSTAGE=ANIMATIONDEALCARDS;
     }
 
     /**
@@ -540,8 +577,7 @@ public class DealStage extends Stage {
         amendCardsForDeal();
         /*we will deal the cards to the players here,
         but the effect of the deal won't be visible yet*/
-        deal();
-        calculateValueOfHand();
+        assignPlayerIndex();
     }
 
     /**

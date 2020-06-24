@@ -156,9 +156,11 @@ public class MyGdxGame extends ApplicationAdapter  implements  StageInterface{
 			}
 			case DEALSTAGE :{
 				dealStage.setVisible(true);
+				Gdx.app.log("MyGdxGame","DealStage reset");
 				dealStage.reset();
 				/*because the dealStage needs to acccess the tridentBuildingStage's
 				* cardButton array, we must set up the trident stage as well */
+				Gdx.app.log("MyGdxGame","TridentBuildingStage reset");
 				tridentBuildingStage.reset();
 				dealStage.amendCardsForDealStageAnimation();
 				Gdx.input.setInputProcessor(dealStage);
