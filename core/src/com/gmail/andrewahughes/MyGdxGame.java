@@ -39,7 +39,6 @@ public class MyGdxGame extends ApplicationAdapter  implements  StageInterface{
 	@Override
 	public void create() {
 
-
 		WORLDHEIGHT=Gdx.graphics.getHeight();
 		WORLDWIDTH=Gdx.graphics.getWidth();
 		aspectRatio = WORLDHEIGHT/WORLDWIDTH;

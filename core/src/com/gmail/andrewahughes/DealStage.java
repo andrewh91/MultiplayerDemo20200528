@@ -12,12 +12,13 @@ import java.util.HashMap;
 
 import static com.gmail.andrewahughes.MyGdxGame.WORLDHEIGHT;
 import static com.gmail.andrewahughes.MyGdxGame.WORLDWIDTH;
+import static com.gmail.andrewahughes.StageInterface.TRIDENTBUILDINGSTAGE;
 
 
 public class DealStage extends Stage {
 
     boolean visible = false;
-    StageInterface stageInterface;
+    static StageInterface stageInterface;
     SpriteBatch spriteBatch;
     ShapeRenderer shapeRenderer;
     /*we need to store an array of TriButtons so we can loop through and call the draw method of each
@@ -63,7 +64,7 @@ public class DealStage extends Stage {
     boolean ANIMATIONSETTEXTFLAG=true;
     boolean ANIMATIONSETPARFLAG=true;
     float animationTimer = 0;
-    static int par=0;
+    static int par=0,par0=0,par1=1,par2=2;
 
     /*when the cards are dealt, add up all the pip values of the cards
     * this will help with working out par */
@@ -167,7 +168,7 @@ public class DealStage extends Stage {
                 /*don't actually need to do anything here, but the par buttons will be visible.
                 * they will be handled in the touch logic*/
             }
-            /*this will be set when the user clicks confirm par*/
+            /*this will be set when the user clicks confirm par and then receives the deal from the server*/
             else if (ANIMATIONSTAGE==ANIMATIONDEALCARDS) {
                 /*the cardbuttons will have already been set a random number,
                  * this will actually display that number */
@@ -194,6 +195,10 @@ public class DealStage extends Stage {
 
                 for (int i = 0; i < Deck.cardArray.size; i++) {
                     TridentBuildingStage.cardButtonArray.get(i).moveToPositionAnimation((animationTimer - ANIMATIONDEALCARDSTIMER - ANIMATIONOVERLAPCARDSTIMER) / ANIMATIONDEALCARDSTIMER);
+                }
+                /*when the animation is complete, we will automatically move on to the next stage */
+                if((animationTimer - ANIMATIONDEALCARDSTIMER - ANIMATIONOVERLAPCARDSTIMER) / ANIMATIONDEALCARDSTIMER>1f){
+                    stageInterface.goToStage(TRIDENTBUILDINGSTAGE);
                 }
             }
         }
@@ -294,7 +299,7 @@ public class DealStage extends Stage {
         //stageInterface.getTriButton(triButtonArray, ButtonEnum.Tri.DEALNEXTSTAGE).setTridentToTextSize();
 
         stageInterface.addTriButton(new TriButton(stageInterface, 720 / 2, 1280 / 2, true, StageInterface.DEALSTAGE, ButtonEnum.Tri.DEALBEGINDEAL), triButtonArray, this);
-        stageInterface.getTriButton(triButtonArray, ButtonEnum.Tri.DEALBEGINDEAL).setText("Begin\nDeal");
+        stageInterface.getTriButton(triButtonArray, ButtonEnum.Tri.DEALBEGINDEAL).setText("Wait for\nplayers");
         ///stageInterface.getTriButton(triButtonArray, ButtonEnum.Tri.DEALBEGINDEAL).setTridentToTextSize();
         stageInterface.getTriButton(triButtonArray, ButtonEnum.Tri.DEALBEGINDEAL).centre();
 
@@ -365,13 +370,16 @@ public class DealStage extends Stage {
      * there might be cards left over
      */
     private void beginDeal() {
-        /*hide the begindeal button, it will reappear on reset*/
-        stageInterface.getTriButton(triButtonArray, ButtonEnum.Tri.DEALBEGINDEAL).setVisible(false);
+        /*only take action if all players have joined, or else it won't work properly*/
+        if(dealReady) {
 
-        /*start off the animation*/
-        ANIMATIONSTAGE = ANIMATIONDISPLAYCARDS;
-        animationTimer=0;
+            /*hide the begindeal button, it will reappear on reset*/
+            stageInterface.getTriButton(triButtonArray, ButtonEnum.Tri.DEALBEGINDEAL).setVisible(false);
 
+            /*start off the animation*/
+            ANIMATIONSTAGE = ANIMATIONDISPLAYCARDS;
+            animationTimer = 0;
+        }
     }
 
     /**
@@ -381,6 +389,10 @@ public class DealStage extends Stage {
     static void dealReady(){
         if (dealReady==false) {
             dealReady = true;
+            /*when all players have joined the begin deal button should say 'begin deal'
+            * instead of 'wait for players'*/
+            stageInterface.getTriButton(triButtonArray, ButtonEnum.Tri.DEALBEGINDEAL).setText("Begin\nDeal");
+
         }
     }
 
@@ -437,6 +449,17 @@ public class DealStage extends Stage {
                 for(int i=0; i < TridentBuildingStage.cardButtonArray.size;i++){
                     Gdx.app.log("Deal Stage", "card: "+i + " value: "+ TridentBuildingStage.cardButtonArray.get(i).value+ " player: " + TridentBuildingStage.cardButtonArray.get(i).playerIndex);
                 }
+
+                calculateValueOfHand();
+                /*to get the true par we need to add the average total value of a hand,
+                364 is the total value of all cards
+                There are 52 cards so on average a card is worth 7
+                So to work out the true par it’s 7*cardsEach + par
+                */
+
+                Gdx.app.log("Deal Stage", "begin par. par0: "+par0+" par1: "+par1+" par2: "+par2);
+
+
 
                 /*player 1 will send the results of the deal to all players, only the value and the
                  * player index of each of the 52 cards are sent*/
@@ -535,21 +558,35 @@ public class DealStage extends Stage {
         stageInterface.getTriButton(triButtonArray,ButtonEnum.Tri.DEALDECREASEPAR).setVisible(false);
         MyServer.emitConfirmPar(par);
     }
-    static void parConfirmedByServer(int par0,int par1, int par2){
+
+    /**
+     * this will be called by the server once the server has received all the pars and worked out each player's correct par
+     * @param par0a
+     * @param par1a
+     * @param par2a
+     */
+    static void parConfirmedByServer(int par0a,int par1a, int par2a){
         parReady();
         if(MyServer.player.index ==0){
-            par = par0;
+            par = par0a;
+            par0=par0a;
         }
         else if(MyServer.player.index ==1){
-            par = par1;
+            par = par1a;
+            par1=par1a;
         }
         else if(MyServer.player.index ==2){
-            par = par2;
+            par = par2a;
+            par2=par2a;
         }
         Gdx.app.log("DealStage","par : "+par);
         deal();
 
     }
+
+    /**
+     * this will be called from the server once the deal has been received from the server
+     */
     static void dealLoaded(){
 
         /*should only call this once deal data received*/

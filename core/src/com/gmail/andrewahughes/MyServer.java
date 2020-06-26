@@ -31,6 +31,14 @@ public class MyServer {
      and a value which for us is a Starship class
     * string will store the id , starship will store a starship class*/
     public static HashMap<String, Player> friendlyPlayers;
+
+    /**
+     *     * the friendlyPlayers list will be iterated over during the draw method
+     *     * if a new item is added to the collection when iterating over it, which could
+     *     * happen depending ont he timing, it will crash. this list prevents that,
+     *     * add the player to this list, then add it to the friendlyPlayers list when safe*/
+
+    public static HashMap<String, Player> friendlyPlayersAddingList;
     public static SpriteBatch spriteBatch;
     public static BitmapFont bitmapFont;
     public static ShapeRenderer shapeRenderer;
@@ -50,8 +58,11 @@ public class MyServer {
             bitmapFont = new BitmapFont();
             shapeRenderer = new ShapeRenderer();
             friendlyPlayers = new HashMap<String, Player>();
+            friendlyPlayersAddingList = new HashMap<String, Player>();
             playerShip = new Texture("badlogic.jpg");
             friendlyShip = new Texture("badlogic1.jpg");
+            player = new Player(playerShip);
+
             startServer();
         }
     }
@@ -76,6 +87,14 @@ public class MyServer {
             bitmapFont.draw(spriteBatch,"[bottomleft] x: "+player.getX()+" y: "+player.getY(),10,20);
             bitmapFont.draw(spriteBatch," [topleft] x: "+player.getX()+" y: "+player.getY(),10,1280-20);
         }
+
+        /* modifying the friendlyPlayers collection while iterating over it
+        * will cause errors, the friendlyPlayersAddingList helps prevent this*/
+        if(friendlyPlayersAddingList.size()>0){
+            friendlyPlayers.putAll(friendlyPlayersAddingList);
+        }
+        friendlyPlayersAddingList.clear();
+
         /*for each entry in the hash map, get the value, which remember
          * is a starship class, and call the function draw to draw that
          * starship.  note that starship inherits draw method from texture*/
@@ -124,7 +143,7 @@ public class MyServer {
         JSONArray objects = new JSONArray();
         try{
             /*data needs to contain the value 'v' of each card and who owns 'p' that card*/
-            for(int i =0; i <52; i++) {
+            for(int i =0; i <OptionsStage.numberOfPlayers*OptionsStage.cardsEach; i++) {
 
                 JSONObject data = new JSONObject();
                 data.put("v" , TridentBuildingStage.cardButtonArray.get(i).value);
@@ -176,7 +195,6 @@ public class MyServer {
             @Override
             public void call(Object... args) {
                 Gdx.app.log("SocketIO", "Connected");
-                player = new Player(playerShip);
             }
         }).on("socketID", new Emitter.Listener() {
             /*the event listener will listen for an event called "socketID"*/
@@ -198,7 +216,12 @@ public class MyServer {
                     String playerId = data.getString("id");
                     Gdx.app.log("SocketIO", "New Player Connect: " + playerId);
                     /*put the new player's id and the starship class in our hashmap*/
-                    friendlyPlayers.put(playerId, new Player(friendlyShip));
+                    /*i think this is the casuse of an "LWJGL Application" java.util.ConcurrentModificationException
+                    * error i've been getting, if you add a new player at the wrong moment we might be iterating over
+                    * this friendlyPlayers collection when we modify the collection to add the new player, instead
+                    * add the player to a different collection that is never iterated over and only add that to the
+                    * friendlyPlayers when we are not iterating over it */
+                    friendlyPlayersAddingList.put(playerId, new Player(friendlyShip));
                     Gdx.app.log("SocketIO", "total players in hashmap: " + friendlyPlayers.size());
                     for(HashMap.Entry<String, Player> entry : friendlyPlayers.entrySet()){
 
@@ -259,7 +282,7 @@ public class MyServer {
                  */
                 JSONArray objects = (JSONArray) args[0];
                 try {
-                    for(int i=0; i<52;i++){
+                    for(int i=0; i<OptionsStage.numberOfPlayers*OptionsStage.cardsEach;i++){
                         TridentBuildingStage.cardButtonArray.get(i).value= objects.getJSONObject(i).getInt("v");
                         TridentBuildingStage.cardButtonArray.get(i).playerIndex= objects.getJSONObject(i).getInt("p");
                     }

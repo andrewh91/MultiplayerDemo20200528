@@ -48,6 +48,7 @@ public class TridentBuildingStage extends Stage {
             spriteBatch.begin();
             /*draw all actors of this stage*/
             drawTriButtons(spriteBatch);
+            drawCardButtons();
             spriteBatch.end();
             shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
             /*draw a box around the screen 1280 by 720 WORLDWIDTH, WORLDHEIGHT*/
@@ -82,6 +83,13 @@ public class TridentBuildingStage extends Stage {
 
         for(int i=0;i<cardButtonArray.size;i++) {
             cardButtonArray.get(i).drawShape(shapeRenderer);
+
+        }
+    }
+    void drawCardButtons() {
+
+        for(int i=0;i<cardButtonArray.size;i++) {
+            cardButtonArray.get(i).draw(spriteBatch,1.0f);
 
         }
     }

@@ -70,7 +70,7 @@ public class CardButton  extends Actor {
      * this is just used to help position the cardButtons in the setDealAnimationPosition method
      */
     static byte dealAnimationSuit =0;
-    static byte dealAnimationPreviousSuit =0;
+    static byte dealAnimationPreviousSuit =-1;
 
     int value;
 
@@ -78,7 +78,7 @@ public class CardButton  extends Actor {
     * variable is set to the player's index, which will be used in the
     * touch logic, default is 0 so we know it doesn't have a player,
     * otherwise value will be 1, 2 or 3*/
-    int playerIndex =0;
+    int playerIndex =-1;
 
     /**constructor for triButton
      *
@@ -474,21 +474,28 @@ public class CardButton  extends Actor {
         if(playerIndex==MyServer.player.index){
             /*need to reserve space at the top of the rectangle for trident hand*/
             /*this helps figure out what suit each card is in*/
-                dealAnimationSuit=(byte)(dealAnimationPreviousSuit==getSuit()?dealAnimationSuit+1:0);
-                dealAnimationPreviousSuit=getSuit();
-                dealAnimationPositionY = 1280-(+dealAnimationTridentHandHeight+dealAnimationTridentHeight+(dealAnimationTridentHeight+dealAnimationRowMargin) *getSuit());
-                dealAnimationPositionX = (float)(dealAnimationRectangleDealX +(dealAnimationTridentWidth*0.5f*Math.floor(dealAnimationSuit/3)));
-                orientation= getSuit()%2==0 ? (Math.floor(dealAnimationSuit/3)%2==0?POINTUP:POINTDOWN) : (Math.floor(dealAnimationSuit/3)%2==0?POINTDOWN:POINTUP);
-                position=(byte)(dealAnimationSuit%3);
+            Gdx.app.log("CardButton","dealAnimationSuit: "+dealAnimationSuit+" dealAnimationPreviousSuit: "+dealAnimationPreviousSuit);
+
+            dealAnimationSuit=(byte)(dealAnimationPreviousSuit==getSuit()?dealAnimationSuit+1:0);
+            dealAnimationPreviousSuit=getSuit();
+            dealAnimationPositionY = 1280-(+dealAnimationTridentHandHeight+dealAnimationTridentHeight+(dealAnimationTridentHeight+dealAnimationRowMargin) *getSuit());
+            dealAnimationPositionX = (float)(dealAnimationRectangleDealX +(dealAnimationTridentWidth*0.5f*Math.floor(dealAnimationSuit/3)));
+            orientation= getSuit()%2==0 ? (Math.floor(dealAnimationSuit/3)%2==0?POINTUP:POINTDOWN) : (Math.floor(dealAnimationSuit/3)%2==0?POINTDOWN:POINTUP);
+            position=(byte)(dealAnimationSuit%3);
             Gdx.app.log("CardButton","card's player index: "+playerIndex+" player's index: "+MyServer.player.index);
             Gdx.app.log("CardButton","card value: "+value+" x: "+dealAnimationPositionX+" y: "+dealAnimationPositionY);
 
         }
-        else if(playerIndex==(MyServer.player.index-1%3)){
+        /*if this card does not belong to the player, move if off screen*/
+        else if(playerIndex==(MyServer.player.index+1)%OptionsStage.numberOfPlayers){
+            dealAnimationPositionX = 720*2;
+        }
+        else if(playerIndex==(MyServer.player.index+2)%OptionsStage.numberOfPlayers){
             dealAnimationPositionX = -720;
         }
-        else if(playerIndex==(MyServer.player.index+1%3)){
-            dealAnimationPositionX = 720*2;
+        /*undealt cards will have a player index of -1*/
+        else{
+            dealAnimationPositionY=1280*1.5f;
         }
     }
 
