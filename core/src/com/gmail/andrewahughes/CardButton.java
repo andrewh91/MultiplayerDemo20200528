@@ -76,8 +76,8 @@ public class CardButton  extends Actor {
 
     /*when the cards are dealt to the player, all that happens is this
     * variable is set to the player's index, which will be used in the
-    * touch logic, default is 0 so we know it doesn't have a player,
-    * otherwise value will be 1, 2 or 3*/
+    * touch logic, default is -1 so we know it doesn't have a player,
+    * otherwise value will be 0,1 or 2*/
     int playerIndex =-1;
 
     /**constructor for triButton
@@ -517,7 +517,7 @@ public class CardButton  extends Actor {
      * called in the dealStage, once we have created a random list of values 0-51
      * we can assign one to this cardButton
      */
-    public void setValue(byte value){
+    public void setValue(int value){
         this.value = value;
     }
 
@@ -549,7 +549,7 @@ public class CardButton  extends Actor {
         this.text=""+this.value;
 
     }
-    public void setPlayerIndex(byte index){
+    public void setPlayerIndex(int index){
         playerIndex=index;
     }
 

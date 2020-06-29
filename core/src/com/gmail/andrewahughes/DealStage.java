@@ -436,7 +436,6 @@ public class DealStage extends Stage {
          * so set a flag when all players have a player index, then when all player click begin deal
          * stop the deal halfway and show the par buttons,
          * when all players confirm par, force player one to send the deal */
-        /*deal will  be called again after the server has sorted out each player's index*/
         if(dealReady&&parReady) {
             /*if this player is player 1, deal the cards, otherwise receive data from player1's deal*/
             if (MyServer.player.index == 0) {
@@ -447,17 +446,74 @@ public class DealStage extends Stage {
                 }
                 Gdx.app.log("Deal Stage", "complete deal");
                 for(int i=0; i < TridentBuildingStage.cardButtonArray.size;i++){
-                    Gdx.app.log("Deal Stage", "card: "+i + " value: "+ TridentBuildingStage.cardButtonArray.get(i).value+ " player: " + TridentBuildingStage.cardButtonArray.get(i).playerIndex);
+                    Gdx.app.log("Deal Stage", "card: "+i + " value: "+ TridentBuildingStage.cardButtonArray.get(i).value+ " pip: "+ TridentBuildingStage.cardButtonArray.get(i).getPip()+ " player: " + TridentBuildingStage.cardButtonArray.get(i).playerIndex);
                 }
 
                 calculateValueOfHand();
+
+                if(OptionsStage.numberOfPlayers==3) {
                 /*to get the true par we need to add the average total value of a hand,
                 364 is the total value of all cards
                 There are 52 cards so on average a card is worth 7
                 So to work out the true par it’s 7*cardsEach + par
                 */
+                    /*total value of all cards in the player's hand*/
+                    int[] handValue = {playerHandValue.get(1),playerHandValue.get(2),playerHandValue.get(3)};
 
-                Gdx.app.log("Deal Stage", "begin par. par0: "+par0+" par1: "+par1+" par2: "+par2);
+
+                    /*teh average value of a deal + the player's par*/
+                    int[] handTruePar = {7 * OptionsStage.cardsEach + par0,7 * OptionsStage.cardsEach + par1,7 * OptionsStage.cardsEach + par2};
+
+                    /*the difference between the truePar and the actual value
+                     * if this is positive it means we need to lower the value of the hand
+                     * if it's negative it means we need to raise the value of the hand*/
+                    int[] handDiff = {handValue[0]-handTruePar[0],handValue[1]-handTruePar[1],handValue[2]-handTruePar[2]};
+                    Gdx.app.log("Deal Stage", "hand value "+handValue);
+                    Gdx.app.log("Deal Stage", "hand truePar "+handTruePar);
+                    Gdx.app.log("Deal Stage", "hand diff "+handDiff);
+
+                    /*if the player with teh highest hand diff is positive and above 0, we need to lower it's value*/
+                    if (handDiff[getPlayerWithHighestHandValue(-1)] > 0) {
+                        /*find the lowest card in the player with teh lowest hand value's hand */
+
+                        int lowestCardOppHandIndex = TridentBuildingStage.getNthLowestCard(getPlayerWithLowestHandValue(getPlayerWithHighestHandValue(-1)),0);
+                        /*if the handDiff1 is greater than the first player's highest card minus the chosen
+                         * player's lowest card, then we will need to swap more than one card - meaning
+                         * if we swap the first player's highest card with the other player's lowest card we
+                         * will need to make at least one additional swap*/
+                        int highestCard1Index = TridentBuildingStage.getNthLowestCard(0,OptionsStage.cardsEach - 1);
+                        if(handDiff[getPlayerWithHighestHandValue(-1)]>TridentBuildingStage.cardButtonArray.get(highestCard1Index).getPip()-TridentBuildingStage.cardButtonArray.get(lowestCardOppHandIndex).getPip()){
+                            /*swap the cards*/
+                            Gdx.app.log("Deal Stage", "swap 2 cards. plsyer1 card "+highestCard1Index+" player"+getPlayerWithLowestHandValue(-1)+" card "+lowestCardOppHandIndex);
+                            TridentBuildingStage.swapCards(highestCard1Index,lowestCardOppHandIndex);
+                            for(int i=0; i < TridentBuildingStage.cardButtonArray.size;i++){
+                                Gdx.app.log("Deal Stage", "card: "+i + " value: "+ TridentBuildingStage.cardButtonArray.get(i).value+ " pip: "+ TridentBuildingStage.cardButtonArray.get(i).getPip()+ " player: " + TridentBuildingStage.cardButtonArray.get(i).playerIndex);
+                            }
+                        }
+                        else {
+                            /*if the handDiff1 is low enough to be reduced to 0 in one go,
+                            * considering the lowest value in the opponent's hand that we already
+                            * selected, and considering the handDiff, find what value of card we need to swap*/
+                            int targetValue = lowestCardOppHandIndex+handDiff[getPlayerWithHighestHandValue(-1)];
+                            int targetCardIndex;
+                            for(int i=0;i<OptionsStage.cardsEach;i++){
+                                if(TridentBuildingStage.cardButtonArray.get(i).getPip()==targetValue){
+                                    targetCardIndex=i;
+                                    Gdx.app.log("Deal Stage", "swap 2 cards. player"+getPlayerWithHighestHandValue(-1)+" card "+highestCard1Index+" player"+getPlayerWithLowestHandValue(getPlayerWithHighestHandValue(-1))+" card "+lowestCardOppHandIndex);
+                                    TridentBuildingStage.swapCards(targetCardIndex,lowestCardOppHandIndex);
+                                    for(int j=0; j < TridentBuildingStage.cardButtonArray.size;j++){
+                                        Gdx.app.log("Deal Stage", "card: "+j + " value: "+ TridentBuildingStage.cardButtonArray.get(j).value+ " pip: "+ TridentBuildingStage.cardButtonArray.get(j).getPip()+ " player: " + TridentBuildingStage.cardButtonArray.get(j).playerIndex);
+                                    }
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+                else if(OptionsStage.numberOfPlayers==2) {
+
+                }
+                    Gdx.app.log("Deal Stage", "begin par. par0: "+par0+" par1: "+par1+" par2: "+par2);
 
 
 
@@ -477,6 +533,52 @@ public class DealStage extends Stage {
     }
 
     /**
+     *
+     * @param exclude player index to exclude, we normally will be calling this method to
+     *                get a reference to a player other than the current player, so pass
+     *                the current player's index in so this won't return that. can pass in
+     *                -1 if you don't want to exclude any
+     * @return
+     */
+    private static int getPlayerWithHighestHandValue(int exclude){
+        int highestPlayer =0;
+        int highestValue =0;
+        for (int p =0; p<playerHandValue.size;p++){
+            if(p==exclude) {
+
+            }
+            else if (playerHandValue.get(p)>highestValue){
+                highestValue=playerHandValue.get(p);
+                highestPlayer =p;
+            }
+        }
+
+        return highestPlayer;
+    }
+    /**
+     *
+     * @param exclude player index to exclude, we normally will be calling this method to
+     *                get a reference to a player other than the current player, so pass
+     *                the current player's index in so this won't return that. can pass in
+     *      *                -1 if you don't want to exclude any
+     * @return
+     */
+    private static int getPlayerWithLowestHandValue(int exclude){
+        int lowestPlayer =0;
+        int lowestValue =365;
+        for (int p =0; p<playerHandValue.size;p++){
+            if(p==exclude){
+
+            }
+            else if (playerHandValue.get(p)<lowestValue){
+                lowestValue=playerHandValue.get(p);
+                lowestPlayer =p;
+            }
+        }
+
+        return lowestPlayer;
+    }
+    /**
      * this will help with the par method
      * each card will have been given a playerIndex value, either 1,2 or 3
      * that will tell you who owns the card, a value of 0 means it was not
@@ -484,24 +586,34 @@ public class DealStage extends Stage {
      */
     private static void calculateValueOfHand() {
         playerHandValue.clear();
-        /*add one player to the player hand value array,
-        * this will intercept any cards that were not dealt*/
-        playerHandValue.add(0);
 
         /*for each player add a 0 value to the array, combined with the one
-        * we have just made above, the array should now have 1 more item
+        * we will make below, the array should now have 1 more item
         * that the number of players*/
         for (byte p = 0; p < OptionsStage.numberOfPlayers; p++) {
             playerHandValue.add(0);
         }
+
+        /*add one player to the player hand value array,
+         * this will intercept any cards that were not dealt*/
+        playerHandValue.add(0);
+        int playerHandValueIndex=0;
         /*for all 52 cards*/
         for (int i = 0; i < TridentBuildingStage.cardButtonArray.size; i++) {
+            /*the default player index is -1, any undealt cards will still have -1 playerIndex, so
+            * change the variable used to access the playerHandValue array to = numberOfPlayers*/
+            if((int) TridentBuildingStage.cardButtonArray.get(i).playerIndex>-1) {
+                playerHandValueIndex = (int) TridentBuildingStage.cardButtonArray.get(i).playerIndex;
+            }
+            else{
+                playerHandValueIndex=OptionsStage.numberOfPlayers;
+            }
             /*basically, for each card, this will add the value of the card to the
             relevant item in the playerHandValue array*/
-            playerHandValue.set((int) TridentBuildingStage.cardButtonArray.get(i).playerIndex,playerHandValue.get(TridentBuildingStage.cardButtonArray.get(i).playerIndex)+TridentBuildingStage.cardButtonArray.get(i).value%13+1);
+            playerHandValue.set(playerHandValueIndex,playerHandValue.get(playerHandValueIndex)+TridentBuildingStage.cardButtonArray.get(i).value%13+1);
         }
         for (int i = 0; i < playerHandValue.size; i++) {
-            if(i==0){
+            if(i==OptionsStage.numberOfPlayers){
                 Gdx.app.log("dealStage", "value of undealt cards = " + playerHandValue.get(i));
             }
             else {

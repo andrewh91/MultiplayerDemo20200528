@@ -259,4 +259,49 @@ static void updatePlayerTridentHand(){
 
     }
 
+    /**
+     *
+     *  this method is designed for use in the del stage, the deal stage will need methods to get teh lowest, second lowest etc
+     *  card deal to a specified player, these methods are just for clarity and convenience
+     *  the cards are dealt to the player in order lowest to highest, these methods rely on that to get the correct card
+     *
+     * @param player which player's card are we getting, 0, 1 or 2 (2 for 3 player game only)
+     * @param nthLowestCard 0 will get the lowest card, OptionsStage.cardsEach-1 will get the highest
+     * @return returns the index position of the card in teh cardButtonArray
+     */
+    public static int getNthLowestCard(int player,int nthLowestCard){
+
+        return nthLowestCard+player*OptionsStage.cardsEach;
+    }
+
+    /**
+     * easiest way to swap cards between players is to swap the values, and the playerindex
+     * then sort it again
+     * @param cardIndex1
+     * @param cardIndex2
+     */
+    public static void swapCards(int cardIndex1, int cardIndex2){
+        /*swap the value and player index of the 2 cards*/
+        int value1 = cardButtonArray.get(cardIndex1).value;
+        int player1 = cardButtonArray.get(cardIndex1).playerIndex;
+        cardButtonArray.get(cardIndex1).setValue(cardButtonArray.get(cardIndex2).value);
+        cardButtonArray.get(cardIndex2).setValue(value1);
+        cardButtonArray.get(cardIndex1).setPlayerIndex(cardButtonArray.get(cardIndex2).playerIndex);
+        cardButtonArray.get(cardIndex2).setPlayerIndex(player1);
+
+        /*now we need to sort the array again*/
+
+        Array<Integer> tempArray = new Array<>();
+        for(int j=0;j<OptionsStage.numberOfPlayers;j++) {
+            tempArray.clear();
+            for (int i = 0; i < OptionsStage.cardsEach; i++) {
+                tempArray.add(TridentBuildingStage.cardButtonArray.get(j*OptionsStage.cardsEach+i).value);
+            }
+            tempArray.sort();
+            for (int k =0; k < tempArray.size;k++){
+                TridentBuildingStage.cardButtonArray.get(j*OptionsStage.cardsEach+k).setValue(tempArray.get(k));
+            }
+        }
+    }
+
 }
