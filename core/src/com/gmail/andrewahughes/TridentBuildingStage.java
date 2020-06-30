@@ -263,15 +263,36 @@ static void updatePlayerTridentHand(){
      *
      *  this method is designed for use in the del stage, the deal stage will need methods to get teh lowest, second lowest etc
      *  card deal to a specified player, these methods are just for clarity and convenience
-     *  the cards are dealt to the player in order lowest to highest, these methods rely on that to get the correct card
+     *  the cards are dealt to the player in order lowest to highest, but i'm after the highest pip
+     *  for example king of suit 1 is index 12, ace of suit 2 is index 13, king is higher pip but lower index
      *
      * @param player which player's card are we getting, 0, 1 or 2 (2 for 3 player game only)
      * @param nthLowestCard 0 will get the lowest card, OptionsStage.cardsEach-1 will get the highest
      * @return returns the index position of the card in teh cardButtonArray
      */
     public static int getNthLowestCard(int player,int nthLowestCard){
-
-        return nthLowestCard+player*OptionsStage.cardsEach;
+        Array<Integer> tempArray = new Array<>();
+        tempArray.clear();
+        /*add all the pip values of this player's cards to this tempArray*/
+        for (int i = player*OptionsStage.cardsEach; i < player*OptionsStage.cardsEach+OptionsStage.cardsEach; i++) {
+            /*don't loop through the cardButtonArray in a very safe way,
+            * if the player variable above is set to OptionsStage.numberOfPlayers, we can go index out of bounds
+            * but we can just stop before we get to that point and everything will work as intended*/
+            if(i>=TridentBuildingStage.cardButtonArray.size){
+                break;
+            }
+            tempArray.add((int)TridentBuildingStage.cardButtonArray.get(i).getPip());
+        }
+        /*sort the array lowest pip value to highest pip value*/
+        tempArray.sort();
+        /*now in the card button array find the card index position that has the nthLowest pip value */
+        int i;
+        for ( i = player*OptionsStage.cardsEach; i < player*OptionsStage.cardsEach+OptionsStage.cardsEach; i++) {
+            if(TridentBuildingStage.cardButtonArray.get(i).getPip() == tempArray.get(nthLowestCard)){
+                break;
+            }
+        }
+        return i;
     }
 
     /**
@@ -283,11 +304,8 @@ static void updatePlayerTridentHand(){
     public static void swapCards(int cardIndex1, int cardIndex2){
         /*swap the value and player index of the 2 cards*/
         int value1 = cardButtonArray.get(cardIndex1).value;
-        int player1 = cardButtonArray.get(cardIndex1).playerIndex;
         cardButtonArray.get(cardIndex1).setValue(cardButtonArray.get(cardIndex2).value);
         cardButtonArray.get(cardIndex2).setValue(value1);
-        cardButtonArray.get(cardIndex1).setPlayerIndex(cardButtonArray.get(cardIndex2).playerIndex);
-        cardButtonArray.get(cardIndex2).setPlayerIndex(player1);
 
         /*now we need to sort the array again*/
 

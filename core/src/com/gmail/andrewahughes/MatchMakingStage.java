@@ -14,7 +14,7 @@ import static com.gmail.andrewahughes.MyGdxGame.WORLDWIDTH;
 public class MatchMakingStage extends Stage {
 
     boolean visible =false;
-    StageInterface stageInterface;
+    static StageInterface stageInterface;
     SpriteBatch spriteBatch;
     ShapeRenderer shapeRenderer;
     /*we need to store an array of TriButtons so we can loop through and call the draw method of each
@@ -90,7 +90,15 @@ public class MatchMakingStage extends Stage {
          * then i can make sure the buttons are in the correct order*/
         stageInterface.addTriButton(new TriButton(stageInterface,0,0,false,StageInterface.MATCHMAKINGSTAGE, ButtonEnum.Tri.MATCHMAKINGNEXTSTAGE),triButtonArray,this);
         stageInterface.getTriButton(triButtonArray,ButtonEnum.Tri.MATCHMAKINGNEXTSTAGE).setText("Deal");
+        stageInterface.getTriButton(triButtonArray,ButtonEnum.Tri.MATCHMAKINGNEXTSTAGE).setVisible(false);
         //stageInterface.getTriButton(triButtonArray,ButtonEnum.Tri.MATCHMAKINGNEXTSTAGE).setTridentToTextSize();
+
+    }
+    /*if you click through to the deal stage too quickly i thnk some parts of the
+    * server are not set up in time, when the server is ready, it will call this
+    * method of MatchMakingStage, which will allow the deal button to the clicked*/
+    public static void serverReady(){
+        stageInterface.getTriButton(triButtonArray,ButtonEnum.Tri.MATCHMAKINGNEXTSTAGE).setVisible(true);
 
     }
     /**

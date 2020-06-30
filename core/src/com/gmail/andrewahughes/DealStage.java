@@ -69,9 +69,14 @@ public class DealStage extends Stage {
     /*when the cards are dealt, add up all the pip values of the cards
     * this will help with working out par */
     static Array<Integer> playerHandValue = new Array<Integer>();
+    static int [] handDiff;
+    static int[] handValue ;
+    static int[] handTruePar ;
 
     static boolean dealReady=false;
     static boolean parReady=false;
+
+    public static boolean amendPar=false;
 
 
     public DealStage(StageInterface stageInterface, Viewport viewport, SpriteBatch batch,ShapeRenderer shapeRenderer) {
@@ -343,7 +348,6 @@ public class DealStage extends Stage {
     }
 
     public void reset() {
-        Deck.shuffle();
         /*reset the animation stages and timer*/
         ANIMATIONSTAGE = ANIMATIONSTOPPED;
         animationTimer = 0;
@@ -449,72 +453,10 @@ public class DealStage extends Stage {
                     Gdx.app.log("Deal Stage", "card: "+i + " value: "+ TridentBuildingStage.cardButtonArray.get(i).value+ " pip: "+ TridentBuildingStage.cardButtonArray.get(i).getPip()+ " player: " + TridentBuildingStage.cardButtonArray.get(i).playerIndex);
                 }
 
-                calculateValueOfHand();
 
-                if(OptionsStage.numberOfPlayers==3) {
-                /*to get the true par we need to add the average total value of a hand,
-                364 is the total value of all cards
-                There are 52 cards so on average a card is worth 7
-                So to work out the true par it’s 7*cardsEach + par
-                */
-                    /*total value of all cards in the player's hand*/
-                    int[] handValue = {playerHandValue.get(1),playerHandValue.get(2),playerHandValue.get(3)};
-
-
-                    /*teh average value of a deal + the player's par*/
-                    int[] handTruePar = {7 * OptionsStage.cardsEach + par0,7 * OptionsStage.cardsEach + par1,7 * OptionsStage.cardsEach + par2};
-
-                    /*the difference between the truePar and the actual value
-                     * if this is positive it means we need to lower the value of the hand
-                     * if it's negative it means we need to raise the value of the hand*/
-                    int[] handDiff = {handValue[0]-handTruePar[0],handValue[1]-handTruePar[1],handValue[2]-handTruePar[2]};
-                    Gdx.app.log("Deal Stage", "hand value "+handValue);
-                    Gdx.app.log("Deal Stage", "hand truePar "+handTruePar);
-                    Gdx.app.log("Deal Stage", "hand diff "+handDiff);
-
-                    /*if the player with teh highest hand diff is positive and above 0, we need to lower it's value*/
-                    if (handDiff[getPlayerWithHighestHandValue(-1)] > 0) {
-                        /*find the lowest card in the player with teh lowest hand value's hand */
-
-                        int lowestCardOppHandIndex = TridentBuildingStage.getNthLowestCard(getPlayerWithLowestHandValue(getPlayerWithHighestHandValue(-1)),0);
-                        /*if the handDiff1 is greater than the first player's highest card minus the chosen
-                         * player's lowest card, then we will need to swap more than one card - meaning
-                         * if we swap the first player's highest card with the other player's lowest card we
-                         * will need to make at least one additional swap*/
-                        int highestCard1Index = TridentBuildingStage.getNthLowestCard(0,OptionsStage.cardsEach - 1);
-                        if(handDiff[getPlayerWithHighestHandValue(-1)]>TridentBuildingStage.cardButtonArray.get(highestCard1Index).getPip()-TridentBuildingStage.cardButtonArray.get(lowestCardOppHandIndex).getPip()){
-                            /*swap the cards*/
-                            Gdx.app.log("Deal Stage", "swap 2 cards. plsyer1 card "+highestCard1Index+" player"+getPlayerWithLowestHandValue(-1)+" card "+lowestCardOppHandIndex);
-                            TridentBuildingStage.swapCards(highestCard1Index,lowestCardOppHandIndex);
-                            for(int i=0; i < TridentBuildingStage.cardButtonArray.size;i++){
-                                Gdx.app.log("Deal Stage", "card: "+i + " value: "+ TridentBuildingStage.cardButtonArray.get(i).value+ " pip: "+ TridentBuildingStage.cardButtonArray.get(i).getPip()+ " player: " + TridentBuildingStage.cardButtonArray.get(i).playerIndex);
-                            }
-                        }
-                        else {
-                            /*if the handDiff1 is low enough to be reduced to 0 in one go,
-                            * considering the lowest value in the opponent's hand that we already
-                            * selected, and considering the handDiff, find what value of card we need to swap*/
-                            int targetValue = lowestCardOppHandIndex+handDiff[getPlayerWithHighestHandValue(-1)];
-                            int targetCardIndex;
-                            for(int i=0;i<OptionsStage.cardsEach;i++){
-                                if(TridentBuildingStage.cardButtonArray.get(i).getPip()==targetValue){
-                                    targetCardIndex=i;
-                                    Gdx.app.log("Deal Stage", "swap 2 cards. player"+getPlayerWithHighestHandValue(-1)+" card "+highestCard1Index+" player"+getPlayerWithLowestHandValue(getPlayerWithHighestHandValue(-1))+" card "+lowestCardOppHandIndex);
-                                    TridentBuildingStage.swapCards(targetCardIndex,lowestCardOppHandIndex);
-                                    for(int j=0; j < TridentBuildingStage.cardButtonArray.size;j++){
-                                        Gdx.app.log("Deal Stage", "card: "+j + " value: "+ TridentBuildingStage.cardButtonArray.get(j).value+ " pip: "+ TridentBuildingStage.cardButtonArray.get(j).getPip()+ " player: " + TridentBuildingStage.cardButtonArray.get(j).playerIndex);
-                                    }
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                }
-                else if(OptionsStage.numberOfPlayers==2) {
-
-                }
-                    Gdx.app.log("Deal Stage", "begin par. par0: "+par0+" par1: "+par1+" par2: "+par2);
-
+                Gdx.app.log("Deal Stage", "begin par. par0: "+par0+" par1: "+par1+" par2: "+par2);
+                amendPar=false;
+                resolvePar();
 
 
                 /*player 1 will send the results of the deal to all players, only the value and the
@@ -538,17 +480,50 @@ public class DealStage extends Stage {
      *                get a reference to a player other than the current player, so pass
      *                the current player's index in so this won't return that. can pass in
      *                -1 if you don't want to exclude any
+     * @param exclude2 the variable we're trying to get is stored in the playerHandValue
+     *                 it stores a variable for each player and an additional one for the
+     *                 undealt cards, so we might want to exclude that too, OptionsStage.numberOfPLayers
+     *                 will exclude the undealt hand
      * @return
      */
-    private static int getPlayerWithHighestHandValue(int exclude){
+    private static int getPlayerWithHighestHandValue(int exclude,int exclude2,int exclude3){
         int highestPlayer =0;
         int highestValue =0;
         for (int p =0; p<playerHandValue.size;p++){
-            if(p==exclude) {
+            if(p==exclude || p ==exclude2|| p ==exclude3) {
 
             }
             else if (playerHandValue.get(p)>highestValue){
                 highestValue=playerHandValue.get(p);
+                highestPlayer =p;
+            }
+        }
+
+        return highestPlayer;
+    }
+
+
+    /**
+     *
+     * @param exclude player index to exclude, we normally will be calling this method to
+     *                get a reference to a player other than the current player, so pass
+     *                the current player's index in so this won't return that. can pass in
+     *                -1 if you don't want to exclude any
+     * @param exclude2 the variable we're trying to get is stored in the playerHandValue
+     *                 it stores a variable for each player and an additional one for the
+     *                 undealt cards, so we might want to exclude that too, OptionsStage.numberOfPLayers
+     *                 will exclude the undealt hand
+     * @return
+     */
+    private static int getPlayerWithHighestHandDiff(int exclude,int exclude2,int exclude3){
+        int highestPlayer =0;
+        int highestValue =0;
+        for (int p =0; p<handDiff.length;p++){
+            if(p==exclude || p ==exclude2|| p ==exclude3) {
+
+            }
+            else if (handDiff[p]>highestValue){
+                highestValue=handDiff[p];
                 highestPlayer =p;
             }
         }
@@ -561,17 +536,49 @@ public class DealStage extends Stage {
      *                get a reference to a player other than the current player, so pass
      *                the current player's index in so this won't return that. can pass in
      *      *                -1 if you don't want to exclude any
+     *  @param exclude2 the variable we're trying to get is stored in the playerHandValue
+     *        it stores a variable for each player and an additional one for the
+     *        undealt cards, so we might want to exclude that too, OptionsStage.numberOfPLayers
+     *        will exclude the undealt hand
      * @return
      */
-    private static int getPlayerWithLowestHandValue(int exclude){
+    private static int getPlayerWithLowestHandValue(int exclude,int exclude2,int exclude3){
         int lowestPlayer =0;
         int lowestValue =365;
         for (int p =0; p<playerHandValue.size;p++){
-            if(p==exclude){
+            if(p==exclude || p== exclude2|| p ==exclude3){
 
             }
             else if (playerHandValue.get(p)<lowestValue){
                 lowestValue=playerHandValue.get(p);
+                lowestPlayer =p;
+            }
+        }
+
+        return lowestPlayer;
+    }
+
+    /**
+     *
+     * @param exclude player index to exclude, we normally will be calling this method to
+     *                get a reference to a player other than the current player, so pass
+     *                the current player's index in so this won't return that. can pass in
+     *      *                -1 if you don't want to exclude any
+     *  @param exclude2 the variable we're trying to get is stored in the playerHandValue
+     *        it stores a variable for each player and an additional one for the
+     *        undealt cards, so we might want to exclude that too, OptionsStage.numberOfPLayers
+     *        will exclude the undealt hand
+     * @return
+     */
+    private static int getPlayerWithLowestHandDiff(int exclude,int exclude2,int exclude3){
+        int lowestPlayer =0;
+        int lowestValue =365;
+        for (int p =0; p<handDiff.length;p++){
+            if(p==exclude || p ==exclude2|| p ==exclude3) {
+
+            }
+            else if (handDiff[p]<lowestValue){
+                lowestValue=handDiff[p];
                 lowestPlayer =p;
             }
         }
@@ -620,6 +627,18 @@ public class DealStage extends Stage {
                 Gdx.app.log("dealStage", "value of player" + i + "'s cards = " + playerHandValue.get(i));
             }
         }
+        Gdx.app.log("dealStage", "value of all" + (playerHandValue.get(0)+playerHandValue.get(1)+playerHandValue.get(2)+(playerHandValue.size>3?playerHandValue.get(3):0)));
+        /*total value of all cards in the player's hand*/
+        handValue = new int[]{playerHandValue.get(0),playerHandValue.get(1),playerHandValue.get(2)};
+        /*teh average value of a deal + the player's par*/
+        handTruePar = new int[]{7 * OptionsStage.cardsEach + par0,7 * OptionsStage.cardsEach + par1,7 * OptionsStage.cardsEach + par2};
+        /*the difference between the truePar and the actual value
+         * if this is positive it means we need to lower the value of the hand
+         * if it's negative it means we need to raise the value of the hand*/
+        handDiff = new int[]{handValue[0]-handTruePar[0],handValue[1]-handTruePar[1],handValue[2]-handTruePar[2]};
+        Gdx.app.log("Deal Stage", "hand value "+handValue[0]+"hand truePar "+handTruePar[0]+"hand diff "+handDiff[0]);
+        Gdx.app.log("Deal Stage", "hand value "+handValue[1]+"hand truePar "+handTruePar[1]+"hand diff "+handDiff[1]);
+        Gdx.app.log("Deal Stage", "hand value "+handValue[2]+"hand truePar "+handTruePar[2]+"hand diff "+handDiff[2]);
     }
 
     /**
@@ -722,6 +741,7 @@ public class DealStage extends Stage {
         for (int i = 0; i < TridentBuildingStage.cardButtonArray.size; i++) {
             TridentBuildingStage.cardButtonArray.get(i).setDealAnimationValues(i);
         }
+
         /*this is where the cards are shuffled*/
         amendCardsForDeal();
         /*we will deal the cards to the players here,
@@ -752,7 +772,9 @@ public class DealStage extends Stage {
      * we can sort that player's cards.  this results in player 1's sorted cards
      * being in teh array first, followed by player 2's sorted cards etc
      */
-    public void amendCardsForDeal() {
+    public static void amendCardsForDeal() {
+
+        Deck.shuffle();
         Array<Byte> tempArray = new Array<>();
         for(int j=0;j<OptionsStage.numberOfPlayers;j++) {
             tempArray.clear();
@@ -764,5 +786,349 @@ public class DealStage extends Stage {
                 TridentBuildingStage.cardButtonArray.get(j*OptionsStage.cardsEach+k).setValue(tempArray.get(k));
             }
         }
+        /*also add any undealt cards*/
+        tempArray.clear();
+        for(int i =OptionsStage.numberOfPlayers*OptionsStage.cardsEach; i<52;i++){
+            tempArray.add(Deck.randomCardArray.get(i));
+        }
+        tempArray.sort();
+        int j=0;
+        for(int i =OptionsStage.numberOfPlayers*OptionsStage.cardsEach; i<52;i++){
+            TridentBuildingStage.cardButtonArray.get(i).setValue(tempArray.get(j));
+            j++;
+        }
+    }
+
+    public static void resolvePar(){
+        calculateValueOfHand();
+
+
+                /*to get the true par we need to add the average total value of a hand,
+                364 is the total value of all cards
+                There are 52 cards so on average a card is worth 7
+                So to work out the true par it’s 7*cardsEach + par
+                */
+
+            int closestApproxValue=365;
+            int closestApproxIndex=-1;
+            int closestApproxIndex2=-1;
+            int lowestCardOppHandIndex ;
+            /*we will run the below for loop at most twice, on the second time we
+             * want to exclude the player we just resolved the handDiff for */
+        int playerWithResolvedHand=-1;
+        int playerWithResolvedHand1=-1;
+
+            /*this will repeat for (numberOfPlayers) times, it will loop round when we succeed in getting one player's
+             * handDiff to 0*/
+            for(int numberOfPlayersHandDiffResolvedFor=0;numberOfPlayersHandDiffResolvedFor<OptionsStage.numberOfPlayers;numberOfPlayersHandDiffResolvedFor++) {
+
+                int targetCardIndex = -1;
+                int highDiffPlayer= getPlayerWithHighestHandDiff(playerWithResolvedHand,playerWithResolvedHand1,OptionsStage.numberOfPlayers);
+                int lowDiffPlayer = getPlayerWithLowestHandDiff(highDiffPlayer, playerWithResolvedHand, OptionsStage.numberOfPlayers);
+
+                /*if we are on the last player, force the lowDiffPlayer to be the undealt hand*/
+                if(numberOfPlayersHandDiffResolvedFor==OptionsStage.numberOfPlayers-1) {
+                    lowDiffPlayer = OptionsStage.numberOfPlayers;
+                }
+                Gdx.app.log("deal stage","numberOfPlayersHandDiffResolvedFor "+numberOfPlayersHandDiffResolvedFor);
+                /*if the player with the highest hand diff is positive and not 0, we need to lower it's value*/
+                if (handDiff[highDiffPlayer] > 0) {
+                        /*the following for loop will find the player with the highest hand diff call that player1, and
+                        the player with the lowest hand diff call that player2.
+                        it will compare the lowest card in player2 with the highest card in player1
+                        if the difference between these cards is less than the player1 hand difference
+                        then just swap them instantly - the for loop will continue infinitely if the
+                        difference between the cards is always less than the player1 hand difference, but that
+                        difference will become lower with each loop, so it should not happen infinitely.
+                        if the difference between these cards is more than the player1 hand difference
+                        then swapping them would make the the player1 handDiff negative, so instead
+                        try and find a value in player1's card array that when swapped with player2's lowest card
+                        will reduce the player1 handDiff to exactly 0 . if such a card can not be found, we find the
+                        next lowest card in the player2 hand array and repeat. such a card should eventually be found
+                        and we can break the for loop when the player1 handDiff becomes 0, but if no such card can be found
+                        which i think would be unlikley or maybe impossible, just display a message to that effect
+                        and shuffle the cards and start all over.
+                        if we do get a player to handDiff =0, then for a 3 player game we can run through this one more time
+                        so we have 2 players on handDiff=0, the 3rd player would need to swap with the undealt cards, and if
+                        it can't resolve it's handDiff with those cards then we need another additional solution
+                        * */
+
+                        int passTotal = OptionsStage.cardsEach;
+                        /*if we are on the last player adjust the amount of passes we can do */
+                    if(numberOfPlayersHandDiffResolvedFor==OptionsStage.numberOfPlayers-1) {
+                         passTotal = 52 - OptionsStage.numberOfPlayers*OptionsStage.cardsEach;
+                    }
+
+                    for (int passes = 0; passes < passTotal; ) {
+                        /*find the index of the nth lowest card in the player with the lowest hand diff's hand
+                         * where n is the number of times we've had to sweep through this statement ergo the
+                         * number of times we have failed to find a suitable card*/
+                        lowestCardOppHandIndex = TridentBuildingStage.getNthLowestCard(lowDiffPlayer, passes);
+
+                        Gdx.app.log("Deal Stage", "player with the lowest hand diff " + lowDiffPlayer + " that player's lowest card " + lowestCardOppHandIndex + " pip " + TridentBuildingStage.cardButtonArray.get(lowestCardOppHandIndex).getPip());
+
+                        /*if the handDiff1 is greater than the first chosen player's highest card minus the second chosen
+                         * player's lowest card, then we will need to swap more than one card - meaning
+                         * if we swap the first player's highest card with the other player's lowest card we
+                         * will need to make at least one additional swap*/
+                        int highestCard1Index = TridentBuildingStage.getNthLowestCard(highDiffPlayer, OptionsStage.cardsEach - 1);
+                        Gdx.app.log("Deal Stage", "player with the highest hand diff " + highDiffPlayer + " that player's highest card index " + highestCard1Index + " pip " + TridentBuildingStage.cardButtonArray.get(highestCard1Index).getPip());
+                        if (handDiff[highDiffPlayer] > TridentBuildingStage.cardButtonArray.get(highestCard1Index).getPip() - TridentBuildingStage.cardButtonArray.get(lowestCardOppHandIndex).getPip()) {
+                            Gdx.app.log("Deal Stage", "can't resolve hand diff in one swap as hand diff is too great ");
+                            /*swap the cards*/
+                            Gdx.app.log("Deal Stage", "swap 2 cards. "+ highDiffPlayer + " card " + highestCard1Index + " pip " + TridentBuildingStage.cardButtonArray.get(highestCard1Index).getPip()+ " player" + lowDiffPlayer + " card " + lowestCardOppHandIndex+" pip " + TridentBuildingStage.cardButtonArray.get(lowestCardOppHandIndex).getPip());
+                            TridentBuildingStage.swapCards(highestCard1Index, lowestCardOppHandIndex);
+                            calculateValueOfHand();
+                            for (int i = 0; i < TridentBuildingStage.cardButtonArray.size; i++) {
+                                Gdx.app.log("Deal Stage", "card: " + i + " value: " + TridentBuildingStage.cardButtonArray.get(i).value + " pip: " + TridentBuildingStage.cardButtonArray.get(i).getPip() + " player: " + TridentBuildingStage.cardButtonArray.get(i).playerIndex);
+                            }
+                        } else {
+                            Gdx.app.log("Deal Stage", "try and resolve hand diff in one swap... attempt: "+passes);
+                            /*if the handDiff1 is low enough to be reduced to 0 in one go,
+                             * considering the lowest value in the opponent's hand that we already
+                             * selected, and considering the handDiff, find what value of card we need to swap*/
+                            int targetValue = TridentBuildingStage.cardButtonArray.get(lowestCardOppHandIndex).getPip() + handDiff[highDiffPlayer];
+                            Gdx.app.log("deal stage","targetPip "+targetValue);
+                            /*default is -1, it will be set to a number between 0 and 51 if we
+                             * find a suitable card, if not it will remain -1*/
+                            targetCardIndex = -1;
+                            int playerIndex = highDiffPlayer;
+                            /*this is just a for loop through the player with the highest hand diff's cards
+                             * we will test each card's pip value to see if one is equal to the target value
+                             * if we find one we can swap it and will have set this player's handDiff to 0
+                             * if we can't find one we will need to find a different lowestCardOppHandIndex*/
+                            for (int i = playerIndex * OptionsStage.cardsEach; i < playerIndex * OptionsStage.cardsEach + OptionsStage.cardsEach; i++) {
+                                if (TridentBuildingStage.cardButtonArray.get(i).getPip() == targetValue) {
+                                    targetCardIndex = i;
+                                    playerWithResolvedHand = highDiffPlayer;
+                                    Gdx.app.log("Deal Stage", "swap 2 cards. player" + highDiffPlayer + " card " + targetCardIndex + " pip " + TridentBuildingStage.cardButtonArray.get(targetCardIndex).getPip()+ " player" + lowDiffPlayer + " card " + lowestCardOppHandIndex+" pip " + TridentBuildingStage.cardButtonArray.get(lowestCardOppHandIndex).getPip());
+                                    TridentBuildingStage.swapCards(targetCardIndex, lowestCardOppHandIndex);
+
+                                    for (int j = 0; j < TridentBuildingStage.cardButtonArray.size; j++) {
+                                        Gdx.app.log("Deal Stage", "card: " + j + " value: " + TridentBuildingStage.cardButtonArray.get(j).value + " pip: " + TridentBuildingStage.cardButtonArray.get(j).getPip() + " player: " + TridentBuildingStage.cardButtonArray.get(j).playerIndex);
+                                    }
+                                    calculateValueOfHand();
+                                    break;
+                                }
+                                else{
+                                    Gdx.app.log("deal stage","pip does not equal target, pip "+TridentBuildingStage.cardButtonArray.get(i).getPip());
+                                }
+                            }
+                            /*if after the for loop the targetCardIndex is still -1, we know we didn't find a suitable card
+                             * we should set a new lowestCardOppHandIndex, one that is next lowest after the previous one
+                             * then we should run all this again*/
+                            if (targetCardIndex == -1) {
+                                passes++;
+
+                            }
+                            /*if we did set targetCardIndex then we must have resolved the handDiff, so  break the for loop*/
+                            else {
+                                /*break the 'passes' for loop*/
+                                break;
+                            }
+
+                        }
+                    }
+                    /*i'm not sure if this can happen, it should at least be unlikely,
+                     * if we are unable to resolve the handDiff because we run out of
+                     * cards in the opponent's hand then display a message and shuffle
+                     * and start the deal all over again.
+                     * note : for this to happen we would have to have swapped enough cards so
+                     * that the handDiff is now low enough to be resolved in one more swap,
+                     * but then we have gone through all the cards in one player's array,
+                     * compared each of them to all the cards in the
+                     * other player's array and not find any that could be swapped to make the
+                     * handDiff 0 */
+                    if (targetCardIndex == -1) {
+                        Gdx.app.log("WARNING Deal Stage", "WARNING: unable to swap cards to resolve handDiff, will attempt to shuffle cards and deal again");
+                        amendCardsForDeal();
+                        deal();
+                    }
+
+
+                }
+                /*if the highest hand diff is  negative and not 0*/
+                else if (handDiff[highDiffPlayer] < 0) {
+                        /*logically if the player with the highest hand diff's hand diff is negative then
+                        all player's hand diff must be negative, so would have to trade with the undealt hand
+
+                        the following for loop will find the player with the highest hand diff call that player1
+                        it will compare the highest card in the undealthand with the lowest card in player1
+                        if the difference between these cards is less than the player1 hand difference
+                        then just swap them instantly - the for loop will continue infinitely if the
+                        difference between the cards is always less than the player1 hand difference, but that
+                        difference will become lower with each loop, so it should not happen infinitely.
+                        if the difference between these cards is more than the player1 hand difference
+                        then swapping them would make the the player1 handDiff positive, so instead
+                        try and find a value in player1's card array that when swapped with the undealt hands's highest card
+                        will reduce the player1 handDiff to exactly 0 . if such a card can not be found, we find the
+                        next highest card in the undealt hand array and repeat. such a card should eventually be found
+                        and we can break the for loop when the player1 handDiff becomes 0, but if no such card can be found
+                        which i think is much more likely now that we only have relatively few cards in to swap with, just the
+                        undealt ones, so i should make a solution that could swap a pair of cards with on of the previous players
+                        such that the previous player's total value does not change but so that the current player has more suitable
+                        cards that are better able to be swapped with the undealt cards
+                        * */
+                    int highestCardInUndealtIndex;
+                    int passTotal = OptionsStage.cardsEach;
+                    /*if we are on the last player adjust the amount of passes we can do */
+                    if(numberOfPlayersHandDiffResolvedFor==OptionsStage.numberOfPlayers-1) {
+                        passTotal = 52 - OptionsStage.numberOfPlayers*OptionsStage.cardsEach;
+                    }
+                    for (int passes = 0; passes < passTotal; ) {
+                        /*this will find the index position of the highest pip value card in the undealt hand
+                         * on the next loop it will be the second highest etc*/
+                        highestCardInUndealtIndex = TridentBuildingStage.getNthLowestCard(lowDiffPlayer, passTotal-passes);
+                        Gdx.app.log("Deal Stage", "player with the lowest hand diff " + lowDiffPlayer + " that player's highest card " + highestCardInUndealtIndex + " pip " + TridentBuildingStage.cardButtonArray.get(highestCardInUndealtIndex).getPip());
+
+                        /*if the handDiff1 is smaller than the player's lowest card minus the undealt
+                         * hand's highest card, then we will need to swap more than one card - meaning
+                         * if we swap the  player's lowest card with the undealt hand's highest card we
+                         * will need to make at least one additional swap*/
+                        int lowestCardIndex = TridentBuildingStage.getNthLowestCard(highDiffPlayer, passes);
+                        Gdx.app.log("Deal Stage", "player with the highest hand diff " + highDiffPlayer + " that player's lowest card index " + lowestCardIndex + " pip " + TridentBuildingStage.cardButtonArray.get(lowestCardIndex).getPip());
+                        if (handDiff[highDiffPlayer] < TridentBuildingStage.cardButtonArray.get(lowestCardIndex).getPip() - TridentBuildingStage.cardButtonArray.get(highestCardInUndealtIndex).getPip()) {
+                            Gdx.app.log("Deal Stage", "can't resolve hand diff in one swap as hand diff is too small ");
+                            /*swap the cards*/
+                            Gdx.app.log("Deal Stage", "swap 2 cards. "+ highDiffPlayer + " card " + lowestCardIndex + " pip " + TridentBuildingStage.cardButtonArray.get(lowestCardIndex).getPip()+ " player" + lowDiffPlayer + " card " + highestCardInUndealtIndex+" pip " + TridentBuildingStage.cardButtonArray.get(highestCardInUndealtIndex).getPip());
+                            TridentBuildingStage.swapCards(lowestCardIndex, highestCardInUndealtIndex);
+                            calculateValueOfHand();
+                            for (int i = 0; i < TridentBuildingStage.cardButtonArray.size; i++) {
+                                Gdx.app.log("Deal Stage", "card: " + i + " value: " + TridentBuildingStage.cardButtonArray.get(i).value + " pip: " + TridentBuildingStage.cardButtonArray.get(i).getPip() + " player: " + TridentBuildingStage.cardButtonArray.get(i).playerIndex);
+                            }
+                        } else {
+                            Gdx.app.log("Deal Stage", "try and resolve hand diff in one swap... attempt: "+passes);
+                            /*if the handDiff1 is close enough to 0 to be reduced to 0 in one go,
+                             * considering the highest value in the opponent's hand that we already
+                             * selected, and considering the handDiff, find what value of card we need to swap*/
+                            int targetValue = TridentBuildingStage.cardButtonArray.get(highestCardInUndealtIndex).getPip() + handDiff[highDiffPlayer];
+                            Gdx.app.log("deal stage","targetPip "+targetValue);
+                            /*default is -1, it will be set to a number between 0 and 51 if we
+                             * find a suitable card, if not it will remain -1*/
+                            targetCardIndex = -1;
+                            int playerIndex = highDiffPlayer;
+                            /*this is just a for loop through the player with the highest hand diff's cards
+                             * we will test each card's pip value to see if one is equal to the target value
+                             * if we find one we can swap it and will have set this player's handDiff to 0
+                             * if we can't find one we will need to find a different highestCardInUndealtIndex*/
+                            for (int i = playerIndex * OptionsStage.cardsEach; i < playerIndex * OptionsStage.cardsEach + OptionsStage.cardsEach; i++) {
+                                if (TridentBuildingStage.cardButtonArray.get(i).getPip() == targetValue) {
+                                    targetCardIndex = i;
+                                    playerWithResolvedHand = highDiffPlayer;
+                                    Gdx.app.log("Deal Stage", "swap 2 cards. player" + highDiffPlayer + " card " + targetCardIndex + " pip " + TridentBuildingStage.cardButtonArray.get(targetCardIndex).getPip()+ " player" + lowDiffPlayer + " card " + highestCardInUndealtIndex+" pip " + TridentBuildingStage.cardButtonArray.get(highestCardInUndealtIndex).getPip());
+                                    TridentBuildingStage.swapCards(targetCardIndex, highestCardInUndealtIndex);
+                                    for (int j = 0; j < TridentBuildingStage.cardButtonArray.size; j++) {
+                                        Gdx.app.log("Deal Stage", "card: " + j + " value: " + TridentBuildingStage.cardButtonArray.get(j).value + " pip: " + TridentBuildingStage.cardButtonArray.get(j).getPip() + " player: " + TridentBuildingStage.cardButtonArray.get(j).playerIndex);
+                                    }
+                                    calculateValueOfHand();
+                                    break;
+                                }
+                                else{
+                                    Gdx.app.log("deal stage","pip does not equal target, pip "+TridentBuildingStage.cardButtonArray.get(i).getPip());
+
+                                    /*record how close we came to reaching handDiff =0, and the index of the card in the player and undealt
+                                     * hand, so if we can't reach 0 exactly we can at least try and get closer*/
+                                    if(Math.abs(TridentBuildingStage.cardButtonArray.get(i).getPip()-targetCardIndex)<closestApproxValue) {
+                                        closestApproxValue = Math.abs(TridentBuildingStage.cardButtonArray.get(i).getPip() - targetCardIndex);
+                                        closestApproxIndex = i;
+                                        closestApproxIndex2 = highestCardInUndealtIndex;
+                                    }
+                                }
+                            }
+                            /*if after the for loop the targetCardIndex is still -1, we know we didn't find a suitable card
+                             * we should set a new lowestCardOppHandIndex, one that is next lowest after the previous one
+                             * then we should run all this again*/
+                            if (targetCardIndex == -1) {
+                                passes++;
+
+                            }
+                            /*if we did set targetCardIndex then we must have resolved the handDiff, so  break the for loop*/
+                            else {
+                                /*break the 'passes' for loop*/
+                                break;
+                            }
+
+                        }
+                    }
+                    /* if we are unable to resolve the handDiff because we run out of
+                     * cards in the undealt hand then this will swap the 2 cards that will get us closest
+                     * to handDiff=0
+                     */
+                    if (targetCardIndex == -1) {
+                        Gdx.app.log("Deal Stage", "unable to reach handDiff=0, handDiff = " + handDiff[highDiffPlayer] );
+
+                        if(closestApproxIndex==-1 || closestApproxIndex2==-1) {
+                            TridentBuildingStage.swapCards(closestApproxIndex, closestApproxIndex2);
+                            Gdx.app.log("Deal Stage", "swap 2 cards- closest approx. player" + highDiffPlayer + " card " + closestApproxIndex + " pip " + TridentBuildingStage.cardButtonArray.get(closestApproxIndex).getPip() + " player" + lowDiffPlayer + " card " + closestApproxIndex2 + " pip " + TridentBuildingStage.cardButtonArray.get(closestApproxIndex2).getPip());
+                            for (int j = 0; j < TridentBuildingStage.cardButtonArray.size; j++) {
+                                Gdx.app.log("Deal Stage", "card: " + j + " value: " + TridentBuildingStage.cardButtonArray.get(j).value + " pip: " + TridentBuildingStage.cardButtonArray.get(j).getPip() + " player: " + TridentBuildingStage.cardButtonArray.get(j).playerIndex);
+                            }
+                            calculateValueOfHand();
+                        }
+                        Gdx.app.log("Deal Stage", "current Par, par0" + par0 + "par1" + par1 +"par2" + par2 );
+
+                        /*regardless of if we reduced the handDiff a bit or not, divide the handDiff by the
+                         * numberOfPlayers and set new truePar for each player*/
+                        int amendTruePar = (int)Math.floor(handDiff[highDiffPlayer]/OptionsStage.numberOfPlayers);
+                        if (highDiffPlayer==0){
+                            par0=par0-handDiff[highDiffPlayer];
+                        }
+                        else if (highDiffPlayer==1){
+                            par1=par1-handDiff[highDiffPlayer];
+                        }
+                        else if (highDiffPlayer==2){
+                            par2=par2-handDiff[highDiffPlayer];
+                        }
+                        par0=par0+amendTruePar;
+                        par1=par1+amendTruePar;
+                        par2=par2+amendTruePar;
+                        Gdx.app.log("Deal Stage", "amended Par, par0" + par0 + "par1" + par1 +"par2" + par2 );
+
+                        /*only do this once per deal, run through the whole resolve par again,with
+                        * the amended par*/
+                        if(amendPar==false) {
+                            amendPar=true;
+                            Gdx.app.log("Deal Stage", "run resolve par again from the start with new amended par" );
+
+                            resolvePar();
+                        }
+
+                        /*first of all i need to know can the handDiff of the last player
+                         * be so high that the cards in the undealt hand would not be able
+                         * to resolve it even if those cards were as high as possible?
+                         * well i suppose i don't need to know if it's possible i just need to make
+                         * something happen to even the cards out in this situation */
+
+                        /*in fact instead of swapping cards with other players just to try and
+                         * swap them again with the undealt hand, another idea would be to
+                         * just raise or lower all player's handDiff until they are an
+                         * approximately equal amount away from 0, obviously we would still have
+                         * to work within the constraint of having few undealt cards to swap
+                         * so if 2 players had handDiff 0, and 1 player had handDiff -10
+                         * divide that by 3 and round down, = 3, so swap cards equal to 3 until
+                         * all players are on either -3 or -4.
+                         * */
+
+                                /*
+                                Gdx.app.log("WARNING Deal Stage", "WARNING: unable to swap cards to resolve handDiff, will attempt to shuffle cards and deal again");
+                                amendCardsForDeal();
+                                deal();*/
+                    }
+
+                } else if (handDiff[highDiffPlayer] == 0) {
+
+                }
+            }
+            /*this is the end of the for loop
+             * now we should have set handDiff to 0 for a number of players equal
+             * to numberOfPlayers-1, but we still need to set the handDiff for the
+             * last player to 0
+             * it would be best to avoid trading cards with the 2 other players
+             * since they are now set at 0, so try trading with the undealt hand
+             * if we can't resolve it though we will have to trade some cards with
+             * the other players. */
+
+
+
     }
 }

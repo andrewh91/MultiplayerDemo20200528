@@ -20,7 +20,7 @@ io.on('connection', function(socket){
 	/*when a player connects, we add their id and pos to this array*/
 	players.push(new player(socket.id, 0, 0,playerIndex));
 	playerIndex++;
-	console.log("Player Connected!");
+	console.log("Player Connected! total players= "+players.length);
 	/*when player connects server will automatically emit
 	a unique socket id to that player, i've named it "socketID"*/
 	socket.emit('socketID', { id: socket.id });

@@ -63,21 +63,22 @@ public class TriButton extends Actor {
                 return true;
             }
         public void touchUp(InputEvent event, float x, float y, int pointer, int button) {
+        if (isVisible()){
+            /*the x and y arguments will be relative to the actor so a click on the bottom left of the actor will be
+             * x = 0 y = 0 regardless of where the actor is on screen, for my purposes it's more useful to use world
+             * coordinates because some of my methods are called from outside this class where access to this actor's
+             * position might not be available.
+             * clicklistner will fire if the rectangle bounding box is hit, need to
+             * further calculate if the triangle is hit*/
+            /* this makes the coords relevant to the world*/
+            x = x + getX();
+            y = y + getY();
+            if (triangleHit( x, y)) {
+                touchLogic( x, y);
+            } else {
+                otherHit(x,y);
 
-        /*the x and y arguments will be relative to the actor so a click on the bottom left of the actor will be
-         * x = 0 y = 0 regardless of where the actor is on screen, for my purposes it's more useful to use world
-         * coordinates because some of my methods are called from outside this class where access to this actor's
-         * position might not be available.
-         * clicklistner will fire if the rectangle bounding box is hit, need to
-         * further calculate if the triangle is hit*/
-        /* this makes the coords relevant to the world*/
-        x = x + getX();
-        y = y + getY();
-        if (triangleHit( x, y)) {
-            touchLogic( x, y);
-        } else {
-            otherHit(x,y);
-
+            }
         }
     }
     }); /*the end of the this.addListener*/

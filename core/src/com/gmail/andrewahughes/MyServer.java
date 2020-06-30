@@ -373,7 +373,8 @@ Gdx.app.log("Server: ","Deal received: "+objects);
                 }
             }
         });
-
+        MatchMakingStage.serverReady();
+        Gdx.app.log("Server ","server ready");
     }
 
     /**
