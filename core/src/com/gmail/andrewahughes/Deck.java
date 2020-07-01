@@ -46,10 +46,12 @@ public class Deck {
      */
     static void shuffle(){
         randomHelper.addAll(randomHelperReset);
+        randomCardArray.clear();
         for(int i =0; i<52;i++){
             randomCardArray.add(cardArray.get(randomHelper.removeIndex(random.nextInt(randomHelper.size))));
-            Gdx.app.log("Example","card "+randomCardArray.get(randomCardArray.size-1));
+            Gdx.app.log("Deck,Shuffle()","card "+randomCardArray.get(randomCardArray.size-1));
         }
+        Gdx.app.log("Deck,Shuffle()","randomCardArray.size "+randomCardArray.size);
 
     }
 }

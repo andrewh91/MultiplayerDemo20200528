@@ -220,7 +220,8 @@ public class MyServer {
                     * error i've been getting, if you add a new player at the wrong moment we might be iterating over
                     * this friendlyPlayers collection when we modify the collection to add the new player, instead
                     * add the player to a different collection that is never iterated over and only add that to the
-                    * friendlyPlayers when we are not iterating over it */
+                    * friendlyPlayers when we are not iterating over it
+                    * 20200701 i've had this error again so this obviosuly did not solve it */
                     friendlyPlayersAddingList.put(playerId, new Player(friendlyShip));
                     Gdx.app.log("SocketIO", "total players in hashmap: " + friendlyPlayers.size());
                     for(HashMap.Entry<String, Player> entry : friendlyPlayers.entrySet()){

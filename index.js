@@ -46,10 +46,12 @@ io.on('connection', function(socket){
 	    socket.broadcast.emit("playerMoved",data);
 	    socket.emit("playerMoved",data);
 
+/*commenting this out since it creates a lot of logs
 	    console.log("playerMoved: "+
 	                "ID: "+data.id +
 	                "x: "+data.x +
 	                "y: "+data.y);
+	                */
         /*we're going to go through our array of existing players
         and store the new position info for each relevant player*/
 	    for (var i =0; i< players.length;i++){
@@ -132,9 +134,10 @@ io.on('connection', function(socket){
             if(data.size==2){
                 if(confirmPar0&&confirmPar1){
                     calculatePar(data.size);
-                    data.par2=par2;
-                    data.par1=par1;
                     data.par0=par0;
+                    data.par1=par1;
+                    data.par2=par2;
+
                     socket.emit("emitParConfirmedToPlayers",data);
                     socket.broadcast.emit("emitParConfirmedToPlayers",data);
                 }
@@ -143,9 +146,9 @@ io.on('connection', function(socket){
             else if(data.size==3){
                  if(confirmPar0&&confirmPar1&&confirmPar2){
                     calculatePar(data.size);
-                    data.par2=par2;
-                    data.par1=par1;
                     data.par0=par0;
+                    data.par1=par1;
+                    data.par2=par2;
                     socket.emit("emitParConfirmedToPlayers",data);
                     socket.broadcast.emit("emitParConfirmedToPlayers",data);
                  }
