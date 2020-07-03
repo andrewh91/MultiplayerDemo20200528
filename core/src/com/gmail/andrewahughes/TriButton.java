@@ -47,7 +47,7 @@ public class TriButton extends Actor {
     public TriButton(StageInterface stageInterface, float startingX, float startingY, boolean isPointUp, final byte stageIndex, ButtonEnum.Tri triButtonIndex)
     {
         font.getData().setScale(2);
-        texture = new Texture(Gdx.files.internal("badlogic.jpg"));
+        //texture = new Texture(Gdx.files.internal("badlogic.jpg"));
         orientation = isPointUp;
         this.stageIndex=stageIndex;
         this.stageInterface =stageInterface;
@@ -59,11 +59,11 @@ public class TriButton extends Actor {
 
         this.addListener(new ClickListener() {
             public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
-                Gdx.app.log("Example", "touch started at (" + x + ", " + y + ")");
+                Gdx.app.log("TriButton", "touch started at (" + x + ", " + y + ")");
                 return true;
             }
         public void touchUp(InputEvent event, float x, float y, int pointer, int button) {
-        if (isVisible()){
+        /*if (isVisible()){*/
             /*the x and y arguments will be relative to the actor so a click on the bottom left of the actor will be
              * x = 0 y = 0 regardless of where the actor is on screen, for my purposes it's more useful to use world
              * coordinates because some of my methods are called from outside this class where access to this actor's
@@ -71,6 +71,7 @@ public class TriButton extends Actor {
              * clicklistner will fire if the rectangle bounding box is hit, need to
              * further calculate if the triangle is hit*/
             /* this makes the coords relevant to the world*/
+            touchMessage(x,y);
             x = x + getX();
             y = y + getY();
             if (triangleHit( x, y)) {
@@ -79,7 +80,7 @@ public class TriButton extends Actor {
                 otherHit(x,y);
 
             }
-        }
+        /*}*/
     }
     }); /*the end of the this.addListener*/
 
@@ -87,7 +88,10 @@ public class TriButton extends Actor {
     }
 
 
+public void touchMessage(float x, float y){
+    Gdx.app.log("TriButton", "touch up in "+triButtonIndex+" visible? "+isVisible()+" width "+(int)getWidth() + " height "+(int)getHeight()+" absolute x " + (int)getX() + " absolute y " + (int)getY()+" relative x " + (int)x + " relative y " + (int)y );
 
+}
 
     public void draw(Batch batch, float parentAlpha) {
         /*super.draw(batch, parentAlpha);*/
@@ -151,14 +155,21 @@ public class TriButton extends Actor {
      *
      */
     public boolean triangleHit(float x, float y) {
-        x = x - getX();
-        y = y - getY();
-        if(orientation == POINTUP && y>0 && y < (x *altitude/halfEdgeLength) && y < ( - x * altitude/halfEdgeLength) + altitude*2     ){
-            return true;
+        if (isVisible()) {
+            Gdx.app.log("TriButton", "test if trianglehit, triButtonIndex " + triButtonIndex);
+            x = x - getX();
+            y = y - getY();
+            if (orientation == POINTUP && y > 0 && y < (x * altitude / halfEdgeLength) && y < (-x * altitude / halfEdgeLength) + altitude * 2) {
+                Gdx.app.log("TriButton", "hit");
+                return true;
+            } else if (orientation == POINTDOWN && y < altitude && y > (-x * altitude / halfEdgeLength) + altitude && y > (x * altitude / halfEdgeLength) - altitude) {
+                Gdx.app.log("TriButton", "hit");
+                return true;
+            }
+            Gdx.app.log("TriButton", "miss");
+            return false;
         }
-        else if(orientation == POINTDOWN && y < altitude && y > ( - x * altitude/halfEdgeLength) + altitude && y > (x *altitude/halfEdgeLength) - altitude  ){
-            return true;
-        }
+        /*return false if not visible */
         return false;
     }
 

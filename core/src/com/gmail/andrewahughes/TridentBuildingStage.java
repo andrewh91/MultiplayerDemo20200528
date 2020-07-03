@@ -15,7 +15,7 @@ import static com.gmail.andrewahughes.MyGdxGame.WORLDWIDTH;
 public class TridentBuildingStage extends Stage {
 
     boolean visible =false;
-    StageInterface stageInterface;
+    static StageInterface stageInterface;
     SpriteBatch spriteBatch;
     ShapeRenderer shapeRenderer;
     static Array<CardButton> cardButtonArray = new Array<CardButton>();
@@ -113,17 +113,85 @@ public class TridentBuildingStage extends Stage {
         stageInterface.addTriButton(new TriButton(stageInterface,0,0,false,StageInterface.TRIDENTBUILDINGSTAGE, ButtonEnum.Tri.TRIDENTBUILDINGNEXTSTAGE),triButtonArray,this);
         stageInterface.getTriButton(triButtonArray,ButtonEnum.Tri.TRIDENTBUILDINGNEXTSTAGE).setText("Game");
         //stageInterface.getTriButton(triButtonArray,ButtonEnum.Tri.TRIDENTBUILDINGNEXTSTAGE).setTridentToTextSize();
-
         /*this is the player's trident hand*/
         createPlayerTridentHand();
 
-        /*card buttons*/
+
+        /*the auto build button, this will expand into more buttons*/
+        stageInterface.addTriButton(new TriButton(stageInterface,720-130-10,1280/2 - 130 * (float)(Math.sin(Math.PI/3)),true,StageInterface.TRIDENTBUILDINGSTAGE, ButtonEnum.Tri.TRIDENTBUILDINGAUTOBUILD),triButtonArray,this);
+        stageInterface.getTriButton(triButtonArray,ButtonEnum.Tri.TRIDENTBUILDINGAUTOBUILD).setText("Auto\nBuild");
+
+
+        /*the first selset of 7 tributtons, will determine the pip value of the 3 cards selected*/
+        stageInterface.addTriButton(new TriButton(stageInterface,720-(130*1.5f)-10,1280/2 - 130 * (float)(Math.sin(Math.PI/3))+ 130 * (float)(Math.sin(Math.PI/3)),false,StageInterface.TRIDENTBUILDINGSTAGE, ButtonEnum.Tri.TRIDENTBUILDINGSPEARMED),triButtonArray,this);
+        stageInterface.getTriButton(triButtonArray,ButtonEnum.Tri.TRIDENTBUILDINGSPEARMED).setText("Med\nSpear");
+        stageInterface.getTriButton(triButtonArray,ButtonEnum.Tri.TRIDENTBUILDINGSPEARMED).setVisible(false);
+        stageInterface.addTriButton(new TriButton(stageInterface,720-130-10,1280/2 - 130 * (float)(Math.sin(Math.PI/3))+ 130 * (float)(Math.sin(Math.PI/3)),true,StageInterface.TRIDENTBUILDINGSTAGE, ButtonEnum.Tri.TRIDENTBUILDINGSPEARLOW),triButtonArray,this);
+        stageInterface.getTriButton(triButtonArray,ButtonEnum.Tri.TRIDENTBUILDINGSPEARLOW).setText("Low\nSpear");
+        stageInterface.getTriButton(triButtonArray,ButtonEnum.Tri.TRIDENTBUILDINGSPEARLOW).setVisible(false);
+
+        stageInterface.addTriButton(new TriButton(stageInterface,720-(130*1.5f)-10,1280/2 - 130 * (float)(Math.sin(Math.PI/3)),true,StageInterface.TRIDENTBUILDINGSTAGE, ButtonEnum.Tri.TRIDENTBUILDINGBIDENTMED),triButtonArray,this);
+        stageInterface.getTriButton(triButtonArray,ButtonEnum.Tri.TRIDENTBUILDINGBIDENTMED).setText("Med\nBident");
+        stageInterface.getTriButton(triButtonArray,ButtonEnum.Tri.TRIDENTBUILDINGBIDENTMED).setVisible(false);
+        stageInterface.addTriButton(new TriButton(stageInterface,720-130-10,1280/2 - 130 * (float)(Math.sin(Math.PI/3)),false,StageInterface.TRIDENTBUILDINGSTAGE, ButtonEnum.Tri.TRIDENTBUILDINGBIDENTLOW),triButtonArray,this);
+        stageInterface.getTriButton(triButtonArray,ButtonEnum.Tri.TRIDENTBUILDINGBIDENTLOW).setText("Low\nBident");
+        stageInterface.getTriButton(triButtonArray,ButtonEnum.Tri.TRIDENTBUILDINGBIDENTLOW).setVisible(false);
+
+        stageInterface.addTriButton(new TriButton(stageInterface,720-(130*2)-10,1280/2 - 130 * (float)(Math.sin(Math.PI/3))- 130 * (float)(Math.sin(Math.PI/3)),true,StageInterface.TRIDENTBUILDINGSTAGE, ButtonEnum.Tri.TRIDENTBUILDINGTRIDENTHI),triButtonArray,this);
+        stageInterface.getTriButton(triButtonArray,ButtonEnum.Tri.TRIDENTBUILDINGTRIDENTHI).setText("Hi\nTrident");
+        stageInterface.getTriButton(triButtonArray,ButtonEnum.Tri.TRIDENTBUILDINGTRIDENTHI).setVisible(false);
+        stageInterface.addTriButton(new TriButton(stageInterface,720-(130*1.5f)-10,1280/2 - 130 * (float)(Math.sin(Math.PI/3))- 130 * (float)(Math.sin(Math.PI/3)),false,StageInterface.TRIDENTBUILDINGSTAGE, ButtonEnum.Tri.TRIDENTBUILDINGTRIDENTMED),triButtonArray,this);
+        stageInterface.getTriButton(triButtonArray,ButtonEnum.Tri.TRIDENTBUILDINGTRIDENTMED).setText("Med\nTrident");
+        stageInterface.getTriButton(triButtonArray,ButtonEnum.Tri.TRIDENTBUILDINGTRIDENTMED).setVisible(false);
+        stageInterface.addTriButton(new TriButton(stageInterface,720-130-10,1280/2 - 130 * (float)(Math.sin(Math.PI/3))- 130 * (float)(Math.sin(Math.PI/3)),true,StageInterface.TRIDENTBUILDINGSTAGE, ButtonEnum.Tri.TRIDENTBUILDINGTRIDENTLOW),triButtonArray,this);
+        stageInterface.getTriButton(triButtonArray,ButtonEnum.Tri.TRIDENTBUILDINGTRIDENTLOW).setText("Low\nTrident");
+        stageInterface.getTriButton(triButtonArray,ButtonEnum.Tri.TRIDENTBUILDINGTRIDENTLOW).setVisible(false);
+
+
+        /*the second set of 6 tributtons, will determine the suit of the 3 cards selected*/
+        stageInterface.addTriButton(new TriButton(stageInterface,720-(130*1.5f)-10,1280/2 - 130 * (float)(Math.sin(Math.PI/3))+ 130 * (float)(Math.sin(Math.PI/3)),false,StageInterface.TRIDENTBUILDINGSTAGE, ButtonEnum.Tri.TRIDENTBUILDINGSUIT0NATURE),triButtonArray,this);
+        stageInterface.getTriButton(triButtonArray,ButtonEnum.Tri.TRIDENTBUILDINGSUIT0NATURE).setText("Suit\nNature");
+        stageInterface.getTriButton(triButtonArray,ButtonEnum.Tri.TRIDENTBUILDINGSUIT0NATURE).setVisible(false);
+        stageInterface.addTriButton(new TriButton(stageInterface,720-130-10,1280/2 - 130 * (float)(Math.sin(Math.PI/3))+ 130 * (float)(Math.sin(Math.PI/3)),true,StageInterface.TRIDENTBUILDINGSTAGE, ButtonEnum.Tri.TRIDENTBUILDINGSUIT1LIGHT),triButtonArray,this);
+        stageInterface.getTriButton(triButtonArray,ButtonEnum.Tri.TRIDENTBUILDINGSUIT1LIGHT).setText("Suit\nLight");
+        stageInterface.getTriButton(triButtonArray,ButtonEnum.Tri.TRIDENTBUILDINGSUIT1LIGHT).setVisible(false);
+
+        stageInterface.addTriButton(new TriButton(stageInterface,720-(130*1.5f)-10,1280/2 - 130 * (float)(Math.sin(Math.PI/3)),true,StageInterface.TRIDENTBUILDINGSTAGE, ButtonEnum.Tri.TRIDENTBUILDINGSUIT2DEMON),triButtonArray,this);
+        stageInterface.getTriButton(triButtonArray,ButtonEnum.Tri.TRIDENTBUILDINGSUIT2DEMON).setText("Suit\nDemon");
+        stageInterface.getTriButton(triButtonArray,ButtonEnum.Tri.TRIDENTBUILDINGSUIT2DEMON).setVisible(false);
+        stageInterface.addTriButton(new TriButton(stageInterface,720-130-10,1280/2 - 130 * (float)(Math.sin(Math.PI/3)),false,StageInterface.TRIDENTBUILDINGSTAGE, ButtonEnum.Tri.TRIDENTBUILDINGSUIT3DARK),triButtonArray,this);
+        stageInterface.getTriButton(triButtonArray,ButtonEnum.Tri.TRIDENTBUILDINGSUIT3DARK).setText("Suit\nDark");
+        stageInterface.getTriButton(triButtonArray,ButtonEnum.Tri.TRIDENTBUILDINGSUIT3DARK).setVisible(false);
+
+        stageInterface.addTriButton(new TriButton(stageInterface,720-(130*1.5f)-10,1280/2 - 130 * (float)(Math.sin(Math.PI/3))- 130 * (float)(Math.sin(Math.PI/3)),false,StageInterface.TRIDENTBUILDINGSTAGE, ButtonEnum.Tri.TRIDENTBUILDINGSUIT4ANY),triButtonArray,this);
+        stageInterface.getTriButton(triButtonArray,ButtonEnum.Tri.TRIDENTBUILDINGSUIT4ANY).setText("Suit\nAny");
+        stageInterface.getTriButton(triButtonArray,ButtonEnum.Tri.TRIDENTBUILDINGSUIT4ANY).setVisible(false);
+
+
+        /*3rd set of buttons rotate, flip and confirm */
+        stageInterface.addTriButton(new TriButton(stageInterface,720-(130*1.5f)-10,1280/2 - 130 * (float)(Math.sin(Math.PI/3)),true,StageInterface.TRIDENTBUILDINGSTAGE, ButtonEnum.Tri.TRIDENTBUILDINGAUTOBUILDROTATE),triButtonArray,this);
+        stageInterface.getTriButton(triButtonArray,ButtonEnum.Tri.TRIDENTBUILDINGAUTOBUILDROTATE).setText("Rotate");
+        stageInterface.getTriButton(triButtonArray,ButtonEnum.Tri.TRIDENTBUILDINGAUTOBUILDROTATE).setVisible(false);
+        stageInterface.addTriButton(new TriButton(stageInterface,720-130-10,1280/2 - 130 * (float)(Math.sin(Math.PI/3)),false,StageInterface.TRIDENTBUILDINGSTAGE, ButtonEnum.Tri.TRIDENTBUILDINGAUTOBUILDFLIP),triButtonArray,this);
+        stageInterface.getTriButton(triButtonArray,ButtonEnum.Tri.TRIDENTBUILDINGAUTOBUILDFLIP).setText("Flip");
+        stageInterface.getTriButton(triButtonArray,ButtonEnum.Tri.TRIDENTBUILDINGAUTOBUILDFLIP).setVisible(false);
+
+        stageInterface.addTriButton(new TriButton(stageInterface,720-(130*1.5f)-10,1280/2 - 130 * (float)(Math.sin(Math.PI/3))- 130 * (float)(Math.sin(Math.PI/3)),false,StageInterface.TRIDENTBUILDINGSTAGE, ButtonEnum.Tri.TRIDENTBUILDINGAUTOBUILDCONFIRM),triButtonArray,this);
+        stageInterface.getTriButton(triButtonArray,ButtonEnum.Tri.TRIDENTBUILDINGAUTOBUILDCONFIRM).setText("Confirm");
+        stageInterface.getTriButton(triButtonArray,ButtonEnum.Tri.TRIDENTBUILDINGAUTOBUILDCONFIRM).setVisible(false);
+
+        resetAutoBuild();
+
+        /*card buttons, these are created in setup cards instead*/
+        /*
         stageInterface.addCardButton(new CardButton(stageInterface,300,200,true,CardButton.LEFT,       StageInterface.TRIDENTBUILDINGSTAGE, ButtonEnum.Card.TRIDENTBUILDING0),cardButtonArray,this);
         stageInterface.addCardButton(new CardButton(stageInterface,300,200,true,CardButton.RIGHT,      StageInterface.TRIDENTBUILDINGSTAGE, ButtonEnum.Card.TRIDENTBUILDING1),cardButtonArray,this);
         stageInterface.addCardButton(new CardButton(stageInterface,300,200,true,CardButton.VERTICAL,   StageInterface.TRIDENTBUILDINGSTAGE, ButtonEnum.Card.TRIDENTBUILDING2),cardButtonArray,this);
         stageInterface.addCardButton(new CardButton(stageInterface,275,200,false,CardButton.LEFT,      StageInterface.TRIDENTBUILDINGSTAGE, ButtonEnum.Card.TRIDENTBUILDING3),cardButtonArray,this);
         stageInterface.addCardButton(new CardButton(stageInterface,275,200,false,CardButton.RIGHT,     StageInterface.TRIDENTBUILDINGSTAGE, ButtonEnum.Card.TRIDENTBUILDING4),cardButtonArray,this);
         stageInterface.addCardButton(new CardButton(stageInterface,275,200,false,CardButton.VERTICAL,  StageInterface.TRIDENTBUILDINGSTAGE, ButtonEnum.Card.TRIDENTBUILDING5),cardButtonArray,this);
+
+         */
 }
 /*the maximum number of tridents will be 8 in the players' trident hand,
 * plus a space for the pre and post game cards*/
@@ -169,6 +237,37 @@ static void updatePlayerTridentHand(){
             triButtonArray.get(i).drawMirror=false;
         }
     }
+    static void resetAutoBuild(){
+        stageInterface.getTriButton(triButtonArray,ButtonEnum.Tri.TRIDENTBUILDINGAUTOBUILD).setVisible(true);
+        setAutoBuildPipVisibility(false);
+        setAutoBuildSuitVisibility(false);
+        setAutoBuildRotFlipConfirmVisibility(false);
+        for (int i =0; i< triButtonArray.size;i++){
+            triButtonArray.get(i).updateBounds();
+        }
+    }
+    static void setAutoBuildPipVisibility(boolean visible){
+        stageInterface.getTriButton(triButtonArray,ButtonEnum.Tri.TRIDENTBUILDINGSPEARMED).  setVisible(visible);
+        stageInterface.getTriButton(triButtonArray,ButtonEnum.Tri.TRIDENTBUILDINGSPEARLOW).  setVisible(visible);
+        stageInterface.getTriButton(triButtonArray,ButtonEnum.Tri.TRIDENTBUILDINGBIDENTMED). setVisible(visible);
+        stageInterface.getTriButton(triButtonArray,ButtonEnum.Tri.TRIDENTBUILDINGBIDENTLOW). setVisible(visible);
+        stageInterface.getTriButton(triButtonArray,ButtonEnum.Tri.TRIDENTBUILDINGTRIDENTHI). setVisible(visible);
+        stageInterface.getTriButton(triButtonArray,ButtonEnum.Tri.TRIDENTBUILDINGTRIDENTMED).setVisible(visible);
+        stageInterface.getTriButton(triButtonArray,ButtonEnum.Tri.TRIDENTBUILDINGTRIDENTLOW).setVisible(visible);
+    }
+    static void setAutoBuildSuitVisibility(boolean visible){
+        stageInterface.getTriButton(triButtonArray,ButtonEnum.Tri.TRIDENTBUILDINGSUIT0NATURE).setVisible(visible);
+        stageInterface.getTriButton(triButtonArray,ButtonEnum.Tri.TRIDENTBUILDINGSUIT1LIGHT). setVisible(visible);
+        stageInterface.getTriButton(triButtonArray,ButtonEnum.Tri.TRIDENTBUILDINGSUIT2DEMON). setVisible(visible);
+        stageInterface.getTriButton(triButtonArray,ButtonEnum.Tri.TRIDENTBUILDINGSUIT3DARK).  setVisible(visible);
+        stageInterface.getTriButton(triButtonArray,ButtonEnum.Tri.TRIDENTBUILDINGSUIT4ANY).   setVisible(visible);
+    }
+
+    static void setAutoBuildRotFlipConfirmVisibility(boolean visible) {
+        stageInterface.getTriButton(triButtonArray, ButtonEnum.Tri.TRIDENTBUILDINGAUTOBUILDROTATE). setVisible(visible);
+        stageInterface.getTriButton(triButtonArray, ButtonEnum.Tri.TRIDENTBUILDINGAUTOBUILDFLIP).   setVisible(visible);
+        stageInterface.getTriButton(triButtonArray, ButtonEnum.Tri.TRIDENTBUILDINGAUTOBUILDCONFIRM).setVisible(visible);
+    }
     /**
      * this will be called in the tributton class, the arguments will be the coordinates relevant to the world
      * not the actor. this will be called if a touch is in a triButton's bounding box but not in it's triangle
@@ -192,21 +291,25 @@ static void updatePlayerTridentHand(){
 
     /**
      * this will be called in the tributton class, the arguments will be the coordinates relevant to the world
-     * not the actor. this will be called if a touch is in a triButton's bounding box but not in it's triangle
-     * this method will test all actors on the stage if the touch location hits them
+     * not the actor. this will be called if a touch is in a cardButton's bounding box but not in it's triangle
+     * this method will test all actors in the array if the touch location hits them
      * @param x this will be the real world x touch position,
      * @param y real world y touch position
      */
     public static void queryCardButtonTouch(float x, float y){
         /*for each cardButton in this stage*/
+        boolean touchHandled=false;
         for(int i=0;i<cardButtonArray.size;i++) {
             /*if the touch location is in this cardButton's triangle then break the for loop and do the touch logic*/
             if(cardButtonArray.get(i).triangleHit(x,y)){
                 cardButtonArray.get(i).touchLogic(x,y);
+                touchHandled=true;
                 break;
             }
-
-
+        }
+        /*if the touch wasn't in any of the cards in the card array, check the tributtons in the triarray*/
+        if(touchHandled==false){
+            queryTriButtonTouch(x,y);
         }
     }
     /**
@@ -215,15 +318,101 @@ static void updatePlayerTridentHand(){
      *                       triButton and will be the same as it's index in the triButtonArray for this stage
      */
     public void touchLogic(ButtonEnum.Tri triButtonIndex){
-
+Gdx.app.log("TRIDENTBUILDINGSTAGE"," tri button array clicked, button "+triButtonIndex);
         switch(triButtonIndex){
 
             case TRIDENTBUILDINGNEXTSTAGE: {
                 stageInterface.goToStage(StageInterface.GAMESTAGE);
                 break;
             }
-            default:
-                Gdx.app.log("Example", "DEFAULT "+triButtonIndex.value);
+            case TRIDENTBUILDINGAUTOBUILD: {
+                /*the autobuild buttons will expand the auto build trident buttons*/
+                stageInterface.getTriButton(triButtonArray,ButtonEnum.Tri.TRIDENTBUILDINGAUTOBUILD).setVisible(false);
+                setAutoBuildPipVisibility(true);
+                break;
+            }
+            case TRIDENTBUILDINGSPEARMED: {
+                setAutoBuildSuitVisibility(true);
+                setAutoBuildPipVisibility(false);
+
+                break;
+            }
+            case TRIDENTBUILDINGSPEARLOW: {
+
+                setAutoBuildSuitVisibility(true);
+                setAutoBuildPipVisibility(false);
+                break;
+            }
+            case TRIDENTBUILDINGBIDENTMED: {
+
+                setAutoBuildSuitVisibility(true);
+                setAutoBuildPipVisibility(false);
+                break;
+            }
+            case TRIDENTBUILDINGBIDENTLOW: {
+
+                setAutoBuildSuitVisibility(true);
+                setAutoBuildPipVisibility(false);
+                break;
+            }
+            case TRIDENTBUILDINGTRIDENTHI: {
+
+                setAutoBuildSuitVisibility(true);
+                setAutoBuildPipVisibility(false);
+                break;
+            }
+            case TRIDENTBUILDINGTRIDENTMED: {
+
+                setAutoBuildSuitVisibility(true);
+                setAutoBuildPipVisibility(false);
+                break;
+            }
+            case TRIDENTBUILDINGTRIDENTLOW: {
+
+                setAutoBuildSuitVisibility(true);
+                setAutoBuildPipVisibility(false);
+                break;
+            }
+            case TRIDENTBUILDINGSUIT0NATURE: {
+                setAutoBuildRotFlipConfirmVisibility(true);
+                setAutoBuildSuitVisibility(false);
+                break;
+            }
+            case TRIDENTBUILDINGSUIT1LIGHT: {
+                setAutoBuildRotFlipConfirmVisibility(true);
+                setAutoBuildSuitVisibility(false);
+                break;
+            }
+            case TRIDENTBUILDINGSUIT2DEMON: {
+                setAutoBuildRotFlipConfirmVisibility(true);
+                setAutoBuildSuitVisibility(false);
+                break;
+            }
+            case TRIDENTBUILDINGSUIT3DARK: {
+                setAutoBuildRotFlipConfirmVisibility(true);
+                setAutoBuildSuitVisibility(false);
+                break;
+            }
+            case TRIDENTBUILDINGSUIT4ANY: {
+                setAutoBuildRotFlipConfirmVisibility(true);
+                setAutoBuildSuitVisibility(false);
+                break;
+            }
+            case TRIDENTBUILDINGAUTOBUILDROTATE: {
+                break;
+            }
+            case TRIDENTBUILDINGAUTOBUILDFLIP: {
+
+                break;
+            }
+            case TRIDENTBUILDINGAUTOBUILDCONFIRM: {
+                stageInterface.getTriButton(triButtonArray,ButtonEnum.Tri.TRIDENTBUILDINGAUTOBUILD).setVisible(true);
+                setAutoBuildRotFlipConfirmVisibility(false);
+
+                break;
+            }
+                default:
+                Gdx.app.log("TRIDENTBUILDINGSTAGE", "DEFAULT "+triButtonIndex.value);
                 throw new IllegalStateException("Unexpected value: " + triButtonIndex);
         }
     }
@@ -234,12 +423,14 @@ static void updatePlayerTridentHand(){
      */
     public void touchLogicCard(ButtonEnum.Card cardButtonIndex){
 
+
     }
     public void reset(){
         cardButtonArray.clear();
         setUpCards();
         /*make all the trident buttons invisible*/
         resetPlayerTridentHand();
+        resetAutoBuild();
 
 
     }

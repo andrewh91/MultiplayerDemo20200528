@@ -28,6 +28,7 @@ public class CardButton  extends Actor {
 
     /*the longest edge length, should be the same as the edge length of the trident*/
     static public float edgeLength = 130;
+    static public float cardButtonEdegLength = edgeLength;
     /*assuming the isosceles card shape has the longest edge parallel to the horizon
     * the altitude is tan(30) * edgeLength /2    = 0.28867513459481288225457439025098 * edgeLength*/
     static float altitude = (float)( Math.tan(Math.PI/6) * edgeLength /2);
@@ -35,6 +36,7 @@ public class CardButton  extends Actor {
     static float otherLength = (float)( Math.tan(Math.PI/6) * edgeLength);
     static float halfEdgeLength = edgeLength/2;
     static float tridentAltitude = (float)(edgeLength * Math.sin(Math.PI/3));
+    static float cardButtonTridentAltitude = (float)(cardButtonEdegLength * Math.sin(Math.PI/3));
     /*the cards x and y coordinate will be the bottom left of the imaginary trident's bounding box
     * this is potentially confusing since a POINTDONW RIGHT card's position is quite far from the
     * drawn object*/
@@ -101,15 +103,15 @@ public class CardButton  extends Actor {
         setX(startingX);
         setY(startingY);
         updateBounds();
-        setWidth(edgeLength*2);
-        setHeight(tridentAltitude);
+        setWidth(cardButtonEdegLength);
+        setHeight(cardButtonTridentAltitude);
 
 
         this.addListener(new ClickListener() {
 
 
             public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
-                Gdx.app.log("Example", "touch started at (" + x + ", " + y + ")");
+                Gdx.app.log("CardButton", "touch started at (" + x + ", " + y + ")");
                 return true;
             }
 
@@ -125,6 +127,7 @@ public class CardButton  extends Actor {
                  * clicklistner will fire if the rectangle bounding box is hit, need to
                  * further calculate if the triangle is hit*/
                 /* this makes the coords relevant to the world*/
+                touchMessage(x,y);
                 x = x + getX();
                 y = y + getY();
                 if (triangleHit( x, y)) {
@@ -132,7 +135,7 @@ public class CardButton  extends Actor {
 
                 } else {
 
-                    Gdx.app.log("Example", "search all actors");
+                    Gdx.app.log("CardButton", "search all actors");
                     TridentBuildingStage.queryCardButtonTouch(x,y);
                 }
             }
@@ -141,7 +144,10 @@ public class CardButton  extends Actor {
 
     }
 
+    public void touchMessage(float x, float y){
+        Gdx.app.log("CardButton", "touch up in "+cardButtonIndex+" width "+(int)getWidth() + " height "+(int)getHeight()+" absolute x " + (int)getX() + " absolute y " + (int)getY()+" relative x " + (int)x + " relative y " + (int)y );
 
+    }
     public void draw(Batch batch, float parentAlpha) {
         /*super.draw(batch, parentAlpha);*/
         /*batch.draw(texture,getX(),getY());*/
@@ -278,53 +284,50 @@ public class CardButton  extends Actor {
      *
      */
     public boolean triangleHit(float x, float y) {
-        x = x - getX();
-        y = y - getY();
-        if(orientation==POINTUP) {
-            if(position ==LEFT)
-            {
-                if (x<halfEdgeLength && y < (x*tridentAltitude/halfEdgeLength) && y > (x * altitude/halfEdgeLength)){
+        if(isVisible()){
+            x = x - getX();
+            y = y - getY();
+            if(orientation==POINTUP) {
+                if (position == LEFT) {
+                    if (x < halfEdgeLength && y < (x * tridentAltitude / halfEdgeLength) && y > (x * altitude / halfEdgeLength)) {
 
-                    Gdx.app.log("Example", "in POINTUP   LEFT");
-                    return true;
-                }
-            }
-            else if(position ==RIGHT)
-            {
-                if (x>halfEdgeLength && y < (-x * tridentAltitude/halfEdgeLength) + tridentAltitude *2 && y > (-x * altitude/halfEdgeLength) +otherLength){
-                    Gdx.app.log("Example", "in POINTUP   RIGHT");
-                    return true;
-                }
+                        Gdx.app.log("CardButton", "in POINTUP   LEFT");
+                        return true;
+                    }
+                } else if (position == RIGHT) {
+                    if (x > halfEdgeLength && y < (-x * tridentAltitude / halfEdgeLength) + tridentAltitude * 2 && y > (-x * altitude / halfEdgeLength) + otherLength) {
+                        Gdx.app.log("CardButton", "in POINTUP   RIGHT");
+                        return true;
+                    }
 
-            }
-            else if(position ==VERTICAL)
-            {
-                if (y>0 && y < (x * altitude/halfEdgeLength) && y < (-x * altitude/halfEdgeLength)+otherLength){
-                    Gdx.app.log("Example", "in POINTUP   VERTICAL");
-                    return true;
-                }
+                } else if (position == VERTICAL) {
+                    if (y > 0 && y < (x * altitude / halfEdgeLength) && y < (-x * altitude / halfEdgeLength) + otherLength) {
+                        Gdx.app.log("CardButton", "in POINTUP   VERTICAL");
+                        return true;
+                    }
 
+                }
             }
         }
         else if(orientation==POINTDOWN){
             if(position ==LEFT)
             {
                 if(x<halfEdgeLength &&  y > (-x * tridentAltitude/halfEdgeLength)+tridentAltitude && y < (-x * altitude/halfEdgeLength)+tridentAltitude){
-                    Gdx.app.log("Example", "in POINTDOWN LEFT");
+                    Gdx.app.log("CardButton", "in POINTDOWN LEFT");
                     return true;
                 }
             }
             else if(position ==RIGHT)
             {
                 if (x>halfEdgeLength && y > (x*tridentAltitude/halfEdgeLength)-tridentAltitude && y < (x * altitude/halfEdgeLength)+altitude){
-                    Gdx.app.log("Example", "in POINTDOWN RIGHT");
+                    Gdx.app.log("CardButton", "in POINTDOWN RIGHT");
                     return true;
                 }
             }
             else if(position ==VERTICAL)
             {
                 if (y<tridentAltitude && y > (-x*altitude/halfEdgeLength)+tridentAltitude && y > (x*altitude/halfEdgeLength)+altitude){
-                    Gdx.app.log("Example", "in POINTDOWN VERTICAL");
+                    Gdx.app.log("CardButton", "in POINTDOWN VERTICAL");
                     return true;
                 }
 
@@ -425,8 +428,8 @@ public class CardButton  extends Actor {
         /*the size of the cards will have been amended before calling this method
         * updateBounds has already been called, but need to call setWidth and
         * setHeight non statically so do it here */
-        setWidth(edgeLength*2);
-        setHeight(tridentAltitude);
+        setWidth(cardButtonEdegLength);
+        setHeight(cardButtonTridentAltitude);
 
         int tridentIndex = (int)Math.floor(index/3);
         setX(dealAnimationRectangleDisplayX +(tridentIndex % 4) * (dealAnimationTridentEdgeLength / 2));

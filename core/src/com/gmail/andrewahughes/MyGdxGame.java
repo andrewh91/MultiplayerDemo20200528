@@ -134,10 +134,10 @@ public class MyGdxGame extends ApplicationAdapter  implements  StageInterface{
 		switch (stage) {
 			case TITLESTAGE :{
 				titleStage.setVisible(true);
-				Gdx.app.log("Example","Gdx.graphics.getHeight() ="+Gdx.graphics.getHeight());
-				Gdx.app.log("Example","Gdx.graphics.getWidth() ="+Gdx.graphics.getWidth());
-				Gdx.app.log("Example","WORLDHEIGHT ="+WORLDHEIGHT);
-				Gdx.app.log("Example","WORLDWIDTH ="+WORLDWIDTH);
+				Gdx.app.log("MyGdxGame","Gdx.graphics.getHeight() ="+Gdx.graphics.getHeight());
+				Gdx.app.log("MyGdxGame","Gdx.graphics.getWidth() ="+Gdx.graphics.getWidth());
+				Gdx.app.log("MyGdxGame","WORLDHEIGHT ="+WORLDHEIGHT);
+				Gdx.app.log("MyGdxGame","WORLDWIDTH ="+WORLDWIDTH);
 				Gdx.input.setInputProcessor(titleStage);
 				break;
 			}
