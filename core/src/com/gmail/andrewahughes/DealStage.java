@@ -184,12 +184,15 @@ public class DealStage extends Stage {
                      * this method determines how much space */
                     CardButton.setTridentHandHeight();
                     Gdx.app.log("DealStage","set position of all cards in card hand");
+                    Gdx.app.log("DealStage","immediately after setTridentHandHeight, new edge length of all card buttons ="+(CardButton.dealAnimationTridentEdgeLength /2));
+
                     for (int i = 0; i < Deck.cardArray.size; i++) {
                         TridentBuildingStage.cardButtonArray.get(i).setText();
                         TridentBuildingStage.cardButtonArray.get(i).edgeLength = CardButton.dealAnimationTridentEdgeLength /2;
                         TridentBuildingStage.cardButtonArray.get(i).updateBounds();
                         TridentBuildingStage.cardButtonArray.get(i).setDealAnimationPosition();
                     }
+                    Gdx.app.log("Deal Stage","setDealAnimationPosition set width "+CardButton.dealAnimationTridentEdgeLength /2);
                     /*the TRIDENTBUILDINGSTAGE has a trident hand big enough for 9 tridents
                      * but if we are using less than that many keep the others invisible*/
                     TridentBuildingStage.updatePlayerTridentHand();
@@ -767,6 +770,7 @@ public class DealStage extends Stage {
         CardButton.updateBounds();
         /*loop through the tridentBuildingStage's cardButtonArray setting all the values
          * so the cardButtons are spread out and oriented correctly */
+
         for (int i = 0; i < TridentBuildingStage.cardButtonArray.size; i++) {
             TridentBuildingStage.cardButtonArray.get(i).setDealAnimationValues(i);
         }

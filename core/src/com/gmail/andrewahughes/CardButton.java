@@ -103,7 +103,8 @@ public class CardButton  extends Actor {
         setX(startingX);
         setY(startingY);
         updateBounds();
-        setWidth(cardButtonEdegLength);
+        Gdx.app.log("CardButton","initial set width ");
+        setWidth(cardButtonEdegLength*2);
         setHeight(cardButtonTridentAltitude);
 
 
@@ -284,10 +285,10 @@ public class CardButton  extends Actor {
      *
      */
     public boolean triangleHit(float x, float y) {
-        if(isVisible()){
+        if(isVisible()) {
             x = x - getX();
             y = y - getY();
-            if(orientation==POINTUP) {
+            if (orientation == POINTUP) {
                 if (position == LEFT) {
                     if (x < halfEdgeLength && y < (x * tridentAltitude / halfEdgeLength) && y > (x * altitude / halfEdgeLength)) {
 
@@ -307,30 +308,24 @@ public class CardButton  extends Actor {
                     }
 
                 }
-            }
-        }
-        else if(orientation==POINTDOWN){
-            if(position ==LEFT)
-            {
-                if(x<halfEdgeLength &&  y > (-x * tridentAltitude/halfEdgeLength)+tridentAltitude && y < (-x * altitude/halfEdgeLength)+tridentAltitude){
-                    Gdx.app.log("CardButton", "in POINTDOWN LEFT");
-                    return true;
-                }
-            }
-            else if(position ==RIGHT)
-            {
-                if (x>halfEdgeLength && y > (x*tridentAltitude/halfEdgeLength)-tridentAltitude && y < (x * altitude/halfEdgeLength)+altitude){
-                    Gdx.app.log("CardButton", "in POINTDOWN RIGHT");
-                    return true;
-                }
-            }
-            else if(position ==VERTICAL)
-            {
-                if (y<tridentAltitude && y > (-x*altitude/halfEdgeLength)+tridentAltitude && y > (x*altitude/halfEdgeLength)+altitude){
-                    Gdx.app.log("CardButton", "in POINTDOWN VERTICAL");
-                    return true;
-                }
+            } else if (orientation == POINTDOWN) {
+                if (position == LEFT) {
+                    if (x < halfEdgeLength && y > (-x * tridentAltitude / halfEdgeLength) + tridentAltitude && y < (-x * altitude / halfEdgeLength) + tridentAltitude) {
+                        Gdx.app.log("CardButton", "in POINTDOWN LEFT");
+                        return true;
+                    }
+                } else if (position == RIGHT) {
+                    if (x > halfEdgeLength && y > (x * tridentAltitude / halfEdgeLength) - tridentAltitude && y < (x * altitude / halfEdgeLength) + altitude) {
+                        Gdx.app.log("CardButton", "in POINTDOWN RIGHT");
+                        return true;
+                    }
+                } else if (position == VERTICAL) {
+                    if (y < tridentAltitude && y > (-x * altitude / halfEdgeLength) + tridentAltitude && y > (x * altitude / halfEdgeLength) + altitude) {
+                        Gdx.app.log("CardButton", "in POINTDOWN VERTICAL");
+                        return true;
+                    }
 
+                }
             }
         }
         return false;
@@ -411,6 +406,7 @@ public class CardButton  extends Actor {
             dealAnimationTridentEdgeLength=altEdgeLength;
         }
         edgeLength=dealAnimationTridentEdgeLength;
+        Gdx.app.log("CardButton","setDealAnimationRectangle, new edge length of all card buttons ="+edgeLength);
 
         /*now work out how to centre the grid of tridents*/
         float triGridWidth = dealAnimationTridentEdgeLength*2.5f;
@@ -428,8 +424,7 @@ public class CardButton  extends Actor {
         /*the size of the cards will have been amended before calling this method
         * updateBounds has already been called, but need to call setWidth and
         * setHeight non statically so do it here */
-        setWidth(cardButtonEdegLength);
-        setHeight(cardButtonTridentAltitude);
+
 
         int tridentIndex = (int)Math.floor(index/3);
         setX(dealAnimationRectangleDisplayX +(tridentIndex % 4) * (dealAnimationTridentEdgeLength / 2));
@@ -474,6 +469,9 @@ public class CardButton  extends Actor {
      */
     public void setDealAnimationPosition(){
         /*if the cardbutton belongs to the current player*/
+
+        setWidth(edgeLength);
+        setHeight(tridentAltitude);
         if(playerIndex==MyServer.player.index){
             /*need to reserve space at the top of the rectangle for trident hand*/
             /*this helps figure out what suit each card is in*/
@@ -510,6 +508,7 @@ public class CardButton  extends Actor {
     public static void setTridentHandHeight(){
         dealAnimationTridentWidth =dealAnimationRectangleWidth/5;
         edgeLength=dealAnimationTridentWidth;
+        Gdx.app.log("CardButton","setTridentHandHeight, new edge length of all card buttons ="+edgeLength);
         dealAnimationTridentHeight =(float)(dealAnimationTridentWidth*Math.sin(Math.PI/3));
         dealAnimationRowMargin = (dealAnimationRectangleHeight - (dealAnimationTridentHeight*7)) / 4.5f;
         updateBounds();

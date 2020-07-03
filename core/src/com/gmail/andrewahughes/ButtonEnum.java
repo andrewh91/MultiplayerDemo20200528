@@ -111,11 +111,38 @@ public class ButtonEnum {
         TRIDENTBUILDING48,
         TRIDENTBUILDING49,
         TRIDENTBUILDING50,
-        TRIDENTBUILDING51;
-
+        TRIDENTBUILDING51,
+        TRIHANDCARD0,
+        TRIHANDCARD1,
+        TRIHANDCARD2,
+        TRIHANDCARD3,
+        TRIHANDCARD4,
+        TRIHANDCARD5,
+        TRIHANDCARD6,
+        TRIHANDCARD7,
+        TRIHANDCARD8,
+        TRIHANDCARD9,
+        TRIHANDCARD10,
+        TRIHANDCARD11,
+        TRIHANDCARD12,
+        TRIHANDCARD13,
+        TRIHANDCARD14,
+        TRIHANDCARD15,
+        TRIHANDCARD16,
+        TRIHANDCARD17,
+        TRIHANDCARD18,
+        TRIHANDCARD19,
+        TRIHANDCARD20,
+        TRIHANDCARD21,
+        TRIHANDCARD22,
+        TRIHANDCARD23,
+        TRIHANDCARD24,
+        TRIHANDCARD25;
         int value;
         Card( ) {
             this.value =card++;
         }
     }
+
+
 }

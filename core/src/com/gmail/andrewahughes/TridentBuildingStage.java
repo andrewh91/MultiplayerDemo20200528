@@ -18,7 +18,14 @@ public class TridentBuildingStage extends Stage {
     static StageInterface stageInterface;
     SpriteBatch spriteBatch;
     ShapeRenderer shapeRenderer;
+    /**
+     * this is an array of 52 card buttons, one for each card in the game, it's used in deal stage, trident stage and game stage
+     */
     static Array<CardButton> cardButtonArray = new Array<CardButton>();
+    /**
+     * this is an array of card buttons that make up the trident hand in the TridentBuildingStage only
+     */
+    static Array<CardButton> cardButtonArrayTridentHand = new Array<CardButton>();
     static Array<TriButton> triButtonArray = new Array<TriButton>();
     public TridentBuildingStage(StageInterface stageInterface, Viewport viewport, SpriteBatch batch,ShapeRenderer shapeRenderer)
     {
@@ -85,11 +92,19 @@ public class TridentBuildingStage extends Stage {
             cardButtonArray.get(i).drawShape(shapeRenderer);
 
         }
+        for(int i=0;i<cardButtonArrayTridentHand.size;i++) {
+            cardButtonArrayTridentHand.get(i).drawShape(shapeRenderer);
+
+        }
     }
     void drawCardButtons() {
 
         for(int i=0;i<cardButtonArray.size;i++) {
             cardButtonArray.get(i).draw(spriteBatch,1.0f);
+
+        }
+        for(int i=0;i<cardButtonArrayTridentHand.size;i++) {
+            cardButtonArrayTridentHand.get(i).draw(spriteBatch,1.0f);
 
         }
     }
@@ -215,6 +230,7 @@ void createPlayerTridentHand(){
 static void updatePlayerTridentHand(){
     float w = CardButton.dealAnimationRectangleWidth/5;
     float h = (float) (w * Math.sin(Math.PI/3));
+    /*for each trident*/
     for(int i = ButtonEnum.Tri.TRIDENTBUILDINGPLAYERTRIDENTARRAY1.value ; i < OptionsStage.tridentsEach+1;i++){
         triButtonArray.get(i).setVisible(true);
         if(i==0){
@@ -227,6 +243,18 @@ static void updatePlayerTridentHand(){
             triButtonArray.get(i).setX(CardButton.dealAnimationRectangleDealX + w/2 * (i-1));
             triButtonArray.get(i).setY(CardButton.dealAnimationRectangleHeight + CardButton.dealAnimationRectangleDealY-h*2);
             triButtonArray.get(i).orientation=i%2==1?true:false;
+
+            /*this is for the card buttons that make up the trident array */
+            for(int j=0;j<3;j++){
+                if(i*3+j<OptionsStage.cardsEach){
+                cardButtonArrayTridentHand.get(i*3+j).edgeLength=w;
+                cardButtonArrayTridentHand.get(i*3+j).updateBounds();
+                cardButtonArrayTridentHand.get(i*3+j).setX(CardButton.dealAnimationRectangleDealX + w/2 * (i-1));
+                cardButtonArrayTridentHand.get(i*3+j).setY(CardButton.dealAnimationRectangleHeight + CardButton.dealAnimationRectangleDealY-h*2);
+                cardButtonArrayTridentHand.get(i*3+j).orientation=i%2==1?true:false;
+                cardButtonArrayTridentHand.get(i*3+j).position=(byte)(j);
+                }
+            }
 
         }
     }
@@ -278,14 +306,23 @@ static void updatePlayerTridentHand(){
     public static void queryTriButtonTouch(float x, float y){
         /*could also do for all cardButtonArray but cardButtons shouldn't be placed close to TriButtons anyway*/
         /*for each triButton in this stage*/
+        boolean touchHandled=false;
         for(int i=0;i<triButtonArray.size;i++) {
             /*if the touch location is in this triButton's triangle then break the for loop and do the touch logic*/
             if(triButtonArray.get(i).triangleHit(x,y)){
                 triButtonArray.get(i).touchLogic(x,y);
+                touchHandled=true;
                 break;
             }
-
-
+        }
+        if(touchHandled) {
+            for (int i = 0; i < cardButtonArrayTridentHand.size; i++) {
+                /*if the touch location is in this trihand card button then break the for loop and do the touch logic*/
+                if (cardButtonArrayTridentHand.get(i).triangleHit(x, y)) {
+                    cardButtonArrayTridentHand.get(i).touchLogic(x, y);
+                    break;
+                }
+            }
         }
     }
 
@@ -412,8 +449,8 @@ Gdx.app.log("TRIDENTBUILDINGSTAGE"," tri button array clicked, button "+triButto
                 break;
             }
                 default:
-                Gdx.app.log("TRIDENTBUILDINGSTAGE", "DEFAULT "+triButtonIndex.value);
-                throw new IllegalStateException("Unexpected value: " + triButtonIndex);
+                Gdx.app.log("TRIDENTBUILDINGSTAGE", "DEFAULT "+triButtonIndex);
+                //throw new IllegalStateException("Unexpected value: " + triButtonIndex);
         }
     }
     /**
@@ -428,6 +465,7 @@ Gdx.app.log("TRIDENTBUILDINGSTAGE"," tri button array clicked, button "+triButto
     public void reset(){
         cardButtonArray.clear();
         setUpCards();
+        setUpCardsTridentHand();
         /*make all the trident buttons invisible*/
         resetPlayerTridentHand();
         resetAutoBuild();
@@ -439,9 +477,30 @@ Gdx.app.log("TRIDENTBUILDINGSTAGE"," tri button array clicked, button "+triButto
     when allocated to one of the players */
     public void setUpCards() {
         /*set up all cards*/
+        int i=0;
         for (ButtonEnum.Card cardEnum : ButtonEnum.Card.values()) {
             System.out.println(cardEnum);
             stageInterface.addCardButton(new CardButton(stageInterface, 0, 0, true, (byte) 0, stageInterface.TRIDENTBUILDINGSTAGE, cardEnum), cardButtonArray, this);
+            i++;
+            if(i>52){
+                break;
+            }
+        }
+        Gdx.app.log("TridentBuildingStage","cardButtonArray size :"+cardButtonArray.size);
+    }
+    /*set up all the cards in the tridenthand, they should be given an enum each,
+    pos and orientation should be set up later
+     the value won't be set, although a card with a value may be moved so that it is on top of this */
+    public void setUpCardsTridentHand() {
+        /*set up all cards*/
+        int i=52;
+        for (ButtonEnum.Card cardEnum : ButtonEnum.Card.values()) {
+            System.out.println(cardEnum);
+            stageInterface.addCardButton(new CardButton(stageInterface, 0, 0, true, (byte) 0, stageInterface.TRIDENTBUILDINGSTAGE, cardEnum), cardButtonArrayTridentHand, this);
+            i++;
+            if(i>52+26){
+                break;
+            }
         }
         Gdx.app.log("TridentBuildingStage","cardButtonArray size :"+cardButtonArray.size);
     }
