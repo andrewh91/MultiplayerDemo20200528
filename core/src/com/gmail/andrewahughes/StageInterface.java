@@ -12,6 +12,7 @@ public interface StageInterface {
     void addTriButton(TriButton triButton, Array array, Stage stage);
     TriButton getTriButton(Array array, ButtonEnum.Tri index);
     void addCardButton(CardButton cardButton, Array array, Stage stage);
+    void addCardButton(CardButton cardButton, Array array, Stage stage,int index);
     CardButton getCardButtonTridentBuildingStage(Array array, ButtonEnum.Card index);
     void handleButtonsTitleTri(ButtonEnum.Tri triButtonIndex);
     void handleButtonsOptionsTri(ButtonEnum.Tri triButtonIndex);

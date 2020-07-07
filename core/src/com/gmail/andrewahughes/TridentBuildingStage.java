@@ -27,6 +27,23 @@ public class TridentBuildingStage extends Stage {
      */
     static Array<CardButton> cardButtonArrayTridentHand = new Array<CardButton>();
     static Array<TriButton> triButtonArray = new Array<TriButton>();
+    /**
+     * this array will help us know which cards in the trident hand have been filled
+     * variable will be false if no card has been assigned to this position in the
+     * player's trident hand
+     */
+    static Array<Boolean> triHandCardFilledArray = new Array<Boolean>();
+    /**
+     * only one card in the trident hand can be highlighted at once,
+     * this int will determine which one. note,
+     */
+    static int highlightPos=0;
+    /**
+     * advanceHighlightPosition is called recursively if the next highlight position
+     * is not available, it would be called infinitely if no positions are available
+     * if not for this counter which breaks the loop if all positions are filled
+     */
+    static int highlightPosCounter=0;
     public TridentBuildingStage(StageInterface stageInterface, Viewport viewport, SpriteBatch batch,ShapeRenderer shapeRenderer)
     {
         this.stageInterface =stageInterface;
@@ -66,6 +83,7 @@ public class TridentBuildingStage extends Stage {
             /*draw all actors of this stage*/
             drawTriButtonsShape(shapeRenderer);
             drawCardButtonsShape();
+            drawCardButtonHighlightShape();
             shapeRenderer.end();
         }
     }
@@ -97,6 +115,12 @@ public class TridentBuildingStage extends Stage {
 
         }
     }
+    void drawCardButtonHighlightShape() {
+        if(highlightPos>-1) {
+            cardButtonArrayTridentHand.get(highlightPos).drawHighlightShape(shapeRenderer);
+        }
+
+    }
     void drawCardButtons() {
 
         for(int i=0;i<cardButtonArray.size;i++) {
@@ -125,9 +149,7 @@ public class TridentBuildingStage extends Stage {
          * this means if we add the buttons out of order it will cause an error, which is good because
          * then i can make sure the buttons are in the correct order*/
         /*trident buttons*/
-        stageInterface.addTriButton(new TriButton(stageInterface,0,0,false,StageInterface.TRIDENTBUILDINGSTAGE, ButtonEnum.Tri.TRIDENTBUILDINGNEXTSTAGE),triButtonArray,this);
-        stageInterface.getTriButton(triButtonArray,ButtonEnum.Tri.TRIDENTBUILDINGNEXTSTAGE).setText("Game");
-        //stageInterface.getTriButton(triButtonArray,ButtonEnum.Tri.TRIDENTBUILDINGNEXTSTAGE).setTridentToTextSize();
+
         /*this is the player's trident hand*/
         createPlayerTridentHand();
 
@@ -137,7 +159,7 @@ public class TridentBuildingStage extends Stage {
         stageInterface.getTriButton(triButtonArray,ButtonEnum.Tri.TRIDENTBUILDINGAUTOBUILD).setText("Auto\nBuild");
 
 
-        /*the first selset of 7 tributtons, will determine the pip value of the 3 cards selected*/
+        /*the first set of 7 tributtons, will determine the pip value of the 3 cards selected*/
         stageInterface.addTriButton(new TriButton(stageInterface,720-(130*1.5f)-10,1280/2 - 130 * (float)(Math.sin(Math.PI/3))+ 130 * (float)(Math.sin(Math.PI/3)),false,StageInterface.TRIDENTBUILDINGSTAGE, ButtonEnum.Tri.TRIDENTBUILDINGSPEARMED),triButtonArray,this);
         stageInterface.getTriButton(triButtonArray,ButtonEnum.Tri.TRIDENTBUILDINGSPEARMED).setText("Med\nSpear");
         stageInterface.getTriButton(triButtonArray,ButtonEnum.Tri.TRIDENTBUILDINGSPEARMED).setVisible(false);
@@ -195,6 +217,10 @@ public class TridentBuildingStage extends Stage {
         stageInterface.getTriButton(triButtonArray,ButtonEnum.Tri.TRIDENTBUILDINGAUTOBUILDCONFIRM).setText("Confirm");
         stageInterface.getTriButton(triButtonArray,ButtonEnum.Tri.TRIDENTBUILDINGAUTOBUILDCONFIRM).setVisible(false);
 
+        stageInterface.addTriButton(new TriButton(stageInterface,0,0,false,StageInterface.TRIDENTBUILDINGSTAGE, ButtonEnum.Tri.TRIDENTBUILDINGNEXTSTAGE),triButtonArray,this);
+        stageInterface.getTriButton(triButtonArray,ButtonEnum.Tri.TRIDENTBUILDINGNEXTSTAGE).setText("Game");
+        //stageInterface.getTriButton(triButtonArray,ButtonEnum.Tri.TRIDENTBUILDINGNEXTSTAGE).setTridentToTextSize();
+
         resetAutoBuild();
 
         /*card buttons, these are created in setup cards instead*/
@@ -230,33 +256,38 @@ void createPlayerTridentHand(){
 static void updatePlayerTridentHand(){
     float w = CardButton.dealAnimationRectangleWidth/5;
     float h = (float) (w * Math.sin(Math.PI/3));
+
     /*for each trident*/
-    for(int i = ButtonEnum.Tri.TRIDENTBUILDINGPLAYERTRIDENTARRAY1.value ; i < OptionsStage.tridentsEach+1;i++){
+    for(int i = 0 ; i < OptionsStage.tridentsEach;i++){
         triButtonArray.get(i).setVisible(true);
-        if(i==0){
 
-        }
-        else {
-            triButtonArray.get(i).edgeLength=w;
-            triButtonArray.get(i).updateBounds();
-            triButtonArray.get(i).drawMirror=true;
-            triButtonArray.get(i).setX(CardButton.dealAnimationRectangleDealX + w/2 * (i-1));
-            triButtonArray.get(i).setY(CardButton.dealAnimationRectangleHeight + CardButton.dealAnimationRectangleDealY-h*2);
-            triButtonArray.get(i).orientation=i%2==1?true:false;
+        triButtonArray.get(i).edgeLength=w;
+        triButtonArray.get(i).updateBounds();
+        triButtonArray.get(i).drawMirror=true;
+        triButtonArray.get(i).setX(CardButton.dealAnimationRectangleDealX + w/2 * (i));
+        triButtonArray.get(i).setY(CardButton.dealAnimationRectangleHeight + CardButton.dealAnimationRectangleDealY-h*2);
+        triButtonArray.get(i).orientation=i%2==1?true:false;
 
-            /*this is for the card buttons that make up the trident array */
-            for(int j=0;j<3;j++){
-                if(i*3+j<OptionsStage.cardsEach){
+        /*this is for the card buttons that make up the trident array */
+        for(int j=0;j<3;j++){
+
+            if(i*3+j<OptionsStage.cardsEach){
+                cardButtonArrayTridentHand.get(i*3+j).setVisible(true);
                 cardButtonArrayTridentHand.get(i*3+j).edgeLength=w;
                 cardButtonArrayTridentHand.get(i*3+j).updateBounds();
-                cardButtonArrayTridentHand.get(i*3+j).setX(CardButton.dealAnimationRectangleDealX + w/2 * (i-1));
+                cardButtonArrayTridentHand.get(i*3+j).setX(CardButton.dealAnimationRectangleDealX + w/2 * (i));
                 cardButtonArrayTridentHand.get(i*3+j).setY(CardButton.dealAnimationRectangleHeight + CardButton.dealAnimationRectangleDealY-h*2);
                 cardButtonArrayTridentHand.get(i*3+j).orientation=i%2==1?true:false;
                 cardButtonArrayTridentHand.get(i*3+j).position=(byte)(j);
-                }
             }
-
+            else if (i*3+j<cardButtonArrayTridentHand.size){
+                cardButtonArrayTridentHand.get(i*3+j).setVisible(false);
+                cardButtonArrayTridentHand.get(i*3+j).setX(-720);
+                cardButtonArrayTridentHand.get(i*3+j).setY(-1280);
+            }
         }
+
+
     }
 }
     static void resetPlayerTridentHand() {
@@ -344,6 +375,16 @@ static void updatePlayerTridentHand(){
                 break;
             }
         }
+        if(touchHandled==false) {
+            for (int i = 0; i < cardButtonArrayTridentHand.size; i++) {
+                /*if the touch location is in this cardButton's triangle then break the for loop and do the touch logic*/
+                if (cardButtonArrayTridentHand.get(i).triangleHit(x, y)) {
+                    cardButtonArrayTridentHand.get(i).touchLogic(x, y);
+                    touchHandled = true;
+                    break;
+                }
+            }
+        }
         /*if the touch wasn't in any of the cards in the card array, check the tributtons in the triarray*/
         if(touchHandled==false){
             queryTriButtonTouch(x,y);
@@ -355,7 +396,14 @@ static void updatePlayerTridentHand(){
      *                       triButton and will be the same as it's index in the triButtonArray for this stage
      */
     public void touchLogic(ButtonEnum.Tri triButtonIndex){
-Gdx.app.log("TRIDENTBUILDINGSTAGE"," tri button array clicked, button "+triButtonIndex);
+        Gdx.app.log("TRIDENTBUILDINGSTAGE"," tri button array clicked, button "+triButtonIndex);
+
+        for (int i=0;i<cardButtonArray.size;i++){
+            Gdx.app.log("TRIDENTBUILDINGSTAGE"," card "+i+ " x "+(int)cardButtonArray.get(i).getX()+ " y "+(int)cardButtonArray.get(i).getY()+" enum" +cardButtonArray.get(i).cardButtonIndex+" player index "+ MyServer.player.index+" card index "+ cardButtonArray.get(i).playerIndex+" visible "+ cardButtonArray.get(i).isVisible());
+        }
+        for (int i=0;i<cardButtonArrayTridentHand.size;i++){
+            Gdx.app.log("TRIDENTBUILDINGSTAGE"," tri hand card "+i+ " x "+(int)cardButtonArrayTridentHand.get(i).getX()+ " y "+(int)cardButtonArrayTridentHand.get(i).getY()+" enum" +cardButtonArrayTridentHand.get(i).cardButtonIndex+" player index "+ MyServer.player.index+" card index "+ cardButtonArrayTridentHand.get(i).playerIndex+" visible "+ cardButtonArrayTridentHand.get(i).isVisible());
+        }
         switch(triButtonIndex){
 
             case TRIDENTBUILDINGNEXTSTAGE: {
@@ -454,14 +502,174 @@ Gdx.app.log("TRIDENTBUILDINGSTAGE"," tri button array clicked, button "+triButto
         }
     }
     /**
-     * this will be called in the tributton class,
+     * this will be called in the card class,
      * @param cardButtonIndex this will be the index of the cardbutton that was clicked, the index is set on creation of the
      *                       cardButton and will be the same as it's index in the cardButtonArray for this stage
      */
     public void touchLogicCard(ButtonEnum.Card cardButtonIndex){
+        Gdx.app.log("TRIDENTBUILDINGSTAGE"," card button array clicked, button "+cardButtonIndex);
+        Gdx.app.log("TRIDENTBUILDINGSTAGE","x "+(int)stageInterface.getCardButtonTridentBuildingStage(cardButtonArray,cardButtonIndex).getX()+ " y "+(int)stageInterface.getCardButtonTridentBuildingStage(cardButtonArray,cardButtonIndex).getY()+" enum" +cardButtonIndex+"/ "+stageInterface.getCardButtonTridentBuildingStage(cardButtonArray,cardButtonIndex).cardButtonIndex+" player index "+ MyServer.player.index+" card index "+ stageInterface.getCardButtonTridentBuildingStage(cardButtonArray,cardButtonIndex).playerIndex+ " edgelength "+stageInterface.getCardButtonTridentBuildingStage(cardButtonArray,cardButtonIndex).edgeLength+ " visible "+stageInterface.getCardButtonTridentBuildingStage(cardButtonArray,cardButtonIndex).isVisible());
+
+        switch(cardButtonIndex) {
+
+            case TRIHANDCARD0:
+            case TRIHANDCARD1:
+            case TRIHANDCARD2:
+            case TRIHANDCARD3:
+            case TRIHANDCARD4:
+            case TRIHANDCARD5:
+            case TRIHANDCARD6:
+            case TRIHANDCARD7:
+            case TRIHANDCARD8:
+            case TRIHANDCARD9:
+            case TRIHANDCARD10:
+            case TRIHANDCARD11:
+            case TRIHANDCARD12:
+            case TRIHANDCARD13:
+            case TRIHANDCARD14:
+            case TRIHANDCARD15:
+            case TRIHANDCARD16:
+            case TRIHANDCARD17:
+            case TRIHANDCARD18:
+            case TRIHANDCARD19:
+            case TRIHANDCARD20:
+            case TRIHANDCARD21:
+            case TRIHANDCARD22:
+            case TRIHANDCARD23:
+            case TRIHANDCARD24:
+            case TRIHANDCARD25:
+             {
+                touchTriHandCardButton(cardButtonIndex);
+                break;
+            }
+            case TRIDENTBUILDING0:
+            case TRIDENTBUILDING1:
+            case TRIDENTBUILDING2:
+            case TRIDENTBUILDING3:
+            case TRIDENTBUILDING4:
+            case TRIDENTBUILDING5:
+            case TRIDENTBUILDING6:
+            case TRIDENTBUILDING7:
+            case TRIDENTBUILDING8:
+            case TRIDENTBUILDING9:
+            case TRIDENTBUILDING10:
+            case TRIDENTBUILDING11:
+            case TRIDENTBUILDING12:
+            case TRIDENTBUILDING13:
+            case TRIDENTBUILDING14:
+            case TRIDENTBUILDING15:
+            case TRIDENTBUILDING16:
+            case TRIDENTBUILDING17:
+            case TRIDENTBUILDING18:
+            case TRIDENTBUILDING19:
+            case TRIDENTBUILDING20:
+            case TRIDENTBUILDING21:
+            case TRIDENTBUILDING22:
+            case TRIDENTBUILDING23:
+            case TRIDENTBUILDING24:
+            case TRIDENTBUILDING25:
+            case TRIDENTBUILDING26:
+            case TRIDENTBUILDING27:
+            case TRIDENTBUILDING28:
+            case TRIDENTBUILDING29:
+            case TRIDENTBUILDING30:
+            case TRIDENTBUILDING31:
+            case TRIDENTBUILDING32:
+            case TRIDENTBUILDING33:
+            case TRIDENTBUILDING34:
+            case TRIDENTBUILDING35:
+            case TRIDENTBUILDING36:
+            case TRIDENTBUILDING37:
+            case TRIDENTBUILDING38:
+            case TRIDENTBUILDING39:
+            case TRIDENTBUILDING40:
+            case TRIDENTBUILDING41:
+            case TRIDENTBUILDING42:
+            case TRIDENTBUILDING43:
+            case TRIDENTBUILDING44:
+            case TRIDENTBUILDING45:
+            case TRIDENTBUILDING46:
+            case TRIDENTBUILDING47:
+            case TRIDENTBUILDING48:
+            case TRIDENTBUILDING49:
+            case TRIDENTBUILDING50:
+            case TRIDENTBUILDING51:
+            {
+                touchCard(cardButtonIndex);
+                break;
+            }
+        }
 
 
     }
+
+    /**
+     * called in the trident building stage when the player touches a card in the
+     * trident hand
+     */
+    public void touchTriHandCardButton(ButtonEnum.Card cardButtonEnum){
+        int index = cardButtonEnum.value-ButtonEnum.Card.TRIHANDCARD0.value;
+        /*if the position in the trihand has not been filled, highlight it */
+        if(triHandCardFilledArray.get(index)==false){
+            highlightPos=index;
+        }
+    }
+
+    /**
+     * called in the trident building stage when the player touches one of the cards in the
+     * cardhand, this will move the card to the position defined by the highlighted card in the
+     * trihand
+     */
+    public void touchCard(ButtonEnum.Card cardButtonEnum){
+        int index = cardButtonEnum.value;
+        /*if the card has not already been moved, move it  */
+        if(cardButtonArray.get(index).inTriHand==false){
+            cardButtonArray.get(index).inTriHand=true;
+
+            cardButtonArray.get(index).setXPos(cardButtonArrayTridentHand.get(highlightPos).getX());
+            cardButtonArray.get(index).setYPos(cardButtonArrayTridentHand.get(highlightPos).getY());
+            cardButtonArray.get(index).oldOrientation = cardButtonArray.get(index).orientation;
+            cardButtonArray.get(index).oldPosition = cardButtonArray.get(index).position;
+            cardButtonArray.get(index).orientation=cardButtonArrayTridentHand.get(highlightPos).orientation;
+            cardButtonArray.get(index).position=cardButtonArrayTridentHand.get(highlightPos).position;
+            cardButtonArray.get(index).highlightPos=highlightPos;
+
+            triHandCardFilledArray.set(highlightPos,true);
+            /**
+             * because we just filled this highlight position, advance the position
+             */
+            advanceHighlightPos();
+        }
+        /*if the card is already in the tri hand array, move it back to the cardhand array */
+        else{
+            cardButtonArray.get(index).resetPos();
+            cardButtonArray.get(index).inTriHand=false;
+            highlightPos=cardButtonArray.get(index).highlightPos;
+            triHandCardFilledArray.set(highlightPos,false);
+            highlightPosCounter=0;
+        }
+    }
+    public void advanceHighlightPos(){
+        highlightPos++;
+        if (highlightPos>=OptionsStage.cardsEach){
+            highlightPos=0;
+        }
+        highlightPosCounter++;
+        /*if the highlight counter is higher than the amount of cards then we must have
+        * filled all the spaces, so set the highlight to -1 so none are highlighted*/
+        if(highlightPosCounter>=OptionsStage.cardsEach){
+            highlightPos= -1;
+        }
+        /*if this new position is filled, try the next one */
+        else if (triHandCardFilledArray.get(highlightPos) && highlightPosCounter<OptionsStage.cardsEach){
+            advanceHighlightPos();
+        }
+        else if (triHandCardFilledArray.get(highlightPos)==false){
+            highlightPosCounter=0;
+        }
+
+    }
+
     public void reset(){
         cardButtonArray.clear();
         setUpCards();
@@ -469,7 +677,8 @@ Gdx.app.log("TRIDENTBUILDINGSTAGE"," tri button array clicked, button "+triButto
         /*make all the trident buttons invisible*/
         resetPlayerTridentHand();
         resetAutoBuild();
-
+        highlightPosCounter=0;
+        highlightPos=0;
 
     }
     /*set up all the cards, they should be given an enum each,
@@ -482,7 +691,7 @@ Gdx.app.log("TRIDENTBUILDINGSTAGE"," tri button array clicked, button "+triButto
             System.out.println(cardEnum);
             stageInterface.addCardButton(new CardButton(stageInterface, 0, 0, true, (byte) 0, stageInterface.TRIDENTBUILDINGSTAGE, cardEnum), cardButtonArray, this);
             i++;
-            if(i>52){
+            if(i>51){
                 break;
             }
         }
@@ -493,13 +702,22 @@ Gdx.app.log("TRIDENTBUILDINGSTAGE"," tri button array clicked, button "+triButto
      the value won't be set, although a card with a value may be moved so that it is on top of this */
     public void setUpCardsTridentHand() {
         /*set up all cards*/
-        int i=52;
+        cardButtonArrayTridentHand.clear();
+        triHandCardFilledArray.clear();
+        int i=0;
+        /*for every enum of which the first 52 relate to teh 52 cards, the next 26 relate to teh trident hand card buttons */
         for (ButtonEnum.Card cardEnum : ButtonEnum.Card.values()) {
-            System.out.println(cardEnum);
-            stageInterface.addCardButton(new CardButton(stageInterface, 0, 0, true, (byte) 0, stageInterface.TRIDENTBUILDINGSTAGE, cardEnum), cardButtonArrayTridentHand, this);
-            i++;
-            if(i>52+26){
-                break;
+            if(i<52){
+                i++;
+            }
+            else {
+                System.out.println(cardEnum);
+                stageInterface.addCardButton(new CardButton(stageInterface, 0, 0, true, (byte) 0, stageInterface.TRIDENTBUILDINGSTAGE, cardEnum), cardButtonArrayTridentHand, this,cardEnum.value-ButtonEnum.Card.TRIHANDCARD0.value);
+                triHandCardFilledArray.add(false);
+                i++;
+                if (i > 52 + 26) {
+                    break;
+                }
             }
         }
         Gdx.app.log("TridentBuildingStage","cardButtonArray size :"+cardButtonArray.size);

@@ -236,11 +236,22 @@ public class MyGdxGame extends ApplicationAdapter  implements  StageInterface{
 		array.insert(cardButton.cardButtonIndex.value,cardButton);
 		stage.addActor(cardButton);
 	}
+	@Override
+	public void addCardButton(CardButton cardButton, Array array, Stage stage,int index) {
+		/*i need this method in order to add the TridentbuildingStage's buttons to the cardButtonArrayTridentHand array
+		* at the correct index location */
+		array.insert(index,cardButton);
+		stage.addActor(cardButton);
+	}
 
 	@Override
 	public CardButton getCardButtonTridentBuildingStage(Array array, ButtonEnum.Card index) {
-		return (CardButton) array.get(index.value);
+		if(index.value>ButtonEnum.Card.TRIHANDCARD0.value){
 
+			return (CardButton) array.get(index.value-ButtonEnum.Card.TRIHANDCARD0.value);
+		}
+
+		return (CardButton) array.get(index.value);
 	}
 
 	/**Below are the handleButton *stage* type methods,

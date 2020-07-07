@@ -199,14 +199,20 @@ public class DealStage extends Stage {
                 }
                 /*fade the text back in as the cards move to their player's card hand*/
                 CardButton.fadeFont.setColor(1, 1, 1, ((animationTimer - ANIMATIONDEALCARDSTIMER - ANIMATIONOVERLAPCARDSTIMER - 1) / ANIMATIONDEALCARDSTIMER * 4));
-                /* actually don't fade the text back in until we've resolved par*/
 
                 for (int i = 0; i < Deck.cardArray.size; i++) {
                     TridentBuildingStage.cardButtonArray.get(i).moveToPositionAnimation((animationTimer - ANIMATIONDEALCARDSTIMER - ANIMATIONOVERLAPCARDSTIMER) / ANIMATIONDEALCARDSTIMER);
                 }
                 /*when the animation is complete, we will automatically move on to the next stage */
                 if((animationTimer - ANIMATIONDEALCARDSTIMER - ANIMATIONOVERLAPCARDSTIMER) / ANIMATIONDEALCARDSTIMER>1f){
-                    stageInterface.goToStage(TRIDENTBUILDINGSTAGE);
+                    for (int i = 0; i < TridentBuildingStage.cardButtonArray.size; i++) {
+                        if(TridentBuildingStage.cardButtonArray.get(i).playerIndex!=MyServer.player.index){
+                            TridentBuildingStage.cardButtonArray.get(i).setVisible(false);
+                            TridentBuildingStage.cardButtonArray.get(i).updateBounds();
+                                Gdx.app.log("deal stage"," card "+i+ " x "+(int)TridentBuildingStage.cardButtonArray.get(i).getX()+ " y "+(int)TridentBuildingStage.cardButtonArray.get(i).getY()+" enum" +TridentBuildingStage.cardButtonArray.get(i).cardButtonIndex+" player index "+ MyServer.player.index+" card index "+ TridentBuildingStage.cardButtonArray.get(i).playerIndex);
+                        }
+                    }
+                        stageInterface.goToStage(TRIDENTBUILDINGSTAGE);
                 }
             }
         }
@@ -272,7 +278,7 @@ public class DealStage extends Stage {
         else if (ANIMATIONSTAGE == ANIMATIONDEALCARDS) {
             /*this will draw the trident hand array from the TRIDENTBUILDINGSTAGE*/
             TridentBuildingStage.drawTriButtonsShape(shapeRenderer);
-            for (int i = 0; i < Deck.cardArray.size; i++) {
+            for (int i = 0; i < TridentBuildingStage.cardButtonArray.size; i++) {
                 TridentBuildingStage.cardButtonArray.get(i).drawShape(shapeRenderer);
             }
         }
