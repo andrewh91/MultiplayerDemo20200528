@@ -593,7 +593,7 @@ public class CardButton  extends Actor {
      * suit 0,1,2 or 3
      */
     public byte getSuit(){
-        return (byte)Math.floor(this.value/13);
+        return (byte)Math.floor(this.value/13f);
     }
     /**
      * this method will just work out what pip the card is based on the value

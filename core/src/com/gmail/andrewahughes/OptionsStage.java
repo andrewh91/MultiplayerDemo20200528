@@ -29,6 +29,11 @@ public class OptionsStage extends Stage {
      */
     public static int cardsEach=0;
     /**
+     *     need to work out how many cards each player should have
+     *     consider how many players there are
+     */
+    public static int nonPrePostGameCardsEach=0;
+    /**
      *     need to work out how many tridents each player should have maximum
      *     consider how many players there are, if preAndPostGameCards are enabled
      */
@@ -154,9 +159,11 @@ public class OptionsStage extends Stage {
     public static void calculateCardsEach(){
         if(numberOfPlayers==2){
             cardsEach=24;
+            nonPrePostGameCardsEach=24;
         }
         else{
             cardsEach=15;
+            nonPrePostGameCardsEach=15;
         }
         if (preAndPostGameCard){
             cardsEach+=2;
