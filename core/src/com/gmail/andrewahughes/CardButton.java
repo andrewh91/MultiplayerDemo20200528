@@ -147,6 +147,7 @@ public class CardButton  extends Actor {
                     x = x + getX();
                     y = y + getY();
                     if (triangleHit(x, y)) {
+                        Gdx.app.log("cardbutton","touchLogic");
                         touchLogic(x, y);
 
                     } else {
@@ -163,7 +164,6 @@ public class CardButton  extends Actor {
 
     public void touchMessage(float x, float y){
         Gdx.app.log("CardButton", "touch up in "+cardButtonIndex+" width "+(int)getWidth() + " height "+(int)getHeight()+" absolute x " + (int)getX() + " absolute y " + (int)getY()+" relative x " + (int)x + " relative y " + (int)y + " visible "+isVisible());
-
     }
     public void draw(Batch batch, float parentAlpha) {
         /*super.draw(batch, parentAlpha);*/

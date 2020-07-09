@@ -65,9 +65,13 @@ public class TridentBuildingStage extends Stage {
     static final int PIPLOW =0;
 
     /*used in the autobuild*/
-    CardButton cardIndex1;
-    CardButton cardIndex2;
-    CardButton cardIndex3;
+    ButtonEnum.Card cardIndex1;
+    ButtonEnum.Card cardIndex2;
+    ButtonEnum.Card cardIndex3;
+
+    ButtonEnum.Card cardIndex1a;
+    ButtonEnum.Card cardIndex2a;
+    ButtonEnum.Card cardIndex3a;
 
     /*used in the autobuild*/
     int autoBuildSelectedPip1;
@@ -75,8 +79,8 @@ public class TridentBuildingStage extends Stage {
     int autoBuildSelectedPip3;
 
     /*used in the autobuild*/
-    int autoBuildSelectedSuit1;
-    int autoBuildSelectedSuit2;
+    int autoBuildSelectedSuit1=SUITNONE;
+    int autoBuildSelectedSuit2=SUITNONE;
 
     /*used in the autobuild*/
     /**
@@ -85,6 +89,12 @@ public class TridentBuildingStage extends Stage {
      * this flag to cancel out of it
      */
     boolean haveViableCards=true;
+    /**
+     * this will be set to true when the autobuild button is clicked, it will indicate that we are halfway through
+     * setting up a autobuild trident, and set to false again on confirming the autobuild.
+     * if another card is clicked when autoBuildOpen is true then we should cancel the autobuild
+     */
+    boolean autoBuildOpen = false;
 
     public TridentBuildingStage(StageInterface stageInterface, Viewport viewport, SpriteBatch batch,ShapeRenderer shapeRenderer)
     {
@@ -310,6 +320,14 @@ static void updatePlayerTridentHand(){
         triButtonArray.get(i).setY(CardButton.dealAnimationRectangleHeight + CardButton.dealAnimationRectangleDealY-h*2);
         triButtonArray.get(i).orientation=i%2==1?true:false;
 
+        /*if we are playing with pre and post game cards, and the we have looped round
+         * to the last trident in this loop, don't draw the mirror, makes no sense for
+         * a pre and post game card to ahve a mirror, also set the x slightly further right */
+        if(OptionsStage.preAndPostGameCard && i==OptionsStage.tridentsEach-1){
+            triButtonArray.get(i).drawMirror=false;
+            /*need to do the same for the trihandcards*/
+            triButtonArray.get(i).setX(CardButton.dealAnimationRectangleDealX + w/2 * (i)+10);
+        }
         /*this is for the card buttons that make up the trident array */
         for(int j=0;j<3;j++){
 
@@ -321,7 +339,12 @@ static void updatePlayerTridentHand(){
                 cardButtonArrayTridentHand.get(i*3+j).setY(CardButton.dealAnimationRectangleHeight + CardButton.dealAnimationRectangleDealY-h*2);
                 cardButtonArrayTridentHand.get(i*3+j).orientation=i%2==1?true:false;
                 cardButtonArrayTridentHand.get(i*3+j).position=(byte)(j);
+                /*if this is the pre and post game card move it right a bit */
+                if(OptionsStage.preAndPostGameCard && i==OptionsStage.tridentsEach-1){
+                    cardButtonArrayTridentHand.get(i*3+j).setX(CardButton.dealAnimationRectangleDealX + w/2 * (i)+10);
+                }
             }
+            /*this will be the undealt cards*/
             else if (i*3+j<cardButtonArrayTridentHand.size){
                 cardButtonArrayTridentHand.get(i*3+j).setVisible(false);
                 cardButtonArrayTridentHand.get(i*3+j).setX(-720);
@@ -385,6 +408,7 @@ static void updatePlayerTridentHand(){
             if(triButtonArray.get(i).triangleHit(x,y)){
                 triButtonArray.get(i).touchLogic(x,y);
                 touchHandled=true;
+                Gdx.app.log("tridentbuildingStage","queryTriButtonTouch,triButtonArray.touchLogic");
                 break;
             }
         }
@@ -393,6 +417,7 @@ static void updatePlayerTridentHand(){
                 /*if the touch location is in this trihand card button then break the for loop and do the touch logic*/
                 if (cardButtonArrayTridentHand.get(i).triangleHit(x, y)) {
                     cardButtonArrayTridentHand.get(i).touchLogic(x, y);
+                    Gdx.app.log("tridentbuildingStage","queryTriButtonTouch,cardButtonArrayTridentHand.touchLogic");
                     break;
                 }
             }
@@ -414,6 +439,7 @@ static void updatePlayerTridentHand(){
             if(cardButtonArray.get(i).triangleHit(x,y)){
                 cardButtonArray.get(i).touchLogic(x,y);
                 touchHandled=true;
+                Gdx.app.log("tridentbuildingStage","queryCardButtonTouch,cardButtonArray.touchLogic");
                 break;
             }
         }
@@ -423,6 +449,7 @@ static void updatePlayerTridentHand(){
                 if (cardButtonArrayTridentHand.get(i).triangleHit(x, y)) {
                     cardButtonArrayTridentHand.get(i).touchLogic(x, y);
                     touchHandled = true;
+                    Gdx.app.log("tridentbuildingStage","queryCardButtonTouch,cardButtonArrayTridentHand.touchLogic");
                     break;
                 }
             }
@@ -456,6 +483,11 @@ static void updatePlayerTridentHand(){
             case TRIDENTBUILDINGAUTOBUILD: {
                 /*if there is a free trident available in the hand */
                 if(tridentHighlightPos>-1){
+                    autoBuildOpen=true;
+                    /*reset these cardIndex variables */
+                    cardIndex1=null;
+                    cardIndex2=null;
+                    cardIndex3=null;
                     /*the autobuild buttons will expand the auto build trident buttons*/
                     stageInterface.getTriButton(triButtonArray,ButtonEnum.Tri.TRIDENTBUILDINGAUTOBUILD).setVisible(false);
                     setAutoBuildPipVisibility(true);
@@ -473,9 +505,9 @@ static void updatePlayerTridentHand(){
                 autoBuildSelectedPip2 = PIPMED;
                 autoBuildSelectedPip3 = PIPMED;
                 findPip(SUITNONE,SUITNONE,autoBuildSelectedPip1,autoBuildSelectedPip2,autoBuildSelectedPip3);
-                touchCard(cardIndex1.cardButtonIndex);
-                touchCard(cardIndex2.cardButtonIndex);
-                touchCard(cardIndex3.cardButtonIndex);
+                touchCard(cardIndex1);
+                touchCard(cardIndex2);
+                touchCard(cardIndex3);
 
                 break;
             }
@@ -488,9 +520,9 @@ static void updatePlayerTridentHand(){
                 autoBuildSelectedPip2 = PIPLOW;
                 autoBuildSelectedPip3 = PIPLOW;
                 findPip(SUITNONE,SUITNONE,autoBuildSelectedPip1,autoBuildSelectedPip2,autoBuildSelectedPip3);
-                touchCard(cardIndex1.cardButtonIndex);
-                touchCard(cardIndex2.cardButtonIndex);
-                touchCard(cardIndex3.cardButtonIndex);
+                touchCard(cardIndex1);
+                touchCard(cardIndex2);
+                touchCard(cardIndex3);
                 break;
             }
             case TRIDENTBUILDINGBIDENTMED: {
@@ -501,9 +533,9 @@ static void updatePlayerTridentHand(){
                 autoBuildSelectedPip2 = PIPHI;
                 autoBuildSelectedPip3 = PIPHI;
                 findPip(SUITNONE,SUITNONE,autoBuildSelectedPip1,autoBuildSelectedPip2,autoBuildSelectedPip3);
-                touchCard(cardIndex1.cardButtonIndex);
-                touchCard(cardIndex2.cardButtonIndex);
-                touchCard(cardIndex3.cardButtonIndex);
+                touchCard(cardIndex1);
+                touchCard(cardIndex2);
+                touchCard(cardIndex3);
                 break;
             }
             case TRIDENTBUILDINGBIDENTLOW: {
@@ -514,9 +546,9 @@ static void updatePlayerTridentHand(){
                 autoBuildSelectedPip2 = PIPHI;
                 autoBuildSelectedPip3 = PIPHI;
                 findPip(SUITNONE,SUITNONE,autoBuildSelectedPip1,autoBuildSelectedPip2,autoBuildSelectedPip3);
-                touchCard(cardIndex1.cardButtonIndex);
-                touchCard(cardIndex2.cardButtonIndex);
-                touchCard(cardIndex3.cardButtonIndex);
+                touchCard(cardIndex1);
+                touchCard(cardIndex2);
+                touchCard(cardIndex3);
                 break;
             }
             case TRIDENTBUILDINGTRIDENTHI: {
@@ -527,9 +559,9 @@ static void updatePlayerTridentHand(){
                 autoBuildSelectedPip2 = PIPHI;
                 autoBuildSelectedPip3 = PIPHI;
                 findPip(SUITNONE,SUITNONE,autoBuildSelectedPip1,autoBuildSelectedPip2,autoBuildSelectedPip3);
-                touchCard(cardIndex1.cardButtonIndex);
-                touchCard(cardIndex2.cardButtonIndex);
-                touchCard(cardIndex3.cardButtonIndex);
+                touchCard(cardIndex1);
+                touchCard(cardIndex2);
+                touchCard(cardIndex3);
                 break;
             }
             case TRIDENTBUILDINGTRIDENTMED: {
@@ -540,9 +572,9 @@ static void updatePlayerTridentHand(){
                 autoBuildSelectedPip2 = PIPMED;
                 autoBuildSelectedPip3 = PIPMED;
                 findPip(SUITNONE,SUITNONE,autoBuildSelectedPip1,autoBuildSelectedPip2,autoBuildSelectedPip3);
-                touchCard(cardIndex1.cardButtonIndex);
-                touchCard(cardIndex2.cardButtonIndex);
-                touchCard(cardIndex3.cardButtonIndex);
+                touchCard(cardIndex1);
+                touchCard(cardIndex2);
+                touchCard(cardIndex3);
                 break;
             }
             case TRIDENTBUILDINGTRIDENTLOW: {
@@ -553,87 +585,35 @@ static void updatePlayerTridentHand(){
                 autoBuildSelectedPip2 = PIPLOW;
                 autoBuildSelectedPip3 = PIPLOW;
                 findPip(SUITNONE,SUITNONE,autoBuildSelectedPip1,autoBuildSelectedPip2,autoBuildSelectedPip3);
-                touchCard(cardIndex1.cardButtonIndex);
-                touchCard(cardIndex2.cardButtonIndex);
-                touchCard(cardIndex3.cardButtonIndex);
+                touchCard(cardIndex1);
+                touchCard(cardIndex2);
+                touchCard(cardIndex3);
                 break;
             }
             case TRIDENTBUILDINGSUIT0NATURE: {
-                setAutoBuildRotFlipConfirmVisibility(true);
-                setAutoBuildSuitVisibility(false);
-                /*this will remove the 3 tridents we just made when clicking the pip autobuild*/
-                touchCard(cardIndex3.cardButtonIndex);
-                touchCard(cardIndex2.cardButtonIndex);
-                touchCard(cardIndex1.cardButtonIndex);
-
                 autoBuildSelectedSuit1=SUITNATURE;
-                findPip(autoBuildSelectedSuit1,autoBuildSelectedSuit2,autoBuildSelectedPip1,autoBuildSelectedPip2,autoBuildSelectedPip3);
-                if (haveViableCards==true) {
-                    touchCard(cardIndex1.cardButtonIndex);
-                    touchCard(cardIndex2.cardButtonIndex);
-                    touchCard(cardIndex3.cardButtonIndex);
-                }
+                clickSuit();
                 break;
             }
             case TRIDENTBUILDINGSUIT1LIGHT: {
-                setAutoBuildRotFlipConfirmVisibility(true);
-                setAutoBuildSuitVisibility(false);
-                touchCard(cardIndex3.cardButtonIndex);
-                touchCard(cardIndex2.cardButtonIndex);
-                touchCard(cardIndex1.cardButtonIndex);
                 autoBuildSelectedSuit1=SUITLIGHT;
-                findPip(autoBuildSelectedSuit1,autoBuildSelectedSuit2,autoBuildSelectedPip1,autoBuildSelectedPip2,autoBuildSelectedPip3);
-                if (haveViableCards==true) {
-                    touchCard(cardIndex1.cardButtonIndex);
-                    touchCard(cardIndex2.cardButtonIndex);
-                    touchCard(cardIndex3.cardButtonIndex);
-                }
+                clickSuit();
                 break;
             }
             case TRIDENTBUILDINGSUIT2DEMON: {
-                setAutoBuildRotFlipConfirmVisibility(true);
-                setAutoBuildSuitVisibility(false);
-                touchCard(cardIndex3.cardButtonIndex);
-                touchCard(cardIndex2.cardButtonIndex);
-                touchCard(cardIndex1.cardButtonIndex);
                 autoBuildSelectedSuit1=SUITDEMON;
-                findPip(autoBuildSelectedSuit1,autoBuildSelectedSuit2,autoBuildSelectedPip1,autoBuildSelectedPip2,autoBuildSelectedPip3);
-                if (haveViableCards==true) {
-                    touchCard(cardIndex1.cardButtonIndex);
-                    touchCard(cardIndex2.cardButtonIndex);
-                    touchCard(cardIndex3.cardButtonIndex);
-                }
+                clickSuit();
                 break;
             }
             case TRIDENTBUILDINGSUIT3DARK: {
-                setAutoBuildRotFlipConfirmVisibility(true);
-                setAutoBuildSuitVisibility(false);
-                touchCard(cardIndex3.cardButtonIndex);
-                touchCard(cardIndex2.cardButtonIndex);
-                touchCard(cardIndex1.cardButtonIndex);
                 autoBuildSelectedSuit1=SUITDARK;
-                findPip(autoBuildSelectedSuit1,autoBuildSelectedSuit2,autoBuildSelectedPip1,autoBuildSelectedPip2,autoBuildSelectedPip3);
-                if (haveViableCards==true) {
-                    touchCard(cardIndex1.cardButtonIndex);
-                    touchCard(cardIndex2.cardButtonIndex);
-                    touchCard(cardIndex3.cardButtonIndex);
-                }
+                clickSuit();
                 break;
             }
             case TRIDENTBUILDINGSUIT4ANY: {
-                setAutoBuildRotFlipConfirmVisibility(true);
-                setAutoBuildSuitVisibility(false);
-                touchCard(cardIndex3.cardButtonIndex);
-                touchCard(cardIndex2.cardButtonIndex);
-                touchCard(cardIndex1.cardButtonIndex);
                 autoBuildSelectedSuit1=SUITNONE;
                 autoBuildSelectedSuit2=SUITNONE;
-                findPip(autoBuildSelectedSuit1,autoBuildSelectedSuit2,autoBuildSelectedPip1,autoBuildSelectedPip2,autoBuildSelectedPip3);
-                if (haveViableCards==true) {
-                    touchCard(cardIndex1.cardButtonIndex);
-                    touchCard(cardIndex2.cardButtonIndex);
-                    touchCard(cardIndex3.cardButtonIndex);
-                }
+                clickSuit();
                 break;
             }
             case TRIDENTBUILDINGAUTOBUILDROTATE: {
@@ -644,10 +624,9 @@ static void updatePlayerTridentHand(){
                 break;
             }
             case TRIDENTBUILDINGAUTOBUILDCONFIRM: {
+                autoBuildOpen=false;
                 stageInterface.getTriButton(triButtonArray,ButtonEnum.Tri.TRIDENTBUILDINGAUTOBUILD).setVisible(true);
                 setAutoBuildRotFlipConfirmVisibility(false);
-
-                haveViableCards=true;
                 break;
             }
                 default:
@@ -655,14 +634,82 @@ static void updatePlayerTridentHand(){
                 //throw new IllegalStateException("Unexpected value: " + triButtonIndex);
         }
     }
+
     /**
-     * this will be called in the card class,
+     * just a helper method because all autobuild suit buttons do a similar thing
+     */
+    public void clickSuit(){
+        /*save the card indexes in another variable as they are about to be set again
+         * but i'm not finished with these values yet, these are the cards that have just been set
+         * in the pip autobuild*/
+        cardIndex1a=cardIndex1;
+        cardIndex2a=cardIndex2;
+        cardIndex3a=cardIndex3;
+        /*this will move the 3 cards we just made when clicking the pip autobuild back to the card hand
+        * we need to do this before calling findpip, so that the suit hand has all it's cards back before
+        * calling findpip*/
+        touchCard(cardIndex3);
+        touchCard(cardIndex2);
+        touchCard(cardIndex1);
+        /**/
+        findPip(autoBuildSelectedSuit1,autoBuildSelectedSuit2,autoBuildSelectedPip1,autoBuildSelectedPip2,autoBuildSelectedPip3);
+        /*findPip() will have set the cardIndex1 2 and 3 and haveViableCdrds, if the suit has viable
+        * cards then add them to the tri hand, otherwise add the 3 cards we just removed back
+        * into the tri hand */
+
+        /*only move to the next stage if clicking this button was actually viable -
+         * meaning the suit has at least 3 cards to make a trident with*/
+        if (haveViableCards) {
+
+            setAutoBuildRotFlipConfirmVisibility(true);
+            setAutoBuildSuitVisibility(false);
+            /*this will add 3 cards of this suit to the trident hand*/
+            touchCard(cardIndex1);
+            touchCard(cardIndex2);
+            touchCard(cardIndex3);
+        }
+        else{
+            cardIndex1=cardIndex1a;
+            cardIndex2=cardIndex2a;
+            cardIndex3=cardIndex3a;
+            touchCard(cardIndex1);
+            touchCard(cardIndex2);
+            touchCard(cardIndex3);
+        }
+    }
+    /**
+     * when autobuild button is clicked the autoBuildOpen boolean is set to true, if a card is clicked
+     * when the autoBuildOpen is true then set it to false and cancel the autobuild
+     */
+    public void cancelAutoBuild(){
+        if (autoBuildOpen) {
+            autoBuildOpen = false;
+            /*if the cardindex 1 2 and 3  . cardButtonIndex is not null then that means we have just added
+             * these cards to the tri hand array, if we are cancelling the click them again to put them back where
+             * they came from */
+            if (cardIndex1 != null && cardIndex2 != null && cardIndex3 != null) {
+                touchCard(cardIndex1);
+                touchCard(cardIndex2);
+                touchCard(cardIndex3);
+
+                cardIndex1 = null;
+                cardIndex2 = null;
+                cardIndex3 = null;
+            }
+            resetAutoBuild();
+        }
+    }
+    /**
+     * this will be called in the card class, if a card button has actually been clicked
      * @param cardButtonIndex this will be the index of the cardbutton that was clicked, the index is set on creation of the
      *                       cardButton and will be the same as it's index in the cardButtonArray for this stage
      */
     public void touchLogicCard(ButtonEnum.Card cardButtonIndex){
         Gdx.app.log("TRIDENTBUILDINGSTAGE"," card button array clicked, button "+cardButtonIndex);
-        Gdx.app.log("TRIDENTBUILDINGSTAGE","x "+(int)stageInterface.getCardButtonTridentBuildingStage(cardButtonArray,cardButtonIndex).getX()+ " y "+(int)stageInterface.getCardButtonTridentBuildingStage(cardButtonArray,cardButtonIndex).getY()+" enum" +cardButtonIndex+"/ "+stageInterface.getCardButtonTridentBuildingStage(cardButtonArray,cardButtonIndex).cardButtonIndex+" player index "+ MyServer.player.index+" card index "+ stageInterface.getCardButtonTridentBuildingStage(cardButtonArray,cardButtonIndex).playerIndex+ " edgelength "+stageInterface.getCardButtonTridentBuildingStage(cardButtonArray,cardButtonIndex).edgeLength+ " visible "+stageInterface.getCardButtonTridentBuildingStage(cardButtonArray,cardButtonIndex).isVisible());
+         Gdx.app.log("TRIDENTBUILDINGSTAGE","x "+(int)stageInterface.getCardButtonTridentBuildingStage(cardButtonArray,cardButtonIndex).getX()+ " y "+(int)stageInterface.getCardButtonTridentBuildingStage(cardButtonArray,cardButtonIndex).getY()+" enum" +cardButtonIndex+"/ "+stageInterface.getCardButtonTridentBuildingStage(cardButtonArray,cardButtonIndex).cardButtonIndex+" player index "+ MyServer.player.index+" card index "+ stageInterface.getCardButtonTridentBuildingStage(cardButtonArray,cardButtonIndex).playerIndex+ " edgelength "+stageInterface.getCardButtonTridentBuildingStage(cardButtonArray,cardButtonIndex).edgeLength+ " visible "+stageInterface.getCardButtonTridentBuildingStage(cardButtonArray,cardButtonIndex).isVisible());
+
+        /*regardless of which card was clicked, if we are in the middle of an autoBuild we need to cancel it*/
+        cancelAutoBuild();
 
         switch(cardButtonIndex) {
 
@@ -749,6 +796,7 @@ static void updatePlayerTridentHand(){
             case TRIDENTBUILDING50:
             case TRIDENTBUILDING51:
             {
+                Gdx.app.log("TridentBuildingStage","touch playing card "+cardButtonIndex);
                 touchCard(cardButtonIndex);
                 break;
             }
@@ -775,36 +823,38 @@ static void updatePlayerTridentHand(){
      * trihand
      */
     public void touchCard(ButtonEnum.Card cardButtonEnum) {
-        int index = cardButtonEnum.value;
-        /*if the card has not already been moved, move it  */
-        if (cardButtonArray.get(index).inTriHand == false) {
-            cardButtonArray.get(index).inTriHand = true;
+        if (cardButtonEnum!=null) {
+            int index = cardButtonEnum.value;
+            /*if the card has not already been moved, move it  */
+            if (cardButtonArray.get(index).inTriHand == false) {
+                cardButtonArray.get(index).inTriHand = true;
 
-            cardButtonArray.get(index).setXPos(cardButtonArrayTridentHand.get(highlightPos).getX());
-            cardButtonArray.get(index).setYPos(cardButtonArrayTridentHand.get(highlightPos).getY());
-            cardButtonArray.get(index).oldOrientation = cardButtonArray.get(index).orientation;
-            cardButtonArray.get(index).oldPosition = cardButtonArray.get(index).position;
-            cardButtonArray.get(index).orientation = cardButtonArrayTridentHand.get(highlightPos).orientation;
-            cardButtonArray.get(index).position = cardButtonArrayTridentHand.get(highlightPos).position;
-            cardButtonArray.get(index).highlightPos = highlightPos;
-
-            triHandCardFilledArray.set(highlightPos, true);
-            findNextEmptyTrident();
-            /**
-             * because we just filled this highlight position, advance the position
-             */
-            advanceHighlightPos();
+                cardButtonArray.get(index).setXPos(cardButtonArrayTridentHand.get(highlightPos).getX());
+                cardButtonArray.get(index).setYPos(cardButtonArrayTridentHand.get(highlightPos).getY());
+                cardButtonArray.get(index).oldOrientation = cardButtonArray.get(index).orientation;
+                cardButtonArray.get(index).oldPosition = cardButtonArray.get(index).position;
+                cardButtonArray.get(index).orientation = cardButtonArrayTridentHand.get(highlightPos).orientation;
+                cardButtonArray.get(index).position = cardButtonArrayTridentHand.get(highlightPos).position;
+                cardButtonArray.get(index).highlightPos = highlightPos;
+                triHandCardFilledArray.set(highlightPos, true);
+                cardButtonArrayTridentHand.get(highlightPos).setVisible(false);
+                findNextEmptyTrident();
+                /**
+                 * because we just filled this highlight position, advance the position
+                 */
+                advanceHighlightPos();
+            }
+            /*if the card is already in the tri hand array, move it back to the cardhand array */
+            else {
+                cardButtonArray.get(index).resetPos();
+                cardButtonArray.get(index).inTriHand = false;
+                highlightPos = cardButtonArray.get(index).highlightPos;
+                triHandCardFilledArray.set(highlightPos, false);
+                cardButtonArrayTridentHand.get(highlightPos).setVisible(true);
+                findNextEmptyTrident();
+                highlightPosCounter = 0;
+            }
         }
-        /*if the card is already in the tri hand array, move it back to the cardhand array */
-        else {
-            cardButtonArray.get(index).resetPos();
-            cardButtonArray.get(index).inTriHand = false;
-            highlightPos = cardButtonArray.get(index).highlightPos;
-            triHandCardFilledArray.set(highlightPos, false);
-            findNextEmptyTrident();
-            highlightPosCounter = 0;
-        }
-
     }
     public void advanceHighlightPos(){
         highlightPos++;
@@ -832,7 +882,7 @@ static void updatePlayerTridentHand(){
      * when amending the trident hand i should check where the next free trident starts
      */
     public void findNextEmptyTrident(){
-        /*starting at the start of the trident of the highlight position, for every 3rd card,
+        /*starting at the start of the trident containing the highlight position, for every 3rd card,
          which will be the first card in each trident, excluding the pre and post game cards*/
         boolean foundEmptyTrident=false;
         for (int i=0;i<OptionsStage.nonPrePostGameCardsEach;i=i+3){
@@ -844,18 +894,21 @@ static void updatePlayerTridentHand(){
              * if index is over nonPrePostGameCardsEach then we have looked at all the values
              * between the highlightPos and the end of the array, but we need to mod the index
              * to search between the start of the array and the highlightPos, */
-            else{
+            else {
                 /*if the index exceeds the size of the hand array then mod it,
-                * this can happen because we aren't starting the index at 0, it starts at the highlight position*/
-                index = index %triHandCardFilledArray.size;
-                /*if the card at this index is not filled, check the next 2 indexs to see if the
-                * entire trident is not filled, if all 3 are empty, this index position is
-                * our next empty trident, break the for loop*/
-                if(triHandCardFilledArray.get(index)==false &&triHandCardFilledArray.get(index+1)==false &&triHandCardFilledArray.get(index+2)==false ){
-                    foundEmptyTrident=true;
-                    tridentHighlightPos=index;
-                    stageInterface.getTriButton(triButtonArray,ButtonEnum.Tri.TRIDENTBUILDINGAUTOBUILD).setText("Auto\nBuild");
-                    break;
+                 * this can happen because we aren't starting the index at 0, it starts at the highlight position*/
+                index = index % triHandCardFilledArray.size;
+                /*if the card at this index is not filled, check the next 2 indexes
+                 * if there are any, to see if the
+                 * entire trident is not filled, if all 3 are empty, this index position is
+                 * our next empty trident, break the for loop*/
+                if(index+2<OptionsStage.nonPrePostGameCardsEach){
+                    if (triHandCardFilledArray.get(index) == false && triHandCardFilledArray.get(index + 1) == false && triHandCardFilledArray.get(index + 2) == false) {
+                        foundEmptyTrident = true;
+                        tridentHighlightPos = index;
+                        stageInterface.getTriButton(triButtonArray, ButtonEnum.Tri.TRIDENTBUILDINGAUTOBUILD).setText("Auto\nBuild");
+                        break;
+                    }
                 }
             }
 
@@ -883,6 +936,7 @@ static void updatePlayerTridentHand(){
         /*we will find all viable cards and add their pip values to this array*/
         Array<CardButton> tempArrayCard =new Array<>();
         Array<Integer> tempArrayPip =new Array<>();
+        haveViableCards=true;
 
         for(int i=0;i<tempArrayCard.size;i++) {
             Gdx.app.log("TridentBuildingStage", "tempArrayCard pip " + tempArrayCard.get(i).getPip() + " tempArrayCard suit " + tempArrayCard.get(i).getSuit());
@@ -943,7 +997,8 @@ static void updatePlayerTridentHand(){
                 {
                     if(tempArrayCard.get(i).getPip()==tempArrayPip.get(tempArrayPip.size-1)){
                         Gdx.app.log("TridentBuildingStage","suit "+tempArrayCard.get(i).getSuit()+" pip "+tempArrayCard.get(i).getPip());
-                        cardIndex1 = tempArrayCard.removeIndex(i);
+                        cardIndex1 = tempArrayCard.removeIndex(i).cardButtonIndex;
+                        Gdx.app.log("TridentBuildingStage","cardindex1 "+cardIndex1);
                         tempArrayPip.removeIndex(tempArrayPip.size-1);
                         break;
                     }
@@ -954,7 +1009,8 @@ static void updatePlayerTridentHand(){
                 {
                     if(tempArrayCard.get(i).getPip()==tempArrayPip.get((int)Math.floor(tempArrayPip.size/2))){
                         Gdx.app.log("TridentBuildingStage","suit "+tempArrayCard.get(i).getSuit()+" pip "+tempArrayCard.get(i).getPip());
-                        cardIndex1 = tempArrayCard.removeIndex(i);
+                        cardIndex1 = tempArrayCard.removeIndex(i).cardButtonIndex;
+                        Gdx.app.log("TridentBuildingStage","cardindex1 "+cardIndex1);
                         tempArrayPip.removeIndex((int)Math.floor(tempArrayPip.size/2));
                         break;
                     }
@@ -965,7 +1021,8 @@ static void updatePlayerTridentHand(){
                 {
                     if(tempArrayCard.get(i).getPip()==tempArrayPip.get(0)){
                         Gdx.app.log("TridentBuildingStage","suit "+tempArrayCard.get(i).getSuit()+" pip "+tempArrayCard.get(i).getPip());
-                        cardIndex1 = tempArrayCard.removeIndex(i);
+                        cardIndex1 = tempArrayCard.removeIndex(i).cardButtonIndex;
+                        Gdx.app.log("TridentBuildingStage","cardindex1 ");
                         tempArrayPip.removeIndex(0);
                         break;
                     }
@@ -976,7 +1033,8 @@ static void updatePlayerTridentHand(){
                 {
                     if(tempArrayCard.get(i).getPip()==tempArrayPip.get(tempArrayPip.size-1)){
                         Gdx.app.log("TridentBuildingStage","suit "+tempArrayCard.get(i).getSuit()+" pip "+tempArrayCard.get(i).getPip());
-                        cardIndex2 = tempArrayCard.removeIndex(i);
+                        cardIndex2 = tempArrayCard.removeIndex(i).cardButtonIndex;
+                        Gdx.app.log("TridentBuildingStage","cardindex2 "+cardIndex2);
                         tempArrayPip.removeIndex((tempArrayPip.size-1));
                         break;
                     }
@@ -987,7 +1045,8 @@ static void updatePlayerTridentHand(){
                 {
                     if(tempArrayCard.get(i).getPip()==tempArrayPip.get((int)Math.floor(tempArrayPip.size/2))){
                         Gdx.app.log("TridentBuildingStage","suit "+tempArrayCard.get(i).getSuit()+" pip "+tempArrayCard.get(i).getPip());
-                        cardIndex2 = tempArrayCard.removeIndex(i);
+                        cardIndex2 = tempArrayCard.removeIndex(i).cardButtonIndex;
+                        Gdx.app.log("TridentBuildingStage","cardindex2 "+cardIndex2);
                         tempArrayPip.removeIndex((int)Math.floor(tempArrayPip.size/2));
                         break;
                     }
@@ -998,7 +1057,8 @@ static void updatePlayerTridentHand(){
                 {
                     if(tempArrayCard.get(i).getPip()==tempArrayPip.get(0)){
                         Gdx.app.log("TridentBuildingStage","suit "+tempArrayCard.get(i).getSuit()+" pip "+tempArrayCard.get(i).getPip());
-                        cardIndex2 = tempArrayCard.removeIndex(i);
+                        cardIndex2 = tempArrayCard.removeIndex(i).cardButtonIndex;
+                        Gdx.app.log("TridentBuildingStage","cardindex2 "+cardIndex2);
                         tempArrayPip.removeIndex(0);
                         break;
                     }
@@ -1009,7 +1069,8 @@ static void updatePlayerTridentHand(){
                 {
                     if(tempArrayCard.get(i).getPip()==tempArrayPip.get(tempArrayPip.size-1)){
                         Gdx.app.log("TridentBuildingStage","suit "+tempArrayCard.get(i).getSuit()+" pip "+tempArrayCard.get(i).getPip());
-                        cardIndex3 = tempArrayCard.removeIndex(i);
+                        cardIndex3 = tempArrayCard.removeIndex(i).cardButtonIndex;
+                        Gdx.app.log("TridentBuildingStage","cardindex3 "+cardIndex3);
                         tempArrayPip.removeIndex(tempArrayPip.size-1);
                         break;
                     }
@@ -1020,7 +1081,8 @@ static void updatePlayerTridentHand(){
                 {
                     if(tempArrayCard.get(i).getPip()==tempArrayPip.get((int)Math.floor(tempArrayPip.size/2))){
                         Gdx.app.log("TridentBuildingStage","suit "+tempArrayCard.get(i).getSuit()+" pip "+tempArrayCard.get(i).getPip());
-                        cardIndex3 = tempArrayCard.removeIndex(i);
+                        cardIndex3 = tempArrayCard.removeIndex(i).cardButtonIndex;
+                        Gdx.app.log("TridentBuildingStage","cardindex3 "+cardIndex3);
                         tempArrayPip.removeIndex((int)Math.floor(tempArrayPip.size/2));
                         break;
                     }
@@ -1031,14 +1093,15 @@ static void updatePlayerTridentHand(){
                 {
                     if(tempArrayCard.get(i).getPip()==tempArrayPip.get(0)){
                         Gdx.app.log("TridentBuildingStage","suit "+tempArrayCard.get(i).getSuit()+" pip "+tempArrayCard.get(i).getPip());
-                        cardIndex3 = tempArrayCard.removeIndex(i);
+                        cardIndex3 = tempArrayCard.removeIndex(i).cardButtonIndex;
+                        Gdx.app.log("TridentBuildingStage","cardindex3 "+cardIndex3);
                         tempArrayPip.removeIndex(0);
                         break;
                     }
                 }
             }
-            Gdx.app.log("TridentBuildingStage","findPip() results: "+cardIndex1.getPip()+", "+cardIndex2.getPip()+", "+cardIndex3.getPip());
-            
+            Gdx.app.log("TridentBuildingStage","findPip() results: "+cardIndex1+", "+cardIndex2+", "+cardIndex3);
+
         }
         /*if there are not enough cards, then reset the cardIndexes*/
         else{
@@ -1055,7 +1118,6 @@ static void updatePlayerTridentHand(){
         resetAutoBuild();
         highlightPosCounter=0;
         highlightPos=0;
-
     }
     /*set up all the cards, they should be given an enum each,
     some of the initial values don't matter much since they will be set
@@ -1072,6 +1134,13 @@ static void updatePlayerTridentHand(){
             }
         }
         Gdx.app.log("TridentBuildingStage","cardButtonArray size :"+cardButtonArray.size);
+        /*i need these to be not null, just set them here, they will be reset later anyway*/
+        cardIndex1=cardButtonArray.get(0).cardButtonIndex;
+        cardIndex2=cardIndex1;
+        cardIndex3=cardIndex1;
+        cardIndex1a=cardIndex1;
+        cardIndex2a=cardIndex1;
+        cardIndex3a=cardIndex1;
     }
     /*set up all the cards in the tridenthand, they should be given an enum each,
     pos and orientation should be set up later
@@ -1081,7 +1150,7 @@ static void updatePlayerTridentHand(){
         cardButtonArrayTridentHand.clear();
         triHandCardFilledArray.clear();
         int i=0;
-        /*for every enum of which the first 52 relate to teh 52 cards, the next 26 relate to teh trident hand card buttons */
+        /*for every enum of which the first 52 relate to the 52 cards, the next 26 relate to the trident hand card buttons */
         for (ButtonEnum.Card cardEnum : ButtonEnum.Card.values()) {
             if(i<52){
                 i++;

@@ -247,13 +247,12 @@ public class MyGdxGame extends ApplicationAdapter  implements  StageInterface{
 	@Override
 	public CardButton getCardButtonTridentBuildingStage(Array array, ButtonEnum.Card index) {
 		/*added this if statement as the tri hand cardbuttons are in a different array to the
-		* 52 playing cards but thier values increment from those 52 ergo the tri hand card
+		* 52 playing cards but their values increment from those 52 ergo the tri hand card
 		* buttons enum values are all over 52*/
 		if(index.value>=ButtonEnum.Card.TRIHANDCARD0.value){
 
 			return (CardButton) array.get(index.value-ButtonEnum.Card.TRIHANDCARD0.value);
 		}
-
 		return (CardButton) array.get(index.value);
 	}
 
