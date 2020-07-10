@@ -76,6 +76,7 @@ public class MyGdxGame extends ApplicationAdapter  implements  StageInterface{
 		shapeRenderer.setProjectionMatrix(viewport.getCamera().combined);
 		Gdx.gl.glClearColor(0, 1, 0, 1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+		Gdx.gl.glLineWidth(5);
 		shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
 		shapeRenderer.rect(0,
 				0,
@@ -171,6 +172,7 @@ public class MyGdxGame extends ApplicationAdapter  implements  StageInterface{
 				/*all of the tridentStage should have been set up in the deal stage
 				* so we just need to amend some values*/
 				tridentBuildingStage.amendCardsForTridentBuildingStage();
+
 				Gdx.input.setInputProcessor(tridentBuildingStage);
 				break;
 			}

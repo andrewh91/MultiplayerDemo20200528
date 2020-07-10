@@ -74,13 +74,13 @@ public class TridentBuildingStage extends Stage {
     ButtonEnum.Card cardIndex3a;
 
     /*used in the autobuild*/
-    int autoBuildSelectedPip1;
-    int autoBuildSelectedPip2;
-    int autoBuildSelectedPip3;
+    static int autoBuildSelectedPip1;
+    static int autoBuildSelectedPip2;
+    static int autoBuildSelectedPip3;
 
     /*used in the autobuild*/
-    int autoBuildSelectedSuit1=SUITNONE;
-    int autoBuildSelectedSuit2=SUITNONE;
+    static int autoBuildSelectedSuit1=SUITNONE;
+    static int autoBuildSelectedSuit2=SUITNONE;
 
     /*used in the autobuild*/
     /**
@@ -88,13 +88,24 @@ public class TridentBuildingStage extends Stage {
      * you choose the suit option, that suit doesn't have enough cards, we need to set
      * this flag to cancel out of it
      */
-    boolean haveViableCards=true;
+    static boolean haveViableCards=true;
     /**
      * this will be set to true when the autobuild button is clicked, it will indicate that we are halfway through
      * setting up a autobuild trident, and set to false again on confirming the autobuild.
      * if another card is clicked when autoBuildOpen is true then we should cancel the autobuild
      */
-    boolean autoBuildOpen = false;
+    static boolean autoBuildOpen = false;
+    /**
+     * this will be set to true when the wildcard button is clicked, it will indicate that we are halfway through
+     * setting up a wildcard suit, and set to false again on confirming the suit.
+     * if another card is clicked when wildCardOpen is true then we should cancel the wild card
+     */
+    static boolean wildCardOpen = false;
+    /**
+     * the wildCard buttons will allow the user to specify a wild card suit, it can be
+     * 0,1,2,3 or the default -1 which means no wild card suit
+     */
+    static int wildCardSuit =SUITNONE;
 
     public TridentBuildingStage(StageInterface stageInterface, Viewport viewport, SpriteBatch batch,ShapeRenderer shapeRenderer)
     {
@@ -140,7 +151,6 @@ public class TridentBuildingStage extends Stage {
         }
     }
     static void  drawTriButtons(SpriteBatch spriteBatch) {
-
         for(int i=0;i<triButtonArray.size;i++) {
             triButtonArray.get(i).draw(spriteBatch,1.0f);
 
@@ -199,7 +209,11 @@ public class TridentBuildingStage extends Stage {
          * to add the actor to the stage and our array of buttons so we can add it to that too
          * when adding to the array the method actually inserts it in the array at the enum.value index
          * this means if we add the buttons out of order it will cause an error, which is good because
-         * then i can make sure the buttons are in the correct order*/
+         * then i can make sure the buttons are in the correct order
+         *
+         * also note that any buttons created when the tridentbuildingstage is initialised will be set to invisible
+         * in the reset method which is called before we can see the tridentbuilding stage, so set them to visible
+         * in the reset method if needed*/
         /*trident buttons*/
 
         /*this is the player's trident hand*/
@@ -241,18 +255,18 @@ public class TridentBuildingStage extends Stage {
         stageInterface.addTriButton(new TriButton(stageInterface,720-(130*1.5f)-10,1280/2 - 130 * (float)(Math.sin(Math.PI/3))+ 130 * (float)(Math.sin(Math.PI/3)),false,StageInterface.TRIDENTBUILDINGSTAGE, ButtonEnum.Tri.TRIDENTBUILDINGSUIT0NATURE),triButtonArray,this);
         stageInterface.getTriButton(triButtonArray,ButtonEnum.Tri.TRIDENTBUILDINGSUIT0NATURE).setText("Suit\nNature");
         stageInterface.getTriButton(triButtonArray,ButtonEnum.Tri.TRIDENTBUILDINGSUIT0NATURE).setVisible(false);
-        stageInterface.addTriButton(new TriButton(stageInterface,720-130-10,1280/2 - 130 * (float)(Math.sin(Math.PI/3))+ 130 * (float)(Math.sin(Math.PI/3)),true,StageInterface.TRIDENTBUILDINGSTAGE, ButtonEnum.Tri.TRIDENTBUILDINGSUIT1LIGHT),triButtonArray,this);
+        stageInterface.addTriButton(new TriButton(stageInterface,720-(130*1.5f)-10,1280/2 - 130 * (float)(Math.sin(Math.PI/3))+ 130 * (float)(Math.sin(Math.PI/3)),false,StageInterface.TRIDENTBUILDINGSTAGE, ButtonEnum.Tri.TRIDENTBUILDINGSUIT1LIGHT),triButtonArray,this);
         stageInterface.getTriButton(triButtonArray,ButtonEnum.Tri.TRIDENTBUILDINGSUIT1LIGHT).setText("Suit\nLight");
         stageInterface.getTriButton(triButtonArray,ButtonEnum.Tri.TRIDENTBUILDINGSUIT1LIGHT).setVisible(false);
 
-        stageInterface.addTriButton(new TriButton(stageInterface,720-(130*1.5f)-10,1280/2 - 130 * (float)(Math.sin(Math.PI/3)),true,StageInterface.TRIDENTBUILDINGSTAGE, ButtonEnum.Tri.TRIDENTBUILDINGSUIT2DEMON),triButtonArray,this);
+        stageInterface.addTriButton(new TriButton(stageInterface,720-(130*1.5f)-10,1280/2 - 130 * (float)(Math.sin(Math.PI/3)),false,StageInterface.TRIDENTBUILDINGSTAGE, ButtonEnum.Tri.TRIDENTBUILDINGSUIT2DEMON),triButtonArray,this);
         stageInterface.getTriButton(triButtonArray,ButtonEnum.Tri.TRIDENTBUILDINGSUIT2DEMON).setText("Suit\nDemon");
         stageInterface.getTriButton(triButtonArray,ButtonEnum.Tri.TRIDENTBUILDINGSUIT2DEMON).setVisible(false);
-        stageInterface.addTriButton(new TriButton(stageInterface,720-130-10,1280/2 - 130 * (float)(Math.sin(Math.PI/3)),false,StageInterface.TRIDENTBUILDINGSTAGE, ButtonEnum.Tri.TRIDENTBUILDINGSUIT3DARK),triButtonArray,this);
+        stageInterface.addTriButton(new TriButton(stageInterface,720-(130*1.5f)-10,1280/2 - 130 * (float)(Math.sin(Math.PI/3)),false,StageInterface.TRIDENTBUILDINGSTAGE, ButtonEnum.Tri.TRIDENTBUILDINGSUIT3DARK),triButtonArray,this);
         stageInterface.getTriButton(triButtonArray,ButtonEnum.Tri.TRIDENTBUILDINGSUIT3DARK).setText("Suit\nDark");
         stageInterface.getTriButton(triButtonArray,ButtonEnum.Tri.TRIDENTBUILDINGSUIT3DARK).setVisible(false);
 
-        stageInterface.addTriButton(new TriButton(stageInterface,720-(130*1.5f)-10,1280/2 - 130 * (float)(Math.sin(Math.PI/3))- 130 * (float)(Math.sin(Math.PI/3)),false,StageInterface.TRIDENTBUILDINGSTAGE, ButtonEnum.Tri.TRIDENTBUILDINGSUIT4ANY),triButtonArray,this);
+        stageInterface.addTriButton(new TriButton(stageInterface,720-130-10,1280/2 - 130 * (float)(Math.sin(Math.PI/3)),true,StageInterface.TRIDENTBUILDINGSTAGE, ButtonEnum.Tri.TRIDENTBUILDINGSUIT4ANY),triButtonArray,this);
         stageInterface.getTriButton(triButtonArray,ButtonEnum.Tri.TRIDENTBUILDINGSUIT4ANY).setText("Suit\nAny");
         stageInterface.getTriButton(triButtonArray,ButtonEnum.Tri.TRIDENTBUILDINGSUIT4ANY).setVisible(false);
 
@@ -274,6 +288,24 @@ public class TridentBuildingStage extends Stage {
         //stageInterface.getTriButton(triButtonArray,ButtonEnum.Tri.TRIDENTBUILDINGNEXTSTAGE).setTridentToTextSize();
 
         resetAutoBuild();
+
+        stageInterface.addTriButton(new TriButton(stageInterface,720-130-10-130/2f,1280/2 - 130 * (float)(Math.sin(Math.PI/3)),false,StageInterface.TRIDENTBUILDINGSTAGE, ButtonEnum.Tri.TRIDENTBUILDINGWILDCARD),triButtonArray,this);
+        stageInterface.getTriButton(triButtonArray,ButtonEnum.Tri.TRIDENTBUILDINGWILDCARD).setText("Set\nWild Card");
+        Gdx.app.log("tridentBuildingStage","create TRIDENTBUILDINGWILDCARD, x"+stageInterface.getTriButton(triButtonArray,ButtonEnum.Tri.TRIDENTBUILDINGWILDCARD).getX()+" y "+stageInterface.getTriButton(triButtonArray,ButtonEnum.Tri.TRIDENTBUILDINGWILDCARD).getY()+" visible "+stageInterface.getTriButton(triButtonArray,ButtonEnum.Tri.TRIDENTBUILDINGWILDCARD).isVisible());
+        /*i want to position the 4 buttons, one for each suit, next to that suit, so once those suits are set up i should
+        * set the pos of these buttons, the any suit one will appear in the same place as the initial set wild card button */
+        stageInterface.addTriButton(new TriButton(stageInterface,720-130-10-130/2,1280/2 - 130 * (float)(Math.sin(Math.PI/3)),false,StageInterface.TRIDENTBUILDINGSTAGE, ButtonEnum.Tri.TRIDENTBUILDINGWILDCARD0NATURE),triButtonArray,this);
+        stageInterface.getTriButton(triButtonArray,ButtonEnum.Tri.TRIDENTBUILDINGWILDCARD0NATURE).setText("Nature\nSuit");
+        stageInterface.addTriButton(new TriButton(stageInterface,720-130-10-130/2,1280/2 - 130 * (float)(Math.sin(Math.PI/3)),false,StageInterface.TRIDENTBUILDINGSTAGE, ButtonEnum.Tri.TRIDENTBUILDINGWILDCARD1LIGHT),triButtonArray,this);
+        stageInterface.getTriButton(triButtonArray,ButtonEnum.Tri.TRIDENTBUILDINGWILDCARD1LIGHT).setText("Light\nSuit");
+        stageInterface.addTriButton(new TriButton(stageInterface,720-130-10-130/2,1280/2 - 130 * (float)(Math.sin(Math.PI/3)),false,StageInterface.TRIDENTBUILDINGSTAGE, ButtonEnum.Tri.TRIDENTBUILDINGWILDCARD2DEMON),triButtonArray,this);
+        stageInterface.getTriButton(triButtonArray,ButtonEnum.Tri.TRIDENTBUILDINGWILDCARD2DEMON).setText("Demon\nSuit");
+        stageInterface.addTriButton(new TriButton(stageInterface,720-130-10-130/2,1280/2 - 130 * (float)(Math.sin(Math.PI/3)),false,StageInterface.TRIDENTBUILDINGSTAGE, ButtonEnum.Tri.TRIDENTBUILDINGWILDCARD3DARK),triButtonArray,this);
+        stageInterface.getTriButton(triButtonArray,ButtonEnum.Tri.TRIDENTBUILDINGWILDCARD3DARK).setText("Dark\nSuit");
+        stageInterface.addTriButton(new TriButton(stageInterface,720-130-10,1280/2 - 130 * (float)(Math.sin(Math.PI/3)),true,StageInterface.TRIDENTBUILDINGSTAGE, ButtonEnum.Tri.TRIDENTBUILDINGWILDCARD4NONE),triButtonArray,this);
+        stageInterface.getTriButton(triButtonArray,ButtonEnum.Tri.TRIDENTBUILDINGWILDCARD4NONE).setText("Any\nSuit");
+
+        resetWildCard();
 
         /*card buttons, these are created in setup cards instead*/
         /*
@@ -392,6 +424,15 @@ static void updatePlayerTridentHand(){
         stageInterface.getTriButton(triButtonArray, ButtonEnum.Tri.TRIDENTBUILDINGAUTOBUILDFLIP).   setVisible(visible);
         stageInterface.getTriButton(triButtonArray, ButtonEnum.Tri.TRIDENTBUILDINGAUTOBUILDCONFIRM).setVisible(visible);
     }
+    static void setWildCardSuitsVisibility(boolean visible){
+        stageInterface.getTriButton(triButtonArray, ButtonEnum.Tri.TRIDENTBUILDINGWILDCARD0NATURE). setVisible(visible);
+        stageInterface.getTriButton(triButtonArray, ButtonEnum.Tri.TRIDENTBUILDINGWILDCARD1LIGHT). setVisible(visible);
+        stageInterface.getTriButton(triButtonArray, ButtonEnum.Tri.TRIDENTBUILDINGWILDCARD2DEMON). setVisible(visible);
+        stageInterface.getTriButton(triButtonArray, ButtonEnum.Tri.TRIDENTBUILDINGWILDCARD3DARK). setVisible(visible);
+        stageInterface.getTriButton(triButtonArray, ButtonEnum.Tri.TRIDENTBUILDINGWILDCARD4NONE). setVisible(visible);
+        Gdx.app.log("tridentBuildingStage","TRIDENTBUILDINGWILDCARD, set visibility of all suit buttons to "+visible);
+        Gdx.app.log("tridentBuildingStage","TRIDENTBUILDINGWILDCARD,  visibility  "+stageInterface.getTriButton(triButtonArray, ButtonEnum.Tri.TRIDENTBUILDINGWILDCARD  ).isVisible());
+    }
     /**
      * this will be called in the tributton class, the arguments will be the coordinates relevant to the world
      * not the actor. this will be called if a touch is in a triButton's bounding box but not in it's triangle
@@ -491,6 +532,9 @@ static void updatePlayerTridentHand(){
                     /*the autobuild buttons will expand the auto build trident buttons*/
                     stageInterface.getTriButton(triButtonArray,ButtonEnum.Tri.TRIDENTBUILDINGAUTOBUILD).setVisible(false);
                     setAutoBuildPipVisibility(true);
+                    resetWildCard();
+                    stageInterface.getTriButton(triButtonArray,ButtonEnum.Tri.TRIDENTBUILDINGWILDCARD).setVisible(false);
+
                     /*highlight the start of the first empty trident */
                     highlightPos=tridentHighlightPos;
 
@@ -611,9 +655,13 @@ static void updatePlayerTridentHand(){
                 break;
             }
             case TRIDENTBUILDINGSUIT4ANY: {
+                /*setting both the selected suit to none will use all cards,
+                * to preserve the wild card suit that the user selected
+                * we will add the wild card back into autoBuildSelectedSuit2 afterwards*/
                 autoBuildSelectedSuit1=SUITNONE;
                 autoBuildSelectedSuit2=SUITNONE;
                 clickSuit();
+                autoBuildSelectedSuit2=wildCardSuit;
                 break;
             }
             case TRIDENTBUILDINGAUTOBUILDROTATE: {
@@ -627,6 +675,38 @@ static void updatePlayerTridentHand(){
                 autoBuildOpen=false;
                 stageInterface.getTriButton(triButtonArray,ButtonEnum.Tri.TRIDENTBUILDINGAUTOBUILD).setVisible(true);
                 setAutoBuildRotFlipConfirmVisibility(false);
+                resetWildCard();
+                break;
+            }
+
+            case TRIDENTBUILDINGWILDCARD: {
+                Gdx.app.log("tridentBuildingStage","click TRIDENTBUILDINGWILDCARD"+stageInterface.getTriButton(triButtonArray, ButtonEnum.Tri.TRIDENTBUILDINGWILDCARD).isVisible());
+                cancelAutoBuild();
+                stageInterface.getTriButton(triButtonArray,ButtonEnum.Tri.TRIDENTBUILDINGAUTOBUILD).setVisible(false);
+                stageInterface.getTriButton(triButtonArray,ButtonEnum.Tri.TRIDENTBUILDINGWILDCARD).setVisible(false);
+                wildCardOpen = true;
+                setWildCardSuitsVisibility(true);
+                break;
+            }
+            case TRIDENTBUILDINGWILDCARD0NATURE: {
+                chooseWildCardSuit(SUITNATURE);
+                break;
+            }
+            case TRIDENTBUILDINGWILDCARD1LIGHT: {
+                chooseWildCardSuit(SUITLIGHT);
+                break;
+            }
+            case TRIDENTBUILDINGWILDCARD2DEMON: {
+                chooseWildCardSuit(SUITDEMON);
+                break;
+            }
+            case TRIDENTBUILDINGWILDCARD3DARK: {
+                chooseWildCardSuit(SUITDARK);
+                break;
+            }
+
+            case TRIDENTBUILDINGWILDCARD4NONE: {
+                chooseWildCardSuit(SUITNONE);
                 break;
             }
                 default:
@@ -677,6 +757,29 @@ static void updatePlayerTridentHand(){
             touchCard(cardIndex3);
         }
     }
+
+    /**
+     * this is just a helper method because each wildcardsuit button will do something very similar
+     * @param suit
+     */
+    public void chooseWildCardSuit(int suit){
+        /*this is probably unnecessary, autobuild should have already been cancelled before this button
+         * is clickable*/
+        cancelAutoBuild();
+        stageInterface.getTriButton(triButtonArray,ButtonEnum.Tri.TRIDENTBUILDINGAUTOBUILD).setVisible(false);
+        setWildCardSuit(suit);
+        autoBuildSelectedSuit2=wildCardSuit;
+        resetWildCard();
+        resetAutoBuild();
+        wildCardOpen = false;
+    }
+    static public void setWildCardSuit(int suit) {
+        wildCardSuit = suit;
+        for (int i = 0; i < cardButtonArray.size; i++) {
+            cardButtonArray.get(i).setColourFromSuit();
+        }
+    }
+
     /**
      * when autobuild button is clicked the autoBuildOpen boolean is set to true, if a card is clicked
      * when the autoBuildOpen is true then set it to false and cancel the autobuild
@@ -697,6 +800,24 @@ static void updatePlayerTridentHand(){
                 cardIndex3 = null;
             }
             resetAutoBuild();
+            resetWildCard();
+        }
+    }
+
+    public void cancelWildCard(){
+        if (wildCardOpen) {
+            wildCardOpen = false;
+            resetWildCard();
+            resetAutoBuild();
+        }
+    }
+
+    static void resetWildCard(){
+        Gdx.app.log("tridentBuildingStage","reset TRIDENTBUILDINGWILDCARD"+stageInterface.getTriButton(triButtonArray, ButtonEnum.Tri.TRIDENTBUILDINGWILDCARD).isVisible());
+        stageInterface.getTriButton(triButtonArray,ButtonEnum.Tri.TRIDENTBUILDINGWILDCARD).setVisible(true);
+        setWildCardSuitsVisibility(false);
+        for (int i =0; i< triButtonArray.size;i++){
+            triButtonArray.get(i).updateBounds();
         }
     }
     /**
@@ -710,6 +831,7 @@ static void updatePlayerTridentHand(){
 
         /*regardless of which card was clicked, if we are in the middle of an autoBuild we need to cancel it*/
         cancelAutoBuild();
+        cancelWildCard();
 
         switch(cardButtonIndex) {
 
@@ -972,7 +1094,11 @@ static void updatePlayerTridentHand(){
                     }
                 }
             }
-            if(suit2 != SUITNONE){
+            /*suit2 should be SUITNONE unless player set a wild card suit, in which case
+            *suit2 should always equal the wild card suit, make sure suit2 does not equal suit1
+            * otherwise if the player choose the wildcard suit to make atrident with we would be
+            * adding all these cards twice*/
+            if(suit2 != SUITNONE && suit2!=suit1){
                 for(int i=0;i<cardButtonArray.size;i++){
                     if (cardButtonArray.get(i).inTriHand==false && cardButtonArray.get(i).playerIndex == MyServer.player.index && cardButtonArray.get(i).getSuit()==suit2){
                         tempArrayPip.add((int) cardButtonArray.get(i).getPip());
@@ -1116,6 +1242,10 @@ static void updatePlayerTridentHand(){
         /*make all the trident buttons invisible*/
         resetPlayerTridentHand();
         resetAutoBuild();
+        resetWildCard();
+        autoBuildSelectedSuit1=SUITNONE;
+        autoBuildSelectedSuit2=SUITNONE;
+        setWildCardSuit(SUITNONE);
         highlightPosCounter=0;
         highlightPos=0;
     }

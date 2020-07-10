@@ -349,6 +349,13 @@ public void touchMessage(float x, float y){
         setX(x);
         setY(y);
     }
+    /*this will be called in the deal stage after the card hand position has been determined,
+    specifically after the setTridentHandHeight() method is called
+    * it will set the x and y pos of the buttons that relate to suits, like the autobuild select suit button,
+    * or the select wild card suit button*/
+    public void setButtonToSuitPos(int suit){
+        setY(1280-(+CardButton.dealAnimationTridentHandHeight+CardButton.dealAnimationTridentHeight+(CardButton.dealAnimationTridentHeight+CardButton.dealAnimationRowMargin) *suit));
+    }
     public Vector2 getPos(){
         return new Vector2(getX(),getY());
     }

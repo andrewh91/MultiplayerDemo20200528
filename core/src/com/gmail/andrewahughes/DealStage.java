@@ -183,6 +183,20 @@ public class DealStage extends Stage {
                      * we need to reserve some space at the top for the trident hand
                      * this method determines how much space */
                     CardButton.setTridentHandHeight();
+                    /*some buttons need to appear in line with the suit rows, the buttons have been
+                     * created already with a default position but we change it here*/
+
+                    stageInterface.getTriButton(TridentBuildingStage.triButtonArray,ButtonEnum.Tri.TRIDENTBUILDINGWILDCARD0NATURE).setButtonToSuitPos(0);
+                    stageInterface.getTriButton(TridentBuildingStage.triButtonArray,ButtonEnum.Tri.TRIDENTBUILDINGWILDCARD1LIGHT).setButtonToSuitPos(1);
+                    stageInterface.getTriButton(TridentBuildingStage.triButtonArray,ButtonEnum.Tri.TRIDENTBUILDINGWILDCARD2DEMON).setButtonToSuitPos(2);
+                    stageInterface.getTriButton(TridentBuildingStage.triButtonArray,ButtonEnum.Tri.TRIDENTBUILDINGWILDCARD3DARK).setButtonToSuitPos(3);
+
+                    stageInterface.getTriButton(TridentBuildingStage.triButtonArray,ButtonEnum.Tri.TRIDENTBUILDINGSUIT0NATURE).setButtonToSuitPos(0);
+                    stageInterface.getTriButton(TridentBuildingStage.triButtonArray,ButtonEnum.Tri.TRIDENTBUILDINGSUIT1LIGHT).setButtonToSuitPos(1);
+                    stageInterface.getTriButton(TridentBuildingStage.triButtonArray,ButtonEnum.Tri.TRIDENTBUILDINGSUIT2DEMON).setButtonToSuitPos(2);
+                    stageInterface.getTriButton(TridentBuildingStage.triButtonArray,ButtonEnum.Tri.TRIDENTBUILDINGSUIT3DARK).setButtonToSuitPos(3);
+                    stageInterface.getTriButton(TridentBuildingStage.triButtonArray,ButtonEnum.Tri.TRIDENTBUILDINGSUIT4ANY).setButtonToSuitPos(1);
+
                     Gdx.app.log("DealStage","set position of all cards in card hand");
                     Gdx.app.log("DealStage","immediately after setTridentHandHeight, new edge length of all card buttons ="+(CardButton.dealAnimationTridentEdgeLength /2));
 
@@ -758,6 +772,8 @@ public class DealStage extends Stage {
         for (int i = 0; i < TridentBuildingStage.cardButtonArray.size; i++) {
             Gdx.app.log("Deal Stage", "card: " + i + " value: " + TridentBuildingStage.cardButtonArray.get(i).value + " pip: " + TridentBuildingStage.cardButtonArray.get(i).getPip() + " player: " + TridentBuildingStage.cardButtonArray.get(i).playerIndex);
         }
+        TridentBuildingStage.setWildCardSuit(TridentBuildingStage.SUITNONE);
+
         /*should only call this once deal data received*/
         ANIMATIONSTAGE=ANIMATIONDEALCARDS;
     }
@@ -780,12 +796,13 @@ public class DealStage extends Stage {
         for (int i = 0; i < TridentBuildingStage.cardButtonArray.size; i++) {
             TridentBuildingStage.cardButtonArray.get(i).setDealAnimationValues(i);
         }
-
         /*this is where the cards are shuffled*/
         amendCardsForDeal();
         /*we will deal the cards to the players here,
         but the effect of the deal won't be visible yet*/
         assignPlayerIndex();
+
+
     }
 
     /**

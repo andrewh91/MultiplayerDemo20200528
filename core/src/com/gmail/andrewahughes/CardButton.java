@@ -95,6 +95,8 @@ public class CardButton  extends Actor {
      */
     public boolean inTriHand=false;
 
+    public Color colour=Color.WHITE;
+
     /**constructor for triButton
      *
      * @param startingX initial x position
@@ -192,6 +194,9 @@ public class CardButton  extends Actor {
     public void drawShape(ShapeRenderer shapeRenderer) {
         if (isVisible()) {
 
+            Color prevColour = Color.WHITE;
+            shapeRenderer.setColor(colour);
+
             if (orientation == POINTUP) {
                 if (position == LEFT) {
                     shapeRenderer.triangle(
@@ -246,66 +251,15 @@ public class CardButton  extends Actor {
                             getY() + altitude + otherLength);
                 }
             }
+            shapeRenderer.setColor(prevColour);
         }
     }
+    /*this method has become a bit redundant*/
     public void drawHighlightShape(ShapeRenderer shapeRenderer) {
         if (isVisible()) {
             Color prevColour = Color.WHITE;
             shapeRenderer.setColor(Color.RED);
-            if (orientation == POINTUP) {
-                if (position == LEFT) {
-                    shapeRenderer.triangle(
-                            getX() + halfEdgeLength,
-                            getY() + altitude,
-                            getX() + halfEdgeLength,
-                            getY() + altitude + otherLength,
-                            getX(),
-                            getY());
-                } else if (position == RIGHT) {
-                    shapeRenderer.triangle(
-                            getX() + halfEdgeLength,
-                            getY() + altitude,
-                            getX() + halfEdgeLength,
-                            getY() + altitude + otherLength,
-                            getX() + edgeLength,
-                            getY());
-                } else if (position == VERTICAL) {
-                    shapeRenderer.triangle(
-                            getX() + halfEdgeLength,
-                            getY() + altitude,
-                            getX() + edgeLength,
-                            getY(),
-                            getX(),
-                            getY());
-                }
-
-            } else if (orientation == POINTDOWN) {
-                if (position == LEFT) {
-                    shapeRenderer.triangle(
-                            getX() + halfEdgeLength,
-                            getY() + otherLength,
-                            getX() + halfEdgeLength,
-                            getY(),
-                            getX(),
-                            getY() + altitude + otherLength);
-                } else if (position == RIGHT) {
-                    shapeRenderer.triangle(
-                            getX() + halfEdgeLength,
-                            getY() + otherLength,
-                            getX() + edgeLength,
-                            getY() + altitude + otherLength,
-                            getX() + halfEdgeLength,
-                            getY());
-                } else if (position == VERTICAL) {
-                    shapeRenderer.triangle(
-                            getX() + halfEdgeLength,
-                            getY() + otherLength,
-                            getX(),
-                            getY() + altitude + otherLength,
-                            getX() + edgeLength,
-                            getY() + altitude + otherLength);
-                }
-            }
+            drawShape(shapeRenderer);
             shapeRenderer.setColor(prevColour);
         }
     }
@@ -578,6 +532,7 @@ public class CardButton  extends Actor {
         dealAnimationRowMargin = (dealAnimationRectangleHeight - (dealAnimationTridentHeight*7)) / 4.5f;
         updateBounds();
         dealAnimationTridentHandHeight = dealAnimationRowMargin + dealAnimationTridentHeight *3;
+
     }
 
     /**
@@ -586,6 +541,7 @@ public class CardButton  extends Actor {
      */
     public void setValue(int value){
         this.value = value;
+        setColourFromSuit();
     }
 
     /**
@@ -593,7 +549,38 @@ public class CardButton  extends Actor {
      * suit 0,1,2 or 3
      */
     public byte getSuit(){
+
         return (byte)Math.floor(this.value/13f);
+    }
+
+    /**
+     * need to call this once each card get's it's value so that it can set a colour
+     * based on the suit
+     * also need to call it when swapping cards and when setting a wildcard suit
+     * @return
+     */
+    public void setColourFromSuit(){
+        byte suit=getSuit();
+        /*suit are
+        *   0 = nature, 1 = light,  2 =demon,   3 = dark    4 = wildcard
+        *   lght green  lght yllw   bloodred    darkpurple  gold*/
+        float red=255, green=255,blue =255;
+        if (suit==0){/*nature, lght green*/
+            red=144;            green=238;            blue=144;
+        }
+        else if (suit==1){/*light lght yllw*/
+            red=249;            green=249;            blue=165;
+        }
+        else if (suit==2){/*demon blood red*/
+            red=132;            green=0;            blue=44;
+        }
+        else if (suit==3){/*dark dark purple*/
+            red=39;            green=2;            blue=60;
+        }
+        if (suit== TridentBuildingStage.wildCardSuit){/*wild card suit gold*/
+            red=255;            green=146;            blue=0;
+        }
+        colour= new Color(red/255f,	green/255f,	blue/255f,1.0f);
     }
     /**
      * this method will just work out what pip the card is based on the value
