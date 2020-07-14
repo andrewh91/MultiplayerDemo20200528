@@ -178,6 +178,7 @@ public class MyGdxGame extends ApplicationAdapter  implements  StageInterface{
 			}
 			case GAMESTAGE :{
 				gameStage.setVisible(true);
+				gameStage.setUp();
 				Gdx.input.setInputProcessor(gameStage);
 				break;
 			}

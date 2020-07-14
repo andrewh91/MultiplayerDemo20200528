@@ -34,6 +34,12 @@ public class TridentBuildingStage extends Stage {
      */
     static Array<Boolean> triHandCardFilledArray = new Array<Boolean>();
     /**
+     * each time a value in triHandCardFilledArray is set to true increment this variable,
+     * each time a value is set to false then decrement this, will be used to check if the trihand is filled
+     */
+    static int triHandCardFilledArrayCount = 0;
+
+    /**
      * only one card in the trident hand can be highlighted at once,
      * this int will determine which one. note,
      */
@@ -523,7 +529,26 @@ static void updatePlayerTridentHand(){
         switch(triButtonIndex){
 
             case TRIDENTBUILDINGNEXTSTAGE: {
-                stageInterface.goToStage(StageInterface.GAMESTAGE);
+                /*if the trident hand is completely filled, go to the game stage, otherwise, auto fill the trihand
+                * this should be for testing only
+                * TODO remove this- this is for quickly making tri hands for testing only  */
+                    if (triHandCardFilledArrayCount==triHandCardFilledArray.size){
+                        stageInterface.goToStage(StageInterface.GAMESTAGE);
+
+                    }
+                    else{
+                        /*touch all the cards that have been dealt to this player that are not already in the array */
+                        for (ButtonEnum.Card card : ButtonEnum.Card.values() ) {
+                            if (card.value>51){
+                                break;
+                            }
+                            if (cardButtonArray.get(card.value).inTriHand == false && cardButtonArray.get(card.value).playerIndex == MyServer.player.index) {
+                                touchCard(card);
+                            }
+                        }
+                        //touchLogic(ButtonEnum.Tri.TRIDENTBUILDINGNEXTSTAGE);
+                    }
+
                 break;
             }
             case TRIDENTBUILDINGAUTOBUILD: {
@@ -1014,6 +1039,7 @@ static void updatePlayerTridentHand(){
                 cardButtonArray.get(index).position = cardButtonArrayTridentHand.get(highlightPos).position;
                 cardButtonArray.get(index).highlightPos = highlightPos;
                 triHandCardFilledArray.set(highlightPos, true);
+                triHandCardFilledArrayCount++;
                 cardButtonArrayTridentHand.get(highlightPos).setVisible(false);
                 findNextEmptyTrident();
                 /**
@@ -1027,6 +1053,7 @@ static void updatePlayerTridentHand(){
                 cardButtonArray.get(index).inTriHand = false;
                 highlightPos = cardButtonArray.get(index).highlightPos;
                 triHandCardFilledArray.set(highlightPos, false);
+                triHandCardFilledArrayCount--;
                 cardButtonArrayTridentHand.get(highlightPos).setVisible(true);
                 findNextEmptyTrident();
                 highlightPosCounter = 0;
@@ -1397,6 +1424,7 @@ static void updatePlayerTridentHand(){
         /*set up all cards*/
         cardButtonArrayTridentHand.clear();
         triHandCardFilledArray.clear();
+        triHandCardFilledArrayCount=0;
         int i=0;
         /*for every enum of which the first 52 relate to the 52 cards, the next 26 relate to the trident hand card buttons */
         for (ButtonEnum.Card cardEnum : ButtonEnum.Card.values()) {
@@ -1481,6 +1509,16 @@ static void updatePlayerTridentHand(){
                 TridentBuildingStage.cardButtonArray.get(j*OptionsStage.cardsEach+k).setValue(tempArray.get(k));
             }
         }
+    }
+
+    public static CardButton getCardAtHighlightPos(int highlightPos){
+        for (int i = 0; i < cardButtonArray.size; i++) {
+            if (cardButtonArray.get(i).highlightPos==highlightPos){
+
+                return cardButtonArray.get(i);
+            }
+        }
+        return null;
     }
 
 }

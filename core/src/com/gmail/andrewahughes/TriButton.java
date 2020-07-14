@@ -11,6 +11,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.utils.Array;
 
 public class TriButton extends Actor {
     StageInterface stageInterface;
@@ -38,6 +39,35 @@ public class TriButton extends Actor {
     Texture texture;
     byte stageIndex;
     ButtonEnum.Tri triButtonIndex;
+
+    /**
+     * the trident button will have it's own card button array, for the gameStage only
+     * the listener will be removed so the card buttons will just be to display the cards
+     */
+    Array<CardButton> cardButtonArray = new Array<CardButton>();
+    /**
+     * some tridents on the game stage will be shown but the cards will be hidden
+     * this boolean stops the card arry being drawn
+     */
+    boolean cardsVisible =false;
+
+    /**
+     * in the game stage
+     */
+    boolean preGameCard=false;
+    boolean postGameCard=false;
+    /**
+     * the preGameCard from the trident building stage will be disaplyed on a triButton
+     * instead of a card button
+     */
+    TriButton preGameCardButton;
+    TriButton postGameCardButton;
+
+    static float preGameCardX =720/2-130;
+    static float preGameCardY =(float)(1280/2-130*Math.sin(Math.PI/3));
+    static float postGameCardX =720/2-130/2;
+    static float postGameCardY =(float)(1280/2-130*Math.sin(Math.PI/3));
+
     /**constructor for triButton
      *
      * @param startingX initial x position
@@ -87,7 +117,24 @@ public class TriButton extends Actor {
 
     }
 
+    /**
+     * called from the game stage when we move to the game stage, so after we have successfully set up the
+     * tridents, this method will transfer the trident build data across
+     * @param a
+     * @param b
+     * @param c
+     */
+    public void setUpCardButtons(CardButton a, CardButton b, CardButton c){
+    cardButtonArray.clear();
+    cardButtonArray.add(a,b,c);
+    for (int i = 0; i < cardButtonArray.size; i++) {
+        cardButtonArray.get(i).removeListener(cardButtonArray.get(i).clickListener);
+        cardButtonArray.get(i).setVisible(true);
+        cardButtonArray.get(i).setText();
+        Gdx.app.log("TriButton","pip "+cardButtonArray.get(i).getPip());
+    }
 
+}
 public void touchMessage(float x, float y){
     Gdx.app.log("TriButton", "touch up in "+triButtonIndex+" visible? "+isVisible()+" width "+(int)getWidth() + " height "+(int)getHeight()+" absolute x " + (int)getX() + " absolute y " + (int)getY()+" relative x " + (int)x + " relative y " + (int)y );
 
@@ -103,10 +150,25 @@ public void touchMessage(float x, float y){
                 glyphLayout.setText(font, text);
                 /*draw the text centred in the x axis, and at the top if it's POINTDOWN and at the bottom if it's POINTUP*/
                 font.draw(batch, text, getX() + halfEdgeLength - glyphLayout.width / 2, getY() + (orientation ? +altitude * textMargin + glyphLayout.height : +altitude * (1 - textMargin)));
-
             }
+            drawCardButtons(batch,parentAlpha);
+            drawPreAndPostGameCardButtons(batch,parentAlpha);
         }
 
+    }
+    public void drawCardButtons(Batch batch,float parentAlpha){
+        if(cardsVisible){
+            for (int i=0;i<cardButtonArray.size;i++){
+                cardButtonArray.get(i).draw(batch,parentAlpha);
+            }
+        }
+    }
+
+    public void drawPreAndPostGameCardButtons(Batch batch,float parentAlpha){
+        if(preGameCard && postGameCard){
+            preGameCardButton.draw(batch,parentAlpha);
+            postGameCardButton.draw(batch,parentAlpha);
+        }
     }
     public void drawShape(ShapeRenderer shapeRenderer) {
         if (isVisible()) {
@@ -149,6 +211,22 @@ public void touchMessage(float x, float y){
                 }
 
             }
+            drawCardButtonsShape(shapeRenderer);
+            drawPreAndPostGameCardButtonsShape(shapeRenderer);
+        }
+    }
+
+    public void drawCardButtonsShape(ShapeRenderer shapeRenderer){
+        if(cardsVisible){
+            for (int i=0;i<cardButtonArray.size;i++){
+                cardButtonArray.get(i).drawShape(shapeRenderer);
+            }
+        }
+    }
+    public void drawPreAndPostGameCardButtonsShape(ShapeRenderer shapeRenderer){
+        if(preGameCard && postGameCard){
+            preGameCardButton.drawShape(shapeRenderer);
+            postGameCardButton.drawShape(shapeRenderer);
         }
     }
     /**work out if the triangle has been hit, considering orientation
@@ -360,5 +438,39 @@ public void touchMessage(float x, float y){
         return new Vector2(getX(),getY());
     }
 
+    public void setPreGameCard(CardButton cardButton){
+        preGameCard=true;
+        preGameCardButton= new TriButton(stageInterface, preGameCardX,preGameCardY,true,MyGdxGame.GAMESTAGE,ButtonEnum.Tri.GAMETRIPREGAMECARD);
+        preGameCardButton.setText("PreGame\nCard\n"+cardButton.getPip());
+    }
+    public void setPostGameCard( CardButton cardButton){
+        postGameCard=true;
+        postGameCardButton= new TriButton(stageInterface, postGameCardX,postGameCardY,true,MyGdxGame.GAMESTAGE,ButtonEnum.Tri.GAMETRIPOSTGAMECARD);
+        postGameCardButton.setText("PostGame\nCard\n"+cardButton.getPip());
+    }
 
+    public void resetPreGameCard(){
+        preGameCard=false;
+        preGameCardButton=null;
+    }
+    public void resetPostGameCard(){
+        postGameCard=false;
+        postGameCardButton=null;
+    }
+
+    /**
+     * this will be called in the game stage, when the cards from the trident building stage are added to the
+     * trident hand in the gamestage, the position of the tident hand tridents will be set to that of the
+     * cards, orienentation will also be set
+     */
+    public void updatePos(float x, float y, boolean pointUp){
+        setX(x);
+        setY(y);
+        orientation=pointUp;
+        for (int i = 0 ; i < cardButtonArray.size;i++){
+            cardButtonArray.get(i).setX(x);
+            cardButtonArray.get(i).setY(y);
+            cardButtonArray.get(i).orientation=pointUp;
+        }
+    }
 }

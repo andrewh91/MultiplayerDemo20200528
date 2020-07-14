@@ -97,6 +97,8 @@ public class CardButton  extends Actor {
 
     public Color colour=Color.WHITE;
 
+    ClickListener clickListener;
+
     /**constructor for triButton
      *
      * @param startingX initial x position
@@ -123,8 +125,7 @@ public class CardButton  extends Actor {
         setWidth(cardButtonEdegLength*2);
         setHeight(cardButtonTridentAltitude);
 
-
-        this.addListener(new ClickListener() {
+        this.addListener(clickListener= new ClickListener() {
 
 
             public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {

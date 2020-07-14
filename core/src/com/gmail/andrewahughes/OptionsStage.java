@@ -38,6 +38,11 @@ public class OptionsStage extends Stage {
      *     consider how many players there are, if preAndPostGameCards are enabled
      */
     public static int tridentsEach=0;
+
+    /**
+     * this will be used in the gameStage, will be max 8
+     */
+    public static int nonPrePostGameTridentsEach=0;
     /**
      * the open game mode allows all player's to see each other's cards
      * disable this mode so player's can only see their own cards
@@ -168,8 +173,12 @@ public class OptionsStage extends Stage {
         if (preAndPostGameCard){
             cardsEach+=2;
         }
-
         tridentsEach = (int)Math.ceil(cardsEach/3f);
+        nonPrePostGameTridentsEach=tridentsEach;
+        if (preAndPostGameCard){
+            nonPrePostGameTridentsEach=tridentsEach-1;
+        }
+
     }
 }
 
