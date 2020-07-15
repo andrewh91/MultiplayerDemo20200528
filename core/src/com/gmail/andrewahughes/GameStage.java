@@ -14,7 +14,7 @@ import static com.gmail.andrewahughes.MyGdxGame.WORLDWIDTH;
 public class GameStage extends Stage {
 
     boolean visible =false;
-    StageInterface stageInterface;
+    static StageInterface stageInterface;
     SpriteBatch spriteBatch;
     ShapeRenderer shapeRenderer;
     /*we need to store an array of TriButtons so we can loop through and call the draw method of each
@@ -168,6 +168,57 @@ public class GameStage extends Stage {
             triButtonArray.get(OptionsStage.nonPrePostGameTridentsEach+ ButtonEnum.Tri.GAMETRIHAND0.value+1).setPostGameCard(TridentBuildingStage.cardButtonArray.get(OptionsStage.nonPrePostGameTridentsEach*3+1));
         }
 
+        setUpGameBoard();
+
+
+    }
+
+    /**
+     * 16 triButtons will have been created, need to set their position and orientation here
+     * there is a static variable of CardButton that should have already been set, this variable
+     * dealAnimationRectangleWidth gives us the size of the space we have to work with, screen size minus
+     * a bit of a margin on the edge of the screen. the game board might be set up differently depending
+     * on some of the OptionsStage variables
+     */
+    public static void setUpGameBoard(){
+        Array<Integer> rows = new Array<>();
+        rows.clear();
+        int total = 0;
+        /*this will fill  the row array with a number of items equal to the number of rows we need
+        * and each item in the array will hold the number of tridents in that row*/
+        for (int i = 0; total < OptionsStage.gameBoardSize; i=i+2) {
+            rows.add(i+1);
+            total = total + i+1;
+        }
+        float edgeLength=(720-CardButton.dealAnimationRowMargin)/(float)(Math.ceil(rows.get(rows.size-1)/2f));
+        float originX=720/2f  -(edgeLength*(float)(Math.ceil(rows.get(rows.size-1)/2f)))/2;
+        float originY=1280/2f - CardButton.dealAnimationRectangleHeight/2 ;
+        float incrementX=edgeLength/2;
+        float incrementY=(float)(edgeLength*Math.sin(Math.PI/3));
+        int index=0;
+        /*for each row...*/
+        for (int i = 0; i < rows.size; i++) {
+            /*for each trident on the row
+            rows.get(i) will equal 1, 3 ,5 , 7 etc - that is the number of tridents on the row*/
+            for (int j = 0; j < rows.get(i); j++) {
+                getGB(index).setX(originX+ incrementX * (rows.get(rows.size-1)-j - (rows.size-i)) );
+                getGB(index).setY(originY+ incrementY * (rows.size-i) );
+                getGB(index).edgeLength=edgeLength;
+                getGB(index).updateBounds();
+                /*even numbered tridents of any row will be point up*/
+                getGB(index).orientation= j%2==0;
+                index++;
+            }
+        }
+    }
+
+    /**
+     * helper method to get game board tributtons with less code, starting with index 0 and ending with index 15
+     * @return
+     */
+    private static TriButton getGB(int gameBoardIndex){
+        gameBoardIndex = gameBoardIndex + ButtonEnum.Tri.GAMEBOARD0.value;
+        return triButtonArray.get(gameBoardIndex);
     }
     public void reset(){
 

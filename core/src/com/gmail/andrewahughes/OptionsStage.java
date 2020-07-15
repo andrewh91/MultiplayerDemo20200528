@@ -53,6 +53,16 @@ public class OptionsStage extends Stage {
      */
     public static byte numberOfPlayers = 2;
     public static boolean preAndPostGameCard = true;
+    /**
+     * used in the game stage when setting up the gameboard
+     * max value should be 16, which will give a standard board 4 rows, with 1, 3, 5 then 7 tridents per row
+     * value could be as low as 4, and there will be special logic to cater for a value of 8, which will create two
+     * board with 4 tridents.
+     * you can feed any number in, but if you want it to look symetrical need to pick one of these values,
+     * 1,4, 9, 16, 25, 36 etc or as mentioned use one of the multiples of 4 , up to 24, which will create
+     * 6  separate boards of 4 triButtons each
+     */
+    public static int gameBoardSize=0;
     public OptionsStage(StageInterface stageInterface, Viewport viewport, SpriteBatch batch,ShapeRenderer shapeRenderer)
     {
         this.stageInterface =stageInterface;
@@ -65,6 +75,7 @@ public class OptionsStage extends Stage {
         viewport.update(WORLDWIDTH, WORLDHEIGHT, true);
         createButtons();
         calculateCardsEach();
+        gameBoardSize=16;
     }
 
 
