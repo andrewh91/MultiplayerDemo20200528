@@ -68,6 +68,15 @@ public class TriButton extends Actor {
     static float postGameCardX =720/2-130/2;
     static float postGameCardY =(float)(1280/2-130*Math.sin(Math.PI/3));
 
+    /**
+     * the adjacent indexes are importatnt for the game stage, they will be set in the setUpGameBoard()
+     * method of gameStage, this is the way each trident knows which tridents are next to it, -1 means no adjacent
+     */
+    int adjacentIndexVertical=-1;
+    int adjacentIndexLeft=-1;
+    int adjacentIndexRight=-1;
+
+
     /**constructor for triButton
      *
      * @param startingX initial x position

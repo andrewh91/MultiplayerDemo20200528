@@ -29,6 +29,7 @@ public class CardButton  extends Actor {
 
     /*the longest edge length, should be the same as the edge length of the trident*/
     static public float edgeLength = 130;
+    public float nonStaticEdgeLength = edgeLength;
     static public float cardButtonEdegLength = edgeLength;
     /*assuming the isosceles card shape has the longest edge parallel to the horizon
     * the altitude is tan(30) * edgeLength /2    = 0.28867513459481288225457439025098 * edgeLength*/
@@ -87,7 +88,7 @@ public class CardButton  extends Actor {
 
     boolean oldOrientation = POINTDOWN;
     byte oldPosition = VERTICAL;
-    int highlightPos;
+    int highlightPos=-1;
 
     /**
      * if this is set to true we won't draw the card at it's actual position,
@@ -258,10 +259,10 @@ public class CardButton  extends Actor {
     /*this method has become a bit redundant*/
     public void drawHighlightShape(ShapeRenderer shapeRenderer) {
         if (isVisible()) {
-            Color prevColour = Color.WHITE;
-            shapeRenderer.setColor(Color.RED);
+            Color prevColour = colour;
+            colour = Color.RED;
             drawShape(shapeRenderer);
-            shapeRenderer.setColor(prevColour);
+            colour=prevColour;
         }
     }
     /**
@@ -426,6 +427,7 @@ public class CardButton  extends Actor {
             dealAnimationTridentEdgeLength=altEdgeLength;
         }
         edgeLength=dealAnimationTridentEdgeLength;
+
         Gdx.app.log("CardButton","setDealAnimationRectangle, new edge length of all card buttons ="+edgeLength);
 
         /*now work out how to centre the grid of tridents*/

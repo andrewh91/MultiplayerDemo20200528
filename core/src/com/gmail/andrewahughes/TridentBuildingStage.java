@@ -1052,6 +1052,7 @@ static void updatePlayerTridentHand(){
                 cardButtonArray.get(index).resetPos();
                 cardButtonArray.get(index).inTriHand = false;
                 highlightPos = cardButtonArray.get(index).highlightPos;
+                cardButtonArray.get(index).highlightPos=-1;
                 triHandCardFilledArray.set(highlightPos, false);
                 triHandCardFilledArrayCount--;
                 cardButtonArrayTridentHand.get(highlightPos).setVisible(true);
