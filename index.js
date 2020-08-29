@@ -12,7 +12,7 @@ var par2 = 0;
 var par =0;
 
 
-server.listen(8080,"192.168.1.6", function(){
+server.listen(8080,"192.168.1.2", function(){
 	console.log("Server is now running...");
 });
 
