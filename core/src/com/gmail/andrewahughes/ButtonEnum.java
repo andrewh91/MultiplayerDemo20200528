@@ -81,7 +81,11 @@ public class ButtonEnum {
         GAMETRIHAND7                (23),
         GAMETRIPREGAMECARD          (24),
         GAMETRIPOSTGAMECARD         (25),
-        GAMENEXTSTAGE               (26),
+        GAMEPLACEROTATE             (26),
+        GAMEPLACEFLIP               (27),
+        GAMEPLACECONFIRM            (28),
+
+        GAMENEXTSTAGE               (29),
 
         GAMEOVERNEXTSTAGE           (0);
 

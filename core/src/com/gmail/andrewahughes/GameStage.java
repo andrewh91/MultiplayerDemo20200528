@@ -27,6 +27,12 @@ public class GameStage extends Stage {
     static int highlightPosGameboard=-1;
     static int highlightPosTriHand =-1;
 
+    /**
+     * this will be set to true when placing a trident on the gameboard,
+     * the options to flip and rotate may then appear, as well as the confirm or cancel button
+     */
+    static boolean placeMode=false;
+
     public GameStage(StageInterface stageInterface, Viewport viewport, SpriteBatch batch,ShapeRenderer shapeRenderer)
     {
         this.stageInterface =stageInterface;
@@ -93,12 +99,12 @@ public class GameStage extends Stage {
             /*use the adjacent variables of the highlighted trident to figure out which trident's
              * need to be highlighted, we will only highlight one card of the adjacent tridents,
              * the trident adjacent to the vertical position will have it's vertical card highlighted, vert - vert
-             * but generally the triden tadjacnet to the left position will have it's right card highlighted so left - right
+             * but generally the trident adjacent to the left position will have it's right card highlighted so left - right
              * and vice versa for the right one - right - left
              * UNLESS the adjacent trident is the same orientation as the current one, in which case  we do left -left, or right - right
-             * this will only happen to tridents of the edge, where we've been creative in which one is adjacent */
+             * this will only happen to tridents on the edge, where we've been creative in which one is adjacent */
             boolean sameOrientationLeft = triButtonArray.get(highlightPosGameboard).orientation==triButtonArray.get(triButtonArray.get(highlightPosGameboard).adjacentIndexLeft).orientation;
-            boolean sameOrientationRight = triButtonArray.get(highlightPosGameboard).orientation==triButtonArray.get(triButtonArray.get(highlightPosGameboard).adjacentIndexLeft).orientation;
+            boolean sameOrientationRight = triButtonArray.get(highlightPosGameboard).orientation==triButtonArray.get(triButtonArray.get(highlightPosGameboard).adjacentIndexRight).orientation;
             triButtonArray.get(triButtonArray.get(highlightPosGameboard).adjacentIndexVertical).cardButtonArray.get(0).drawHighlightShape(shapeRenderer);
             triButtonArray.get(triButtonArray.get(highlightPosGameboard).adjacentIndexLeft).cardButtonArray.get(sameOrientationLeft?2:1).drawHighlightShape(shapeRenderer);
             triButtonArray.get(triButtonArray.get(highlightPosGameboard).adjacentIndexRight).cardButtonArray.get(sameOrientationRight?1:2).drawHighlightShape(shapeRenderer);
@@ -128,6 +134,7 @@ public class GameStage extends Stage {
          * then i can make sure the buttons are in the correct order*/
         createGameBoard();
         createTridentHand();
+        createPlaceModeButtons();
 
         stageInterface.addTriButton(new TriButton(stageInterface,0,0,false,StageInterface.GAMESTAGE, ButtonEnum.Tri.GAMENEXTSTAGE),triButtonArray,this);
         stageInterface.getTriButton(triButtonArray,ButtonEnum.Tri.GAMENEXTSTAGE).setText("Game\nOver");
@@ -167,6 +174,16 @@ public class GameStage extends Stage {
         stageInterface.addTriButton(new TriButton(stageInterface,0,0,false,StageInterface.GAMESTAGE, ButtonEnum.Tri.GAMETRIHAND7),triButtonArray,this);
         stageInterface.addTriButton(new TriButton(stageInterface,0,0,false,StageInterface.GAMESTAGE, ButtonEnum.Tri.GAMETRIPREGAMECARD),triButtonArray,this);
         stageInterface.addTriButton(new TriButton(stageInterface,0,0,false,StageInterface.GAMESTAGE, ButtonEnum.Tri.GAMETRIPOSTGAMECARD),triButtonArray,this);
+
+    }
+
+    public void createPlaceModeButtons(){
+        stageInterface.addTriButton(new TriButton(stageInterface,0,0,false,StageInterface.GAMESTAGE, ButtonEnum.Tri.GAMEPLACEROTATE),triButtonArray,this);
+        stageInterface.getTriButton(triButtonArray,ButtonEnum.Tri.GAMEPLACEROTATE).setText("Rotate");
+        stageInterface.addTriButton(new TriButton(stageInterface,0,0,true,StageInterface.GAMESTAGE, ButtonEnum.Tri.GAMEPLACEFLIP),triButtonArray,this);
+        stageInterface.getTriButton(triButtonArray,ButtonEnum.Tri.GAMEPLACEFLIP).setText("Flip");
+        stageInterface.addTriButton(new TriButton(stageInterface,0,0,false,StageInterface.GAMESTAGE, ButtonEnum.Tri.GAMEPLACECONFIRM),triButtonArray,this);
+        stageInterface.getTriButton(triButtonArray,ButtonEnum.Tri.GAMEPLACECONFIRM).setText("Confirm");
 
     }
     /**
@@ -210,7 +227,8 @@ public class GameStage extends Stage {
         }
 
         setUpGameBoard();
-        setUpGameBoard();
+
+
 
 
     }
@@ -330,6 +348,18 @@ public class GameStage extends Stage {
                 index++;
             }
         }
+
+        /*
+        * after setting up the game board we can set up the position of the  place mode buttons*/
+        triButtonArray.get(ButtonEnum.Tri.GAMEPLACEROTATE.value).setX(720f/2-edgeLength);
+        triButtonArray.get(ButtonEnum.Tri.GAMEPLACEROTATE.value).setY(getGB(0).getY()+edgeLength);
+        triButtonArray.get(ButtonEnum.Tri.GAMEPLACEROTATE.value).setVisible(false);
+        triButtonArray.get(ButtonEnum.Tri.GAMEPLACEFLIP.value).setX(720f/2-edgeLength/2);
+        triButtonArray.get(ButtonEnum.Tri.GAMEPLACEFLIP.value).setY(getGB(0).getY()+edgeLength);
+        triButtonArray.get(ButtonEnum.Tri.GAMEPLACEFLIP.value).setVisible(false);
+        triButtonArray.get(ButtonEnum.Tri.GAMEPLACECONFIRM.value).setX(720f/2);
+        triButtonArray.get(ButtonEnum.Tri.GAMEPLACECONFIRM.value).setY(getGB(0).getY()+edgeLength);
+        triButtonArray.get(ButtonEnum.Tri.GAMEPLACECONFIRM.value).setVisible(false);
     }
 
     /**
@@ -347,6 +377,66 @@ public class GameStage extends Stage {
             triButtonArray.get(OptionsStage.nonPrePostGameTridentsEach+ ButtonEnum.Tri.GAMETRIHAND0.value).resetPreGameCard();
             triButtonArray.get(OptionsStage.nonPrePostGameTridentsEach+ ButtonEnum.Tri.GAMETRIHAND0.value+1).resetPostGameCard();
         }
+        setPlaceMode(false);
+
+
+    }
+
+    public void setPlaceMode(boolean bool){
+        placeMode=bool;
+        triButtonArray.get(ButtonEnum.Tri.GAMEPLACEROTATE.value).setVisible(bool);
+        triButtonArray.get(ButtonEnum.Tri.GAMEPLACEFLIP.value).setVisible(bool);
+        triButtonArray.get(ButtonEnum.Tri.GAMEPLACECONFIRM.value).setVisible(bool);
+        if (bool ==false) {
+            highlightPosGameboard = -1;
+            highlightPosTriHand = -1;
+        }
+    }
+    public void selectGameBoardTrident(int index){
+        /*if the one you've tapped is greyed out because something has already been placed there then do nothing*/
+        if (highlightPosGameboard != -1&&triButtonArray.get(highlightPosGameboard).placed==false) {
+            /*we might have already tried to place a trident so clear that now */
+            if (highlightPosTriHand != -1) {
+                triButtonArray.get(highlightPosGameboard).cancelPlace();
+            }
+        }
+            /*highlight the tapped gameboard trident */
+            highlightPosGameboard = index;
+        if(triButtonArray.get(highlightPosGameboard).placed==false) {
+            /*if a trident in the triarray has been selected ... */
+            if (highlightPosTriHand != -1) {
+                setPlaceMode(true);
+                /*set the gameboard position trident to reflect the chosen trident*/
+                triButtonArray.get(highlightPosGameboard).place(triButtonArray.get(highlightPosTriHand));
+            }
+        }
+        else{
+            highlightPosGameboard=-1;
+        }
+    }
+    public void selectTriArrayTrident(int index){
+        /*if the one you've tapped is greyed out because it has already been placed then do nothing*/
+        if (highlightPosTriHand != -1 && triButtonArray.get(highlightPosTriHand).placed==false) {
+            /*we might have already tried to place a trident so clear that now */
+            if (highlightPosGameboard != -1) {
+                triButtonArray.get(highlightPosGameboard).cancelPlace();
+            }
+        }
+            /*highlight the tapped gameboard trident */
+            highlightPosTriHand = index;
+        /*if the one you've tapped is greyed out because it has already been placed then do nothing*/
+        if(triButtonArray.get(highlightPosTriHand).placed==false) {
+            /*if a trident in the gameboard has been selected ... */
+            if (highlightPosGameboard != -1) {
+                setPlaceMode(true);
+                /*set the gameboard position trident to reflect the chosen trident*/
+                triButtonArray.get(highlightPosGameboard).place(triButtonArray.get(highlightPosTriHand));
+            }
+        }
+        else
+        {
+            highlightPosTriHand=-1;
+        }
     }
     /**
      * this will be called in the tributton class,
@@ -361,99 +451,127 @@ public class GameStage extends Stage {
                 break;
             }
             case GAMEBOARD0: {
-                highlightPosGameboard=triButtonIndex.value;
+                selectGameBoardTrident(triButtonIndex.value);
                 break;
             }
             case GAMEBOARD1: {
-                highlightPosGameboard=triButtonIndex.value;
+                selectGameBoardTrident(triButtonIndex.value);
                 break;
             }
             case GAMEBOARD2: {
-                highlightPosGameboard=triButtonIndex.value;
+                selectGameBoardTrident(triButtonIndex.value);
                 break;
             }
             case GAMEBOARD3: {
-                highlightPosGameboard=triButtonIndex.value;
+                selectGameBoardTrident(triButtonIndex.value);
                 break;
             }
             case GAMEBOARD4: {
-                highlightPosGameboard=triButtonIndex.value;
+                selectGameBoardTrident(triButtonIndex.value);
                 break;
             }
             case GAMEBOARD5: {
-                highlightPosGameboard=triButtonIndex.value;
+                selectGameBoardTrident(triButtonIndex.value);
                 break;
             }
             case GAMEBOARD6: {
-                highlightPosGameboard=triButtonIndex.value;
+                selectGameBoardTrident(triButtonIndex.value);
                 break;
             }
             case GAMEBOARD7: {
-                highlightPosGameboard=triButtonIndex.value;
+                selectGameBoardTrident(triButtonIndex.value);
                 break;
             }
             case GAMEBOARD8: {
-                highlightPosGameboard=triButtonIndex.value;
+                selectGameBoardTrident(triButtonIndex.value);
                 break;
             }
             case GAMEBOARD9: {
-                highlightPosGameboard=triButtonIndex.value;
+                selectGameBoardTrident(triButtonIndex.value);
                 break;
             }
             case GAMEBOARD10: {
-                highlightPosGameboard=triButtonIndex.value;
+                selectGameBoardTrident(triButtonIndex.value);
                 break;
             }
             case GAMEBOARD11: {
-                highlightPosGameboard=triButtonIndex.value;
+                selectGameBoardTrident(triButtonIndex.value);
                 break;
             }
             case GAMEBOARD12: {
-                highlightPosGameboard=triButtonIndex.value;
+                selectGameBoardTrident(triButtonIndex.value);
                 break;
             }
             case GAMEBOARD13: {
-                highlightPosGameboard=triButtonIndex.value;
+                selectGameBoardTrident(triButtonIndex.value);
                 break;
             }
             case GAMEBOARD14: {
-                highlightPosGameboard=triButtonIndex.value;
+                selectGameBoardTrident(triButtonIndex.value);
                 break;
             }
             case GAMEBOARD15: {
-                highlightPosGameboard=triButtonIndex.value;
+                selectGameBoardTrident(triButtonIndex.value);
                 break;
             }
             case GAMETRIHAND0: {
-                highlightPosTriHand=triButtonIndex.value;
+                selectTriArrayTrident(triButtonIndex.value);
                 break;
             }
             case GAMETRIHAND1: {
-                highlightPosTriHand=triButtonIndex.value;
+                selectTriArrayTrident(triButtonIndex.value);
                 break;
             }
             case GAMETRIHAND2: {
-                highlightPosTriHand=triButtonIndex.value;
+                selectTriArrayTrident(triButtonIndex.value);
                 break;
             }
             case GAMETRIHAND3: {
-                highlightPosTriHand=triButtonIndex.value;
+                selectTriArrayTrident(triButtonIndex.value);
                 break;
             }
             case GAMETRIHAND4: {
-                highlightPosTriHand=triButtonIndex.value;
+                selectTriArrayTrident(triButtonIndex.value);
                 break;
             }
             case GAMETRIHAND5: {
-                highlightPosTriHand=triButtonIndex.value;
+                selectTriArrayTrident(triButtonIndex.value);
                 break;
             }
             case GAMETRIHAND6: {
-                highlightPosTriHand=triButtonIndex.value;
+                selectTriArrayTrident(triButtonIndex.value);
                 break;
             }
             case GAMETRIHAND7: {
-                highlightPosTriHand=triButtonIndex.value;
+                selectTriArrayTrident(triButtonIndex.value);
+                break;
+            }
+            case GAMEPLACEROTATE: {
+
+                byte tempPosition = triButtonArray.get(highlightPosGameboard).cardButtonArray.get(0).position;
+                triButtonArray.get(highlightPosGameboard).cardButtonArray.get(0).position = triButtonArray.get(highlightPosGameboard).cardButtonArray.get(1).position;;
+                triButtonArray.get(highlightPosGameboard).cardButtonArray.get(1).position =tempPosition;
+
+                tempPosition = triButtonArray.get(highlightPosGameboard).cardButtonArray.get(1).position;
+                triButtonArray.get(highlightPosGameboard).cardButtonArray.get(1).position = triButtonArray.get(highlightPosGameboard).cardButtonArray.get(2).position;;
+                triButtonArray.get(highlightPosGameboard).cardButtonArray.get(2).position =tempPosition;
+
+                triButtonArray.get(highlightPosGameboard).cardButtonArray.swap(1,2);
+                triButtonArray.get(highlightPosGameboard).cardButtonArray.swap(0,1);
+                break;
+            }
+            case GAMEPLACEFLIP: {
+                byte tempPosition = triButtonArray.get(highlightPosGameboard).cardButtonArray.get(1).position;
+                triButtonArray.get(highlightPosGameboard).cardButtonArray.get(1).position = triButtonArray.get(highlightPosGameboard).cardButtonArray.get(2).position;;
+                triButtonArray.get(highlightPosGameboard).cardButtonArray.get(2).position =tempPosition;
+                triButtonArray.get(highlightPosGameboard).cardButtonArray.swap(1,2);
+
+                break;
+            }
+            case GAMEPLACECONFIRM: {
+                triButtonArray.get(highlightPosGameboard).placed=true;
+                triButtonArray.get(highlightPosTriHand).placed=true;
+                setPlaceMode(false);
                 break;
             }
             default:

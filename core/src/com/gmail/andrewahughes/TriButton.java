@@ -1,6 +1,7 @@
 package com.gmail.andrewahughes;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
@@ -76,6 +77,15 @@ public class TriButton extends Actor {
     int adjacentIndexLeft=-1;
     int adjacentIndexRight=-1;
 
+
+    float oldPosX, oldPosY;
+
+    /**
+     * this boolean will be set to true when it's confirmed that the position on a gameboard is taken, this will
+     * stop it being selected if something is already placed there, if the trident is on the trihand, then it gets
+     * greyed out so we know it's been placed
+     */
+    boolean placed = false;
 
     /**constructor for triButton
      *
@@ -181,6 +191,11 @@ public void touchMessage(float x, float y){
     }
     public void drawShape(ShapeRenderer shapeRenderer) {
         if (isVisible()) {
+
+            Color saveColour = shapeRenderer.getColor();
+            if (placed){
+                shapeRenderer.setColor(Color.GRAY);
+            }
             if (orientation == POINTUP) {
                 shapeRenderer.triangle(
                         getX(),
@@ -222,6 +237,7 @@ public void touchMessage(float x, float y){
             }
             drawCardButtonsShape(shapeRenderer);
             drawPreAndPostGameCardButtonsShape(shapeRenderer);
+            shapeRenderer.setColor(saveColour);
         }
     }
 
@@ -432,8 +448,12 @@ public void touchMessage(float x, float y){
         setWidth(edgeLength);
         setHeight(altitude);
     }
-    public void setPos(float x, float y){
+    public void setXPos(float x){
+        oldPosX =getX();
         setX(x);
+    }
+    public void setYPos(float y){
+        oldPosY =getY();
         setY(y);
     }
     /*this will be called in the deal stage after the card hand position has been determined,
@@ -481,5 +501,35 @@ public void touchMessage(float x, float y){
             cardButtonArray.get(i).setY(y);
             cardButtonArray.get(i).orientation=pointUp;
         }
+    }
+
+    /**
+     * Place the selected trident into the empty gameboard trident position
+     * this will take on the values of the selected trident,
+     */
+    public void place(TriButton triButton){
+        for (int i =0; i < 3; i++){
+            this.cardButtonArray.get(i).value=triButton.cardButtonArray.get(i).value;
+            this.cardButtonArray.get(i).text=triButton.cardButtonArray.get(i).text;
+            this.cardButtonArray.get(i).colour=triButton.cardButtonArray.get(i).colour;
+            this.cardButtonArray.get(i).playerIndex=triButton.cardButtonArray.get(i).playerIndex;
+            cardsVisible=true;
+
+        }
+
+    }
+    /**
+     * cancel any tridents that have been placed in the gameboard and not confirmed
+     */
+    public void cancelPlace(){
+        for (int i =0; i < 3; i++){
+            this.cardButtonArray.get(i).value=-1;
+            this.cardButtonArray.get(i).text="";
+            this.cardButtonArray.get(i).colour= Color.WHITE;
+            this.cardButtonArray.get(i).playerIndex=-1;
+            cardsVisible=false;
+
+        }
+
     }
 }
