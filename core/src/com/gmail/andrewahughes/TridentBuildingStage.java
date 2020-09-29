@@ -534,6 +534,8 @@ static void updatePlayerTridentHand(){
                 * TODO remove this- this is for quickly making tri hands for testing only  */
                     if (triHandCardFilledArrayCount==triHandCardFilledArray.size){
                         stageInterface.goToStage(StageInterface.GAMESTAGE);
+                        Gdx.app.log("TRIDENTBUILDINGSTAGE","emitTriHand");
+                        MyServer.emitTriHand();
 
                     }
                     else{
@@ -850,6 +852,7 @@ static void updatePlayerTridentHand(){
     static public void setWildCardSuit(int suit) {
         wildCardSuit = suit;
         for (int i = 0; i < cardButtonArray.size; i++) {
+            wildCardSuit=suit;
             cardButtonArray.get(i).setColourFromSuit();
         }
     }
@@ -1515,6 +1518,15 @@ static void updatePlayerTridentHand(){
     public static CardButton getCardAtHighlightPos(int highlightPos){
         for (int i = 0; i < cardButtonArray.size; i++) {
             if (cardButtonArray.get(i).highlightPos==highlightPos){
+
+                return cardButtonArray.get(i);
+            }
+        }
+        return null;
+    }
+    public static CardButton getCardWithValue(int value){
+        for (int i = 0; i < cardButtonArray.size; i++) {
+            if (cardButtonArray.get(i).value==value){
 
                 return cardButtonArray.get(i);
             }

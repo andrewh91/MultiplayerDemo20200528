@@ -75,7 +75,17 @@ io.on('connection', function(socket){
     	    console.log("total data: "+data);
 
     	});
-	/*when player1 emits an emitPlayerIndexToServer event the server
+	/*when player emits a emitTriHand event the server
+    	will interpret it here*/
+    	socket.on('emitTriHandDataToServer', function(data){
+
+console.log("index: emitTriHandDataToServer");
+    	    /*send the data we received (player id, wildcard suit then all cards) to all  players */
+    	    socket.broadcast.emit("emitTriHandDataToPlayers",data);
+
+
+    	});
+    	/*when player1 emits an emitPlayerIndexToServer event the server
     	will interpret it here*/
     	socket.on('emitPlayerIndexToServer', function(data){
 

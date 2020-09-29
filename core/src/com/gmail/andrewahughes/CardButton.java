@@ -100,6 +100,8 @@ public class CardButton  extends Actor {
 
     ClickListener clickListener;
 
+    int oppositionWildCardSuit =-1;
+
     /**constructor for triButton
      *
      * @param startingX initial x position
@@ -580,7 +582,10 @@ public class CardButton  extends Actor {
         else if (suit==3){/*dark dark purple*/
             red=39;            green=2;            blue=60;
         }
-        if (suit== TridentBuildingStage.wildCardSuit){/*wild card suit gold*/
+        if (oppositionWildCardSuit ==-1 && suit== TridentBuildingStage.wildCardSuit){/*wild card suit gold*/
+            red=255;            green=146;            blue=0;
+        }
+        if (suit== oppositionWildCardSuit){/*wild card suit gold*/
             red=255;            green=146;            blue=0;
         }
         colour= new Color(red/255f,	green/255f,	blue/255f,1.0f);

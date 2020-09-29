@@ -33,6 +33,23 @@ public class GameStage extends Stage {
      */
     static boolean placeMode=false;
 
+    /**
+     * need to store the values of the other players' hands, this data will be recieved just after going to the game stage
+     */
+    static int player1WildCard = -1;
+    static int player2WildCard = -1;
+
+    /**
+     *a list of the opposition player's card values, from this you can figure out the suit and what tridents they made
+     */
+    static Array<Integer> player1CardValues = new Array<>();
+    static Array<Integer> player2CardValues = new Array<>();
+
+    /*this is just used in the 3 player game, it will let us know when the first opposition player
+    * has emitted their triHand data*/
+    static boolean firstOppositionPlayerTriHandLoaded = false;
+    static boolean allTriHandsLoaded = false;
+
     public GameStage(StageInterface stageInterface, Viewport viewport, SpriteBatch batch,ShapeRenderer shapeRenderer)
     {
         this.stageInterface =stageInterface;
@@ -63,6 +80,7 @@ public class GameStage extends Stage {
             spriteBatch.begin();
             /*draw all actors of this stage*/
             drawTriButtons();
+
             spriteBatch.end();
             shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
             /*draw a box around the screen 1280 by 720 WORLDWIDTH, WORLDHEIGHT*/
@@ -83,6 +101,7 @@ public class GameStage extends Stage {
 
         }
     }
+
 
     /**
      * draw the trident buttons shape - which should just be it's bounds
@@ -135,6 +154,8 @@ public class GameStage extends Stage {
         createGameBoard();
         createTridentHand();
         createPlaceModeButtons();
+        createTridentHandPlayer1();
+        createTridentHandPlayer2();
 
         stageInterface.addTriButton(new TriButton(stageInterface,0,0,false,StageInterface.GAMESTAGE, ButtonEnum.Tri.GAMENEXTSTAGE),triButtonArray,this);
         stageInterface.getTriButton(triButtonArray,ButtonEnum.Tri.GAMENEXTSTAGE).setText("Game\nOver");
@@ -174,6 +195,34 @@ public class GameStage extends Stage {
         stageInterface.addTriButton(new TriButton(stageInterface,0,0,false,StageInterface.GAMESTAGE, ButtonEnum.Tri.GAMETRIHAND7),triButtonArray,this);
         stageInterface.addTriButton(new TriButton(stageInterface,0,0,false,StageInterface.GAMESTAGE, ButtonEnum.Tri.GAMETRIPREGAMECARD),triButtonArray,this);
         stageInterface.addTriButton(new TriButton(stageInterface,0,0,false,StageInterface.GAMESTAGE, ButtonEnum.Tri.GAMETRIPOSTGAMECARD),triButtonArray,this);
+
+    }
+    /*we need to create a tridentHand for the other players too*/
+    public void createTridentHandPlayer1(){
+        stageInterface.addTriButton(new TriButton(stageInterface,0,0,false,StageInterface.GAMESTAGE, ButtonEnum.Tri.GAMETRIHAND0P1),triButtonArray,this);
+        stageInterface.addTriButton(new TriButton(stageInterface,0,0,false,StageInterface.GAMESTAGE, ButtonEnum.Tri.GAMETRIHAND1P1),triButtonArray,this);
+        stageInterface.addTriButton(new TriButton(stageInterface,0,0,false,StageInterface.GAMESTAGE, ButtonEnum.Tri.GAMETRIHAND2P1),triButtonArray,this);
+        stageInterface.addTriButton(new TriButton(stageInterface,0,0,false,StageInterface.GAMESTAGE, ButtonEnum.Tri.GAMETRIHAND3P1),triButtonArray,this);
+        stageInterface.addTriButton(new TriButton(stageInterface,0,0,false,StageInterface.GAMESTAGE, ButtonEnum.Tri.GAMETRIHAND4P1),triButtonArray,this);
+        stageInterface.addTriButton(new TriButton(stageInterface,0,0,false,StageInterface.GAMESTAGE, ButtonEnum.Tri.GAMETRIHAND5P1),triButtonArray,this);
+        stageInterface.addTriButton(new TriButton(stageInterface,0,0,false,StageInterface.GAMESTAGE, ButtonEnum.Tri.GAMETRIHAND6P1),triButtonArray,this);
+        stageInterface.addTriButton(new TriButton(stageInterface,0,0,false,StageInterface.GAMESTAGE, ButtonEnum.Tri.GAMETRIHAND7P1),triButtonArray,this);
+        stageInterface.addTriButton(new TriButton(stageInterface,0,0,false,StageInterface.GAMESTAGE, ButtonEnum.Tri.GAMETRIPREGAMECARDP1),triButtonArray,this);
+        stageInterface.addTriButton(new TriButton(stageInterface,0,0,false,StageInterface.GAMESTAGE, ButtonEnum.Tri.GAMETRIPOSTGAMECARDP1),triButtonArray,this);
+
+    }
+    /*we need to create a tridentHand for the other players too*/
+    public void createTridentHandPlayer2(){
+        stageInterface.addTriButton(new TriButton(stageInterface,0,0,false,StageInterface.GAMESTAGE, ButtonEnum.Tri.GAMETRIHAND0P2),triButtonArray,this);
+        stageInterface.addTriButton(new TriButton(stageInterface,0,0,false,StageInterface.GAMESTAGE, ButtonEnum.Tri.GAMETRIHAND1P2),triButtonArray,this);
+        stageInterface.addTriButton(new TriButton(stageInterface,0,0,false,StageInterface.GAMESTAGE, ButtonEnum.Tri.GAMETRIHAND2P2),triButtonArray,this);
+        stageInterface.addTriButton(new TriButton(stageInterface,0,0,false,StageInterface.GAMESTAGE, ButtonEnum.Tri.GAMETRIHAND3P2),triButtonArray,this);
+        stageInterface.addTriButton(new TriButton(stageInterface,0,0,false,StageInterface.GAMESTAGE, ButtonEnum.Tri.GAMETRIHAND4P2),triButtonArray,this);
+        stageInterface.addTriButton(new TriButton(stageInterface,0,0,false,StageInterface.GAMESTAGE, ButtonEnum.Tri.GAMETRIHAND5P2),triButtonArray,this);
+        stageInterface.addTriButton(new TriButton(stageInterface,0,0,false,StageInterface.GAMESTAGE, ButtonEnum.Tri.GAMETRIHAND6P2),triButtonArray,this);
+        stageInterface.addTriButton(new TriButton(stageInterface,0,0,false,StageInterface.GAMESTAGE, ButtonEnum.Tri.GAMETRIHAND7P2),triButtonArray,this);
+        stageInterface.addTriButton(new TriButton(stageInterface,0,0,false,StageInterface.GAMESTAGE, ButtonEnum.Tri.GAMETRIPREGAMECARDP2),triButtonArray,this);
+        stageInterface.addTriButton(new TriButton(stageInterface,0,0,false,StageInterface.GAMESTAGE, ButtonEnum.Tri.GAMETRIPOSTGAMECARDP2),triButtonArray,this);
 
     }
 
@@ -231,6 +280,73 @@ public class GameStage extends Stage {
 
 
 
+    }
+    /*this method will be called from the server class, when we move to the game stage
+    * it can be called twice, it's called each time a player emits their trihand to all
+    * players*/
+    public static void TriHandLoaded()
+    {
+        if (OptionsStage.numberOfPlayers==3)
+        {
+            if(firstOppositionPlayerTriHandLoaded){
+                allTriHandsLoaded=true;
+            }
+            else {
+                firstOppositionPlayerTriHandLoaded = true;
+            }
+        }
+        else {
+            allTriHandsLoaded=true;
+        }
+        if (allTriHandsLoaded){
+
+            Gdx.app.log("GameStage","AllTriHandsLoaded");
+            for (int i = 0;i<OptionsStage.nonPrePostGameTridentsEach;i++){
+                /*add 3 cards from the player1CardValues array to this tributton
+                 * note that the first TriButton in this tributtonarray is the button to go to the next stage,
+                 * so exclude that, then the next 16 buttons are gameboard buttons, exclude them too */
+                triButtonArray.get(i + ButtonEnum.Tri.GAMETRIHAND0P1.value).setUpCardButtons(TridentBuildingStage.getCardWithValue(player1CardValues.get(i*3)),TridentBuildingStage.getCardWithValue(player1CardValues.get(i *3+1)),TridentBuildingStage.getCardWithValue(player1CardValues.get(i *3+2)));
+                triButtonArray.get(i+ ButtonEnum.Tri.GAMETRIHAND0P1.value).cardButtonArray.get(0).oppositionWildCardSuit =player1WildCard;
+                triButtonArray.get(i+ ButtonEnum.Tri.GAMETRIHAND0P1.value).cardButtonArray.get(1).oppositionWildCardSuit =player1WildCard;
+                triButtonArray.get(i+ ButtonEnum.Tri.GAMETRIHAND0P1.value).cardButtonArray.get(2).oppositionWildCardSuit =player1WildCard;
+                triButtonArray.get(i+ ButtonEnum.Tri.GAMETRIHAND0P1.value).cardButtonArray.get(0).setColourFromSuit();
+                triButtonArray.get(i+ ButtonEnum.Tri.GAMETRIHAND0P1.value).cardButtonArray.get(1).setColourFromSuit();
+                triButtonArray.get(i+ ButtonEnum.Tri.GAMETRIHAND0P1.value).cardButtonArray.get(2).setColourFromSuit();
+                triButtonArray.get(i+ ButtonEnum.Tri.GAMETRIHAND0P1.value).updatePos(TridentBuildingStage.getCardAtHighlightPos(i *3).getX(),TridentBuildingStage.getCardAtHighlightPos(i *3).getY()- CardButton.edgeLength,TridentBuildingStage.getCardAtHighlightPos(i *3).orientation);
+                triButtonArray.get(i+ ButtonEnum.Tri.GAMETRIHAND0P1.value).cardsVisible=true;
+
+            }
+
+            /*if using pre and post game cards save them to a trident each too */
+            /*if (OptionsStage.preAndPostGameCard){
+                triButtonArray.get(OptionsStage.nonPrePostGameTridentsEach+ ButtonEnum.Tri.GAMETRIHAND0P1.value).setPreGameCard(TridentBuildingStage.getCardWithValue(player1CardValues.get(OptionsStage.nonPrePostGameTridentsEach*3)));
+                triButtonArray.get(OptionsStage.nonPrePostGameTridentsEach+ ButtonEnum.Tri.GAMETRIHAND0P1.value+1).setPostGameCard(TridentBuildingStage.getCardWithValue(player1CardValues.get(OptionsStage.nonPrePostGameTridentsEach*3+1)));
+            }*/
+
+
+
+            if (OptionsStage.numberOfPlayers==3){
+
+                for (int i = 0;i<OptionsStage.nonPrePostGameTridentsEach;i++){
+                    /*add 3 cards from the player1CardValues array to this tributton
+                     * note that the first TriButton in this tributtonarray is the button to go to the next stage,
+                     * so exclude that, then the next 16 buttons are gameboard buttons, exclude them too */
+                    triButtonArray.get(i + ButtonEnum.Tri.GAMETRIHAND0P2.value).setUpCardButtons(TridentBuildingStage.getCardWithValue(player2CardValues.get(i*3)),TridentBuildingStage.getCardWithValue(player2CardValues.get(i *3+1)),TridentBuildingStage.getCardWithValue(player2CardValues.get(i *3+2)));
+                    triButtonArray.get(i+ ButtonEnum.Tri.GAMETRIHAND0P2.value).updatePos(TridentBuildingStage.getCardAtHighlightPos(i *3).getX(),TridentBuildingStage.getCardAtHighlightPos(i *3).getY()- CardButton.edgeLength*2,TridentBuildingStage.getCardAtHighlightPos(i *3).orientation);
+                    triButtonArray.get(i+ ButtonEnum.Tri.GAMETRIHAND0P2.value).cardsVisible=true;
+
+                }
+                /*if using pre and post game cards save them to a trident each too */
+                /*if (OptionsStage.preAndPostGameCard){
+                    triButtonArray.get(OptionsStage.nonPrePostGameTridentsEach+ ButtonEnum.Tri.GAMETRIHAND0P2.value).setPreGameCard(TridentBuildingStage.getCardWithValue(player2CardValues.get(OptionsStage.nonPrePostGameTridentsEach*3)));
+                    triButtonArray.get(OptionsStage.nonPrePostGameTridentsEach+ ButtonEnum.Tri.GAMETRIHAND0P2.value+1).setPostGameCard(TridentBuildingStage.getCardWithValue(player2CardValues.get(OptionsStage.nonPrePostGameTridentsEach*3+1)));
+                }
+
+                 */
+
+
+            }
+        }
     }
 
     /**
@@ -378,6 +494,12 @@ public class GameStage extends Stage {
             triButtonArray.get(OptionsStage.nonPrePostGameTridentsEach+ ButtonEnum.Tri.GAMETRIHAND0.value+1).resetPostGameCard();
         }
         setPlaceMode(false);
+
+        player1CardValues.clear();
+        player2CardValues.clear();
+
+        firstOppositionPlayerTriHandLoaded =false;
+        allTriHandsLoaded=false;
 
 
     }
@@ -558,6 +680,23 @@ public class GameStage extends Stage {
 
                 triButtonArray.get(highlightPosGameboard).cardButtonArray.swap(1,2);
                 triButtonArray.get(highlightPosGameboard).cardButtonArray.swap(0,1);
+
+                /**
+                 * we need to keep track of how the original cards have been rotated for this trident, we
+                 * need to do this so we can tell the other player the correct position of each card
+                 */
+                if(triButtonArray.get(highlightPosGameboard).flipped==false)
+                {
+                    /*if the trident has not been flipped rotation will increment the rotation number through 0, 1 and 2,
+                    * increment over 2 will bring it back to 0 using modulus %*/
+                    triButtonArray.get(highlightPosGameboard).rotation=(byte)((triButtonArray.get(highlightPosGameboard).rotation+1)%3);
+                }
+                else
+                {
+                    /*if the trident is flipped then rotation will decrement instead, i'm not sure how modulus works with minus number in java so
+                    i've just added 2 instead of subtracting 1 to ensure it's positive*/
+                    triButtonArray.get(highlightPosGameboard).rotation=(byte)((triButtonArray.get(highlightPosGameboard).rotation-1+3)%3);
+                }
                 break;
             }
             case GAMEPLACEFLIP: {
@@ -566,6 +705,8 @@ public class GameStage extends Stage {
                 triButtonArray.get(highlightPosGameboard).cardButtonArray.get(2).position =tempPosition;
                 triButtonArray.get(highlightPosGameboard).cardButtonArray.swap(1,2);
 
+                /*toggle the flipped boolean*/
+                triButtonArray.get(highlightPosGameboard).flipped=!triButtonArray.get(highlightPosGameboard).flipped;
                 break;
             }
             case GAMEPLACECONFIRM: {

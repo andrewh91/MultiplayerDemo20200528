@@ -87,6 +87,18 @@ public class TriButton extends Actor {
      */
     boolean placed = false;
 
+    /**
+     * this will be used when emitting the data to the other player. if player 1 rotates and flips the trident before placing
+     * this will keep track of the position of the cards.
+     */
+    byte rotation = 0 ;
+
+    /**
+     * this will be used when emitting the data to the other player. if player 1 rotates and flips the trident before placing
+     * this will keep track of the position of the cards.
+     */
+    boolean flipped =false;
+
     /**constructor for triButton
      *
      * @param startingX initial x position

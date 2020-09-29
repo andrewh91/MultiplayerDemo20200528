@@ -85,7 +85,29 @@ public class ButtonEnum {
         GAMEPLACEFLIP               (27),
         GAMEPLACECONFIRM            (28),
 
-        GAMENEXTSTAGE               (29),
+        GAMETRIHAND0P1                (29),
+        GAMETRIHAND1P1                (30),
+        GAMETRIHAND2P1                (31),
+        GAMETRIHAND3P1                (32),
+        GAMETRIHAND4P1                (33),
+        GAMETRIHAND5P1                (34),
+        GAMETRIHAND6P1                (35),
+        GAMETRIHAND7P1                (36),
+        GAMETRIPREGAMECARDP1          (37),
+        GAMETRIPOSTGAMECARDP1         (38),
+
+        GAMETRIHAND0P2                (39),
+        GAMETRIHAND1P2                (40),
+        GAMETRIHAND2P2                (41),
+        GAMETRIHAND3P2                (42),
+        GAMETRIHAND4P2                (43),
+        GAMETRIHAND5P2                (44),
+        GAMETRIHAND6P2                (45),
+        GAMETRIHAND7P2                (46),
+        GAMETRIPREGAMECARDP2          (47),
+        GAMETRIPOSTGAMECARDP2         (48),
+
+        GAMENEXTSTAGE               (49),
 
         GAMEOVERNEXTSTAGE           (0);
 

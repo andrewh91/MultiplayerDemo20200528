@@ -159,7 +159,46 @@ public class MyServer {
         } catch(JSONException e) {
             Gdx.app.log("SOCKET.IO","Error sending deal data");
         }
-    }/**
+    }
+    /**
+     * this will be called in the TridentBuildingStage, just before we go to the GameStage,
+     * the player will have made and confirmed the triHand they want to use, so now that whole hand
+     * will be transmitted to the other players.
+     */
+    public static void emitTriHand(){
+        Gdx.app.log("Server","emitTriHand");
+
+        /*this array will have one object that gives the player index then the wild card,
+        * then it will have one object per card which tells us the value of each card*/
+        JSONArray objects = new JSONArray();
+        try{
+
+            JSONObject data = new JSONObject();
+            /*need to send the player index - not really needed for 2 player game, but need for 3 player*/
+            data.put("p" , player.index);
+            /*send the wild card suit, so the other player knows which suit you decided is the wild card suit*/
+            data.put("w" , TridentBuildingStage.wildCardSuit);
+
+            objects.put(data);
+            /*send the value of each card the player put in the tri hand in order*/
+            for(int i =0; i <TridentBuildingStage.cardButtonArrayTridentHand.size; i++) {
+
+                JSONObject dataCard = new JSONObject();
+                dataCard.put("v" , TridentBuildingStage.getCardAtHighlightPos(i).value);
+                objects.put(dataCard);
+            }
+            Gdx.app.log("Server","player index "+player.index + " wildcardsuit "+ TridentBuildingStage.wildCardSuit);
+            Gdx.app.log("Server","first card "+TridentBuildingStage.getCardAtHighlightPos(0).value+" "+TridentBuildingStage.getCardAtHighlightPos(1).value+" "+TridentBuildingStage.getCardAtHighlightPos(2).value);
+
+            /*the player emits data to the server here
+             * the server has a corresponding method to
+             * interpret this data*/
+            socket.emit("emitTriHandDataToServer",objects);
+        } catch(JSONException e) {
+            Gdx.app.log("SOCKET.IO","Error sending triHand");
+        }
+    }
+    /**
      * this will be called in the deal stage when the player clicks confirm par
      * once all players have done so we can start sending the deal
      */
@@ -288,7 +327,56 @@ public class MyServer {
                         TridentBuildingStage.cardButtonArray.get(i).playerIndex= objects.getJSONObject(i).getInt("p");
                     }
                     DealStage.dealLoaded();
-Gdx.app.log("Server: ","Deal received: "+objects);
+                    Gdx.app.log("Server: ","Deal received: "+objects);
+
+                }catch(JSONException e){
+                }
+            }
+        }).on("emitTriHandDataToPlayers", new Emitter.Listener() {
+            @Override
+            public void call(Object... args) {
+
+                Gdx.app.log("Server","emitTriHandDataToPlayers");
+                /*player 1 will have called emitTiHand,
+                that will have called emitTriHandDataToServer
+                when the server receives that emitTriHandDataToServer
+                it calls emitTriHandDataToPlayers
+                each player listens for the emitTriHandDataToPlayers
+                emitTriHandDataToPlayers is received here
+                 */
+                JSONArray objects = (JSONArray) args[0];
+                try {
+                    /*player index will have been set for each player, it will be 0,1 or 2,
+                    * so this player will be either 0, 1 or 2, the if statements below will figure out
+                    * which other player is emitting this data and we'll save that data in
+                    * a corresponding array*/
+                    int index = objects.getJSONObject(0).getInt("p");
+                    Gdx.app.log("Server","index - received "+index);
+
+                    if(index==(player.index+OptionsStage.numberOfPlayers-1)%OptionsStage.numberOfPlayers)
+                    {
+                        GameStage.player1WildCard = objects.getJSONObject(0).getInt("w");
+                        Gdx.app.log("Server","wild card - received "+GameStage.player1WildCard);
+
+                        for(int i=1; i<OptionsStage.cardsEach+1;i++){
+                            GameStage.player1CardValues.add(objects.getJSONObject(i).getInt("v"));
+                        }
+                        Gdx.app.log("Server","first cards - received "+ GameStage.player1CardValues.get(0)+" "+ GameStage.player1CardValues.get(1)+" "+ GameStage.player1CardValues.get(2)+" ");
+
+                    }
+                    else if(index==(player.index+OptionsStage.numberOfPlayers)%OptionsStage.numberOfPlayers)
+                    {
+                        GameStage.player2WildCard = objects.getJSONObject(0).getInt("w");
+                        for(int i=1; i<TridentBuildingStage.cardButtonArrayTridentHand.size+1;i++){
+                            GameStage.player2CardValues.add(objects.getJSONObject(i).getInt("v"));
+                        }
+                    }
+
+                    Gdx.app.log("Server","index "+index+" wildcard "+GameStage.player1WildCard);
+                    Gdx.app.log("Server","first cards " +GameStage.player1CardValues.get(0) + " "+GameStage.player1CardValues.get(1) + " "+GameStage.player1CardValues.get(2) + " ");
+
+                    GameStage.TriHandLoaded();
+                    Gdx.app.log("Server: ","TriHand received: "+objects);
 
                 }catch(JSONException e){
                 }
