@@ -284,7 +284,7 @@ public class GameStage extends Stage {
     /*this method will be called from the server class, when we move to the game stage
     * it can be called twice, it's called each time a player emits their trihand to all
     * players*/
-    public static void TriHandLoaded()
+    public static void triHandLoaded()
     {
         if (OptionsStage.numberOfPlayers==3)
         {
@@ -332,6 +332,12 @@ public class GameStage extends Stage {
                      * note that the first TriButton in this tributtonarray is the button to go to the next stage,
                      * so exclude that, then the next 16 buttons are gameboard buttons, exclude them too */
                     triButtonArray.get(i + ButtonEnum.Tri.GAMETRIHAND0P2.value).setUpCardButtons(TridentBuildingStage.getCardWithValue(player2CardValues.get(i*3)),TridentBuildingStage.getCardWithValue(player2CardValues.get(i *3+1)),TridentBuildingStage.getCardWithValue(player2CardValues.get(i *3+2)));
+                    triButtonArray.get(i+ ButtonEnum.Tri.GAMETRIHAND0P2.value).cardButtonArray.get(0).oppositionWildCardSuit =player2WildCard;
+                    triButtonArray.get(i+ ButtonEnum.Tri.GAMETRIHAND0P2.value).cardButtonArray.get(1).oppositionWildCardSuit =player2WildCard;
+                    triButtonArray.get(i+ ButtonEnum.Tri.GAMETRIHAND0P2.value).cardButtonArray.get(2).oppositionWildCardSuit =player2WildCard;
+                    triButtonArray.get(i+ ButtonEnum.Tri.GAMETRIHAND0P2.value).cardButtonArray.get(0).setColourFromSuit();
+                    triButtonArray.get(i+ ButtonEnum.Tri.GAMETRIHAND0P2.value).cardButtonArray.get(1).setColourFromSuit();
+                    triButtonArray.get(i+ ButtonEnum.Tri.GAMETRIHAND0P2.value).cardButtonArray.get(2).setColourFromSuit();
                     triButtonArray.get(i+ ButtonEnum.Tri.GAMETRIHAND0P2.value).updatePos(TridentBuildingStage.getCardAtHighlightPos(i *3).getX(),TridentBuildingStage.getCardAtHighlightPos(i *3).getY()- CardButton.edgeLength*2,TridentBuildingStage.getCardAtHighlightPos(i *3).orientation);
                     triButtonArray.get(i+ ButtonEnum.Tri.GAMETRIHAND0P2.value).cardsVisible=true;
 
@@ -349,6 +355,39 @@ public class GameStage extends Stage {
         }
     }
 
+    /**
+     * this will be called in the myServer class, after a placement has been sent, and recieved, 
+     * the data will be processed here
+     * @param playerIndex this will be either 1 or 2 so that will correspond to either player1CardValues or player2CardValues 
+     * @param triHandIndex
+     * @param gameboardIndex
+     * @param rotation
+     * @param flipped
+     */
+    public static void placementLoaded(int playerIndex,int triHandIndex,int gameboardIndex,int rotation, boolean flipped){
+        /*instead of playerIndex being 1 or 2, make it take on the index value of the beginning
+         of the corresponding opposition player's tributton index in tributtonArray*/
+        if(playerIndex==1){
+            playerIndex=ButtonEnum.Tri.GAMETRIHAND0P1.value;
+        }
+        else{
+            playerIndex=ButtonEnum.Tri.GAMETRIHAND0P2.value;
+        }
+        /*place the trident in the gameboard, the trihandindex will start at 16, because the 16
+        gameboard buttons come before it, so subtract 16, then add the player index worked out
+        above which will put us at that player's trihand buttons in the array */
+        triButtonArray.get(gameboardIndex).place(triButtonArray.get(playerIndex+triHandIndex- ButtonEnum.Tri.GAMETRIHAND0.value));
+        /*now apply any rotation and flip necessary*/
+        /*rotation will be either 0, 1 or 2, and that's how many times we need to rotate*/
+        for(int i=0;i<rotation;i++){
+            rotate(gameboardIndex);
+        }
+        if (flipped){
+            flip(gameboardIndex);
+        }
+        /*set the placed bool to true so that you can't place something on top of it*/
+        triButtonArray.get(gameboardIndex).placed=true;
+    }
     /**
      * 16 triButtons will have been created, need to set their position and orientation here
      * there is a static variable of CardButton that should have already been set, this variable
@@ -560,6 +599,49 @@ public class GameStage extends Stage {
             highlightPosTriHand=-1;
         }
     }
+    
+    public static void rotate(int index){
+        byte tempPosition = triButtonArray.get(index).cardButtonArray.get(0).position;
+        triButtonArray.get(index).cardButtonArray.get(0).position = triButtonArray.get(index).cardButtonArray.get(1).position;;
+        triButtonArray.get(index).cardButtonArray.get(1).position =tempPosition;
+
+        tempPosition = triButtonArray.get(index).cardButtonArray.get(1).position;
+        triButtonArray.get(index).cardButtonArray.get(1).position = triButtonArray.get(index).cardButtonArray.get(2).position;;
+        triButtonArray.get(index).cardButtonArray.get(2).position =tempPosition;
+
+        triButtonArray.get(index).cardButtonArray.swap(1,2);
+        triButtonArray.get(index).cardButtonArray.swap(0,1);
+
+        /**
+         * we need to keep track of how the original cards have been rotated for this trident, we
+         * need to do this so we can tell the other player the correct position of each card
+         */
+        if(triButtonArray.get(index).flipped==false)
+        {
+            /*if the trident has not been flipped rotation will increment the rotation number through 0, 1 and 2,
+             * increment over 2 will bring it back to 0 using modulus %*/
+            triButtonArray.get(index).rotation=(byte)((triButtonArray.get(index).rotation+1)%3);
+        }
+        else
+        {
+                    /*if the trident is flipped then rotation will decrement instead, i'm not sure how modulus works with minus number in java so
+                    i've just added 2 instead of subtracting 1 to ensure it's positive*/
+            triButtonArray.get(index).rotation=(byte)((triButtonArray.get(index).rotation-1+3)%3);
+        }
+        Gdx.app.log("GAMESTAGE","rotation "+triButtonArray.get(index).rotation);
+    }
+    public static void flip(int index){
+
+        byte tempPosition = triButtonArray.get(index).cardButtonArray.get(1).position;
+        triButtonArray.get(index).cardButtonArray.get(1).position = triButtonArray.get(index).cardButtonArray.get(2).position;;
+        triButtonArray.get(index).cardButtonArray.get(2).position =tempPosition;
+        triButtonArray.get(index).cardButtonArray.swap(1,2);
+
+        /*toggle the flipped boolean*/
+        triButtonArray.get(index).flipped=!triButtonArray.get(index).flipped;
+        Gdx.app.log("GAMESTAGE","flip "+triButtonArray.get(index).flipped);
+
+    }
     /**
      * this will be called in the tributton class,
      * @param triButtonIndex this will be the index of the tributton that was clicked, the index is set on creation of the
@@ -668,50 +750,41 @@ public class GameStage extends Stage {
                 selectTriArrayTrident(triButtonIndex.value);
                 break;
             }
+            case GAMETRIPREGAMECARD:{break;}
+            case GAMETRIPOSTGAMECARD:{break;}
+            case GAMETRIHAND0P1:{break;}
+            case GAMETRIHAND1P1:{break;}
+            case GAMETRIHAND2P1:{break;}
+            case GAMETRIHAND3P1:{break;}
+            case GAMETRIHAND4P1:{break;}
+            case GAMETRIHAND5P1:{break;}
+            case GAMETRIHAND6P1:{break;}
+            case GAMETRIHAND7P1:{break;}
+            case GAMETRIPREGAMECARDP1:{break;}
+            case GAMETRIPOSTGAMECARDP1:{break;}
+            case GAMETRIHAND0P2:{break;}
+            case GAMETRIHAND1P2:{break;}
+            case GAMETRIHAND2P2:{break;}
+            case GAMETRIHAND3P2:{break;}
+            case GAMETRIHAND4P2:{break;}
+            case GAMETRIHAND5P2:{break;}
+            case GAMETRIHAND6P2:{break;}
+            case GAMETRIHAND7P2:{break;}
+            case GAMETRIPREGAMECARDP2:{break;}
+            case GAMETRIPOSTGAMECARDP2:{break;}
             case GAMEPLACEROTATE: {
 
-                byte tempPosition = triButtonArray.get(highlightPosGameboard).cardButtonArray.get(0).position;
-                triButtonArray.get(highlightPosGameboard).cardButtonArray.get(0).position = triButtonArray.get(highlightPosGameboard).cardButtonArray.get(1).position;;
-                triButtonArray.get(highlightPosGameboard).cardButtonArray.get(1).position =tempPosition;
-
-                tempPosition = triButtonArray.get(highlightPosGameboard).cardButtonArray.get(1).position;
-                triButtonArray.get(highlightPosGameboard).cardButtonArray.get(1).position = triButtonArray.get(highlightPosGameboard).cardButtonArray.get(2).position;;
-                triButtonArray.get(highlightPosGameboard).cardButtonArray.get(2).position =tempPosition;
-
-                triButtonArray.get(highlightPosGameboard).cardButtonArray.swap(1,2);
-                triButtonArray.get(highlightPosGameboard).cardButtonArray.swap(0,1);
-
-                /**
-                 * we need to keep track of how the original cards have been rotated for this trident, we
-                 * need to do this so we can tell the other player the correct position of each card
-                 */
-                if(triButtonArray.get(highlightPosGameboard).flipped==false)
-                {
-                    /*if the trident has not been flipped rotation will increment the rotation number through 0, 1 and 2,
-                    * increment over 2 will bring it back to 0 using modulus %*/
-                    triButtonArray.get(highlightPosGameboard).rotation=(byte)((triButtonArray.get(highlightPosGameboard).rotation+1)%3);
-                }
-                else
-                {
-                    /*if the trident is flipped then rotation will decrement instead, i'm not sure how modulus works with minus number in java so
-                    i've just added 2 instead of subtracting 1 to ensure it's positive*/
-                    triButtonArray.get(highlightPosGameboard).rotation=(byte)((triButtonArray.get(highlightPosGameboard).rotation-1+3)%3);
-                }
+                rotate(highlightPosGameboard);
                 break;
             }
             case GAMEPLACEFLIP: {
-                byte tempPosition = triButtonArray.get(highlightPosGameboard).cardButtonArray.get(1).position;
-                triButtonArray.get(highlightPosGameboard).cardButtonArray.get(1).position = triButtonArray.get(highlightPosGameboard).cardButtonArray.get(2).position;;
-                triButtonArray.get(highlightPosGameboard).cardButtonArray.get(2).position =tempPosition;
-                triButtonArray.get(highlightPosGameboard).cardButtonArray.swap(1,2);
-
-                /*toggle the flipped boolean*/
-                triButtonArray.get(highlightPosGameboard).flipped=!triButtonArray.get(highlightPosGameboard).flipped;
+                flip(highlightPosGameboard);
                 break;
             }
             case GAMEPLACECONFIRM: {
                 triButtonArray.get(highlightPosGameboard).placed=true;
                 triButtonArray.get(highlightPosTriHand).placed=true;
+                MyServer.emitPlacement(highlightPosTriHand, highlightPosGameboard,triButtonArray.get(highlightPosGameboard).rotation,triButtonArray.get(highlightPosGameboard).flipped);
                 setPlaceMode(false);
                 break;
             }

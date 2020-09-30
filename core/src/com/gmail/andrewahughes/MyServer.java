@@ -17,8 +17,6 @@ import io.socket.client.IO;
 import io.socket.client.Socket;
 import io.socket.emitter.Emitter;
 
-import static com.gmail.andrewahughes.MyGdxGame.WORLDHEIGHT;
-
 public class MyServer {
 
     private static boolean created =false;
@@ -169,7 +167,7 @@ public class MyServer {
         Gdx.app.log("Server","emitTriHand");
 
         /*this array will have one object that gives the player index then the wild card,
-        * then it will have one object per card which tells us the value of each card*/
+         * then it will have one object per card which tells us the value of each card*/
         JSONArray objects = new JSONArray();
         try{
 
@@ -196,6 +194,39 @@ public class MyServer {
             socket.emit("emitTriHandDataToServer",objects);
         } catch(JSONException e) {
             Gdx.app.log("SOCKET.IO","Error sending triHand");
+        }
+    }
+    /**
+     * this will be called in the gameStage. when a player places a trident then clicks confirm
+     * i can emit just a small amount of data and it can be interpreted by the other player.
+     * we need to know, player index, trihandindex, gameboard index, rotation, flip
+     */
+    public static void emitPlacement(int triHandIndex,int gameBoardIndex,int rotation,boolean flipped){
+        Gdx.app.log("Server","emitPlacement");
+
+        try{
+
+            JSONObject data = new JSONObject();
+            /*need to send the player index - not really needed for 2 player game, but need for 3 player*/
+            data.put("p" , player.index);
+            /*send the trihandindex, each player has already stored each other's tri hand, so we just need to tell
+            * the other players which trident in the trihand we placed*/
+            data.put("t" , triHandIndex);
+            /*gameboardindex will tell us where the new trident has been placed*/
+            data.put("g" , gameBoardIndex);
+            /*rotation will tell us in what way the player has rotated the trident before confirming*/
+            data.put("r" , rotation);
+            /*flip will tell us in what way the player has flipped the trident before confirming*/
+            data.put("f" , flipped);
+
+            Gdx.app.log("Server","emit placement data  "+data);
+
+            /*the player emits data to the server here
+             * the server has a corresponding method to
+             * interpret this data*/
+            socket.emit("emitPlacementDataToServer",data);
+        } catch(JSONException e) {
+            Gdx.app.log("SOCKET.IO","Error sending placement");
         }
     }
     /**
@@ -347,13 +378,13 @@ public class MyServer {
                 JSONArray objects = (JSONArray) args[0];
                 try {
                     /*player index will have been set for each player, it will be 0,1 or 2,
-                    * so this player will be either 0, 1 or 2, the if statements below will figure out
-                    * which other player is emitting this data and we'll save that data in
-                    * a corresponding array*/
+                     * so this player will be either 0, 1 or 2, the if statements below will figure out
+                     * which other player is emitting this data and we'll save that data in
+                     * a corresponding array*/
                     int index = objects.getJSONObject(0).getInt("p");
                     Gdx.app.log("Server","index - received "+index);
 
-                    if(index==(player.index+OptionsStage.numberOfPlayers-1)%OptionsStage.numberOfPlayers)
+                    if(index==(player.index+1)%OptionsStage.numberOfPlayers)
                     {
                         GameStage.player1WildCard = objects.getJSONObject(0).getInt("w");
                         Gdx.app.log("Server","wild card - received "+GameStage.player1WildCard);
@@ -364,7 +395,7 @@ public class MyServer {
                         Gdx.app.log("Server","first cards - received "+ GameStage.player1CardValues.get(0)+" "+ GameStage.player1CardValues.get(1)+" "+ GameStage.player1CardValues.get(2)+" ");
 
                     }
-                    else if(index==(player.index+OptionsStage.numberOfPlayers)%OptionsStage.numberOfPlayers)
+                    else if(index==(player.index+2)%OptionsStage.numberOfPlayers)
                     {
                         GameStage.player2WildCard = objects.getJSONObject(0).getInt("w");
                         for(int i=1; i<TridentBuildingStage.cardButtonArrayTridentHand.size+1;i++){
@@ -375,8 +406,54 @@ public class MyServer {
                     Gdx.app.log("Server","index "+index+" wildcard "+GameStage.player1WildCard);
                     Gdx.app.log("Server","first cards " +GameStage.player1CardValues.get(0) + " "+GameStage.player1CardValues.get(1) + " "+GameStage.player1CardValues.get(2) + " ");
 
-                    GameStage.TriHandLoaded();
+                    GameStage.triHandLoaded();
                     Gdx.app.log("Server: ","TriHand received: "+objects);
+
+                }catch(JSONException e){
+                }
+            }
+        }).on("emitPlacementDataToPlayers", new Emitter.Listener() {
+            @Override
+            public void call(Object... args) {
+
+                Gdx.app.log("Server","emitPlacementDataToPlayers");
+                /*player 1 will have called emitplacement,
+                that will have called emitPlacementDataToServer
+                when the server receives that emitPlacementDataToServer
+                it calls emitPlacementDataToPlayers
+                each player listens for the emitPlacementDataToPlayers
+                emitPlacementDataToPlayers is received here
+                 */
+                JSONObject data = (JSONObject) args[0];
+                try {
+                    /*player index will have been set for each player, it will be 0,1 or 2,
+                     * so this player will be either 0, 1 or 2, the if statements below will figure out
+                     * which other player is emitting this data and we'll save that data in
+                     * a corresponding array*/
+
+                    int index = data.getInt("p");
+                    /*the index of each player will be a unique number, 0, 1 or 2
+                    * the index here should never be= player.index because the player would not
+                    * have emitted to itself. so it will either be 1 higher than the player's
+                    * index, or 2 higher so long as you modulus the numberofplayers, which
+                    * will be either the first opposition player or the second respectively*/
+
+                    if(index==(player.index+1)%OptionsStage.numberOfPlayers)
+                    {
+                        index=1;
+                    }
+                    else if(index==(player.index+2)%OptionsStage.numberOfPlayers)
+                    {
+                        index=2;
+                    }
+                    int triHandIndex = data.getInt("t");
+                    int gameboardIndex = data.getInt("g");
+                    int rotation = data.getInt("r");
+                    boolean flipped = data.getBoolean("f");
+                    Gdx.app.log("Server","index - received "+index);
+
+                    GameStage.placementLoaded(index,triHandIndex,gameboardIndex,rotation,flipped);
+                    Gdx.app.log("Server: ","TriHand received: "+data);
 
                 }catch(JSONException e){
                 }

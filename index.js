@@ -85,6 +85,17 @@ console.log("index: emitTriHandDataToServer");
 
 
     	});
+    	/*when player emits a emitPlacement event the server
+               	will interpret it here*/
+               	socket.on('emitPlacementDataToServer', function(data){
+
+           console.log("index: emitPlacementDataToServer");
+               	    /*send the data we received (player id, trihandindex, gamebaord index, rotation and flip */
+               	    socket.broadcast.emit("emitPlacementDataToPlayers",data);
+
+
+               	});
+
     	/*when player1 emits an emitPlayerIndexToServer event the server
     	will interpret it here*/
     	socket.on('emitPlayerIndexToServer', function(data){
