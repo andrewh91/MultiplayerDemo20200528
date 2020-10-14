@@ -82,10 +82,13 @@ public class TriButton extends Actor {
 
     /**
      * this boolean will be set to true when it's confirmed that the position on a gameboard is taken, this will
-     * stop it being selected if something is already placed there, if the trident is on the trihand, then it gets
-     * greyed out so we know it's been placed
+     * stop it being selected if something is already placed there,
      */
     boolean placed = false;
+    /*if the trident is on the trihand and has been placed , then it gets
+     * greyed out so we know it's been placed*/
+    boolean greyed = false;
+    int ownership=-1;
 
     /**
      * this will be used when emitting the data to the other player. if player 1 rotates and flips the trident before placing
@@ -204,10 +207,25 @@ public void touchMessage(float x, float y){
     public void drawShape(ShapeRenderer shapeRenderer) {
         if (isVisible()) {
 
+
             Color saveColour = shapeRenderer.getColor();
-            if (placed){
+
+            if (ownership==-1){
+                shapeRenderer.setColor(Color.WHITE);
+            }
+            else if (ownership==0){
+                shapeRenderer.setColor(Color.valueOf( "#E7B521"));
+            }
+            else if (ownership==1){
+                shapeRenderer.setColor(Color.valueOf("#B521E7"));
+            }
+            else if (ownership==2){
+                shapeRenderer.setColor(Color.valueOf("#21E7B5"));
+            }
+            if (greyed){
                 shapeRenderer.setColor(Color.GRAY);
             }
+
             if (orientation == POINTUP) {
                 shapeRenderer.triangle(
                         getX(),
@@ -247,16 +265,45 @@ public void touchMessage(float x, float y){
                 }
 
             }
-            drawCardButtonsShape(shapeRenderer);
-            drawPreAndPostGameCardButtonsShape(shapeRenderer);
             shapeRenderer.setColor(saveColour);
         }
     }
 
+    public void drawShapeFilled(ShapeRenderer shapeRenderer) {
+        if (isVisible()) {
+            drawCardButtonsShape(shapeRenderer);
+            drawPreAndPostGameCardButtonsShape(shapeRenderer);
+            Color saveColour = shapeRenderer.getColor();
+
+            if (ownership==-1){
+                shapeRenderer.setColor(Color.WHITE);
+            }
+            else if (ownership==0){
+                shapeRenderer.setColor(Color.valueOf( "#E7B521"));
+            }
+            else if (ownership==1){
+                shapeRenderer.setColor(Color.valueOf("#B521E7"));
+            }
+            else if (ownership==2){
+                shapeRenderer.setColor(Color.valueOf("#21E7B5"));
+            }
+            if (greyed){
+                shapeRenderer.setColor(Color.GRAY);
+            }
+            if(orientation==POINTUP) {
+                shapeRenderer.circle(getX()+halfEdgeLength, getY()+altitude/3, edgeLength/10);
+            }
+            else if(orientation==POINTDOWN) {
+                shapeRenderer.circle(getX()+halfEdgeLength, getY()+altitude*2/3, edgeLength/10);
+            }
+            shapeRenderer.setColor(saveColour);
+
+        }
+    }
     public void drawCardButtonsShape(ShapeRenderer shapeRenderer){
         if(cardsVisible){
             for (int i=0;i<cardButtonArray.size;i++){
-                cardButtonArray.get(i).drawShape(shapeRenderer);
+                cardButtonArray.get(i).drawShapeFilled(shapeRenderer);
             }
         }
     }
@@ -526,6 +573,7 @@ public void touchMessage(float x, float y){
             this.cardButtonArray.get(i).colour=triButton.cardButtonArray.get(i).colour;
             this.cardButtonArray.get(i).playerIndex=triButton.cardButtonArray.get(i).playerIndex;
             cardsVisible=true;
+            this.ownership=triButton.ownership;
 
         }
 

@@ -143,11 +143,12 @@ public class TridentBuildingStage extends Stage {
             Gdx.gl.glClearColor(0.0f, 0.0f, 1.0f, 1);
             Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-            spriteBatch.begin();
-            /*draw all actors of this stage*/
-            drawTriButtons(spriteBatch);
-            drawCardButtons();
-            spriteBatch.end();
+            shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+            drawTriButtonsShapeFilled(shapeRenderer);
+            drawCardButtonsShapeFilled();
+            shapeRenderer.end();
+
+            //Gdx.gl.glLineWidth(3);
             shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
             /*draw a box around the screen 1280 by 720 WORLDWIDTH, WORLDHEIGHT*/
             shapeRenderer.line(1    ,1      ,719    ,1);
@@ -159,6 +160,11 @@ public class TridentBuildingStage extends Stage {
             drawCardButtonsShape();
             drawCardButtonHighlightShape();
             shapeRenderer.end();
+            spriteBatch.begin();
+            /*draw all actors of this stage*/
+            drawTriButtons(spriteBatch);
+            drawCardButtons();
+            spriteBatch.end();
         }
     }
     static void  drawTriButtons(SpriteBatch spriteBatch) {
@@ -174,6 +180,24 @@ public class TridentBuildingStage extends Stage {
 
         for(int i=0;i<triButtonArray.size;i++) {
             triButtonArray.get(i).drawShape(shapeRenderer);
+
+        }
+    }
+    static void drawTriButtonsShapeFilled(ShapeRenderer shapeRenderer) {
+
+        for(int i=0;i<triButtonArray.size;i++) {
+            triButtonArray.get(i).drawShapeFilled(shapeRenderer);
+
+        }
+    }
+    void drawCardButtonsShapeFilled() {
+
+        for(int i=0;i<cardButtonArray.size;i++) {
+            cardButtonArray.get(i).drawShapeFilled(shapeRenderer);
+
+        }
+        for(int i=0;i<cardButtonArrayTridentHand.size;i++) {
+            cardButtonArrayTridentHand.get(i).drawShapeFilled(shapeRenderer);
 
         }
     }

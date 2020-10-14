@@ -76,7 +76,7 @@ public class MyGdxGame extends ApplicationAdapter  implements  StageInterface{
 		shapeRenderer.setProjectionMatrix(viewport.getCamera().combined);
 		Gdx.gl.glClearColor(0, 1, 0, 1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-		Gdx.gl.glLineWidth(5);
+		Gdx.gl.glLineWidth(3);
 		shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
 		shapeRenderer.rect(0,
 				0,

@@ -100,12 +100,11 @@ public class DealStage extends Stage {
             Gdx.gl.glClearColor(0.0f, 1.0f, 0.0f, 1);
             Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-            spriteBatch.begin();
-            MyServer.drawPlayers(spriteBatch);
-            /*draw all actors of this stage*/
-            drawTriButtons();
-            drawAnimation();
-            spriteBatch.end();
+            shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+            drawTriButtonsShapeFilled();
+            drawAnimationShape();
+
+            shapeRenderer.end();
             shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
             /*draw a box around the screen 1280 by 720 WORLDWIDTH, WORLDHEIGHT*/
             shapeRenderer.line(1    ,1      ,719    ,1);
@@ -121,6 +120,13 @@ public class DealStage extends Stage {
             drawTriButtonsShape();
             drawAnimationShape();
             shapeRenderer.end();
+
+            spriteBatch.begin();
+            MyServer.drawPlayers(spriteBatch);
+            /*draw all actors of this stage*/
+            drawTriButtons();
+            drawAnimation();
+            spriteBatch.end();
             MyServer.update();
         }
     }
@@ -276,24 +282,24 @@ public class DealStage extends Stage {
     void drawAnimationShape() {
         if (ANIMATIONSTAGE == ANIMATIONDISPLAYCARDS) {
             for (int i = 0; i < Deck.cardArray.size; i++) {
-                TridentBuildingStage.cardButtonArray.get(i).drawShape(shapeRenderer);
+                TridentBuildingStage.cardButtonArray.get(i).drawShapeFilled(shapeRenderer);
             }
         }
         else if (ANIMATIONSTAGE == ANIMATIONOVERLAPCARDS) {
             for (int i = 0; i < Deck.cardArray.size; i++) {
-                TridentBuildingStage.cardButtonArray.get(i).drawShape(shapeRenderer);
+                TridentBuildingStage.cardButtonArray.get(i).drawShapeFilled(shapeRenderer);
             }
         }
         else if (ANIMATIONSTAGE == ANIMATIONPAR) {
             for (int i = 0; i < Deck.cardArray.size; i++) {
-                TridentBuildingStage.cardButtonArray.get(i).drawShape(shapeRenderer);
+                TridentBuildingStage.cardButtonArray.get(i).drawShapeFilled(shapeRenderer);
             }
         }
         else if (ANIMATIONSTAGE == ANIMATIONDEALCARDS) {
             /*this will draw the trident hand array from the TRIDENTBUILDINGSTAGE*/
             TridentBuildingStage.drawTriButtonsShape(shapeRenderer);
             for (int i = 0; i < TridentBuildingStage.cardButtonArray.size; i++) {
-                TridentBuildingStage.cardButtonArray.get(i).drawShape(shapeRenderer);
+                TridentBuildingStage.cardButtonArray.get(i).drawShapeFilled(shapeRenderer);
             }
         }
 
@@ -307,6 +313,13 @@ public class DealStage extends Stage {
 
         for (int i = 0; i < triButtonArray.size; i++) {
             triButtonArray.get(i).drawShape(shapeRenderer);
+
+        }
+    }
+    void drawTriButtonsShapeFilled() {
+
+        for (int i = 0; i < triButtonArray.size; i++) {
+            triButtonArray.get(i).drawShapeFilled(shapeRenderer);
 
         }
     }

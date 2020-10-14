@@ -57,6 +57,10 @@ public class GameOverStage extends Stage {
             /*draw all actors of this stage*/
             drawTriButtonsShape();
             shapeRenderer.end();
+
+            shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+            drawTriButtonsShapeFilled();
+            shapeRenderer.end();
         }
     }
     void drawTriButtons() {
@@ -74,6 +78,13 @@ public class GameOverStage extends Stage {
 
         for(int i=0;i<triButtonArray.size;i++) {
             triButtonArray.get(i).drawShape(shapeRenderer);
+
+        }
+    }
+    void drawTriButtonsShapeFilled() {
+
+        for(int i=0;i<triButtonArray.size;i++) {
+            triButtonArray.get(i).drawShapeFilled(shapeRenderer);
 
         }
     }

@@ -13,7 +13,6 @@ import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 
 
-
 public class CardButton  extends Actor {
     StageInterface stageInterface;
     private static final boolean POINTUP = true;
@@ -30,7 +29,7 @@ public class CardButton  extends Actor {
     /*the longest edge length, should be the same as the edge length of the trident*/
     static public float edgeLength = 130;
     public float nonStaticEdgeLength = edgeLength;
-    static public float cardButtonEdegLength = edgeLength;
+    static public float cardButtonEdgeLength = edgeLength;
     /*assuming the isosceles card shape has the longest edge parallel to the horizon
     * the altitude is tan(30) * edgeLength /2    = 0.28867513459481288225457439025098 * edgeLength*/
     static float altitude = (float)( Math.tan(Math.PI/6) * edgeLength /2);
@@ -38,7 +37,7 @@ public class CardButton  extends Actor {
     static float otherLength = (float)( Math.tan(Math.PI/6) * edgeLength);
     static float halfEdgeLength = edgeLength/2;
     static float tridentAltitude = (float)(edgeLength * Math.sin(Math.PI/3));
-    static float cardButtonTridentAltitude = (float)(cardButtonEdegLength * Math.sin(Math.PI/3));
+    static float cardButtonTridentAltitude = (float)(cardButtonEdgeLength * Math.sin(Math.PI/3));
     /*the cards x and y coordinate will be the bottom left of the imaginary trident's bounding box
     * this is potentially confusing since a POINTDONW RIGHT card's position is quite far from the
     * drawn object*/
@@ -125,7 +124,7 @@ public class CardButton  extends Actor {
         setYPos(startingY);
         updateBounds();
         Gdx.app.log("CardButton","initial set width ");
-        setWidth(cardButtonEdegLength*2);
+        setWidth(cardButtonEdgeLength *2);
         setHeight(cardButtonTridentAltitude);
 
         this.addListener(clickListener= new ClickListener() {
@@ -195,11 +194,75 @@ public class CardButton  extends Actor {
 
 
     }
-    public void drawShape(ShapeRenderer shapeRenderer) {
+    public void drawShapeFilled(ShapeRenderer shapeRenderer) {
         if (isVisible()) {
 
             Color prevColour = Color.WHITE;
             shapeRenderer.setColor(colour);
+
+            if (orientation == POINTUP) {
+                if (position == LEFT) {
+                    shapeRenderer.triangle(
+                            getX() + halfEdgeLength,
+                            getY() + altitude,
+                            getX() + halfEdgeLength,
+                            getY() + altitude + otherLength,
+                            getX(),
+                            getY());
+                } else if (position == RIGHT) {
+                    shapeRenderer.triangle(
+                            getX() + halfEdgeLength,
+                            getY() + altitude,
+                            getX() + halfEdgeLength,
+                            getY() + altitude + otherLength,
+                            getX() + edgeLength,
+                            getY());
+                } else if (position == VERTICAL) {
+                    shapeRenderer.triangle(
+                            getX() + halfEdgeLength,
+                            getY() + altitude,
+                            getX() + edgeLength,
+                            getY(),
+                            getX(),
+                            getY());
+                }
+
+            } else if (orientation == POINTDOWN) {
+                if (position == LEFT) {
+                    shapeRenderer.triangle(
+                            getX() + halfEdgeLength,
+                            getY() + otherLength,
+                            getX() + halfEdgeLength,
+                            getY(),
+                            getX(),
+                            getY() + altitude + otherLength);
+                } else if (position == RIGHT) {
+                    shapeRenderer.triangle(
+                            getX() + halfEdgeLength,
+                            getY() + otherLength,
+                            getX() + edgeLength,
+                            getY() + altitude + otherLength,
+                            getX() + halfEdgeLength,
+                            getY());
+                } else if (position == VERTICAL) {
+                    shapeRenderer.triangle(
+                            getX() + halfEdgeLength,
+                            getY() + otherLength,
+                            getX(),
+                            getY() + altitude + otherLength,
+                            getX() + edgeLength,
+                            getY() + altitude + otherLength);
+                }
+            }
+            shapeRenderer.setColor(prevColour);
+        }
+    }
+
+    public void drawShape(ShapeRenderer shapeRenderer) {
+        if (isVisible()) {
+
+            Color prevColour = Color.WHITE;
+            shapeRenderer.setColor(Color.BLACK);
 
             if (orientation == POINTUP) {
                 if (position == LEFT) {
@@ -263,7 +326,7 @@ public class CardButton  extends Actor {
         if (isVisible()) {
             Color prevColour = colour;
             colour = Color.RED;
-            drawShape(shapeRenderer);
+            drawShapeFilled(shapeRenderer);
             colour=prevColour;
         }
     }

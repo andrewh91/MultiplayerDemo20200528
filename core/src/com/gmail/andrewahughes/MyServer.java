@@ -398,7 +398,7 @@ public class MyServer {
                     else if(index==(player.index+2)%OptionsStage.numberOfPlayers)
                     {
                         GameStage.player2WildCard = objects.getJSONObject(0).getInt("w");
-                        for(int i=1; i<TridentBuildingStage.cardButtonArrayTridentHand.size+1;i++){
+                        for(int i=1; i<OptionsStage.cardsEach+1;i++){
                             GameStage.player2CardValues.add(objects.getJSONObject(i).getInt("v"));
                         }
                     }

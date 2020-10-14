@@ -77,11 +77,10 @@ public class GameStage extends Stage {
             Gdx.gl.glClearColor(0.5f, 0.0f, 1.0f, 1);
             Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-            spriteBatch.begin();
-            /*draw all actors of this stage*/
-            drawTriButtons();
 
-            spriteBatch.end();
+            shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+            drawTriButtonsShapeFilled();
+            shapeRenderer.end();
             shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
             /*draw a box around the screen 1280 by 720 WORLDWIDTH, WORLDHEIGHT*/
             shapeRenderer.line(1    ,1      ,719    ,1);
@@ -92,6 +91,11 @@ public class GameStage extends Stage {
             drawTriButtonsShape();
             drawHighlightShape();
             shapeRenderer.end();
+            spriteBatch.begin();
+            /*draw all actors of this stage*/
+            drawTriButtons();
+
+            spriteBatch.end();
         }
     }
     void drawTriButtons() {
@@ -109,6 +113,11 @@ public class GameStage extends Stage {
     void drawTriButtonsShape() {
         for(int i=0;i<triButtonArray.size;i++) {
             triButtonArray.get(i).drawShape(shapeRenderer);
+        }
+    }
+    void drawTriButtonsShapeFilled() {
+        for(int i=0;i<triButtonArray.size;i++) {
+            triButtonArray.get(i).drawShapeFilled(shapeRenderer);
         }
     }
     void drawHighlightShape() {
@@ -267,6 +276,7 @@ public class GameStage extends Stage {
             triButtonArray.get(i + ButtonEnum.Tri.GAMETRIHAND0.value).setUpCardButtons(TridentBuildingStage.getCardAtHighlightPos(i *3),TridentBuildingStage.getCardAtHighlightPos(i *3+1),TridentBuildingStage.getCardAtHighlightPos(i *3+2));
             triButtonArray.get(i+ ButtonEnum.Tri.GAMETRIHAND0.value).updatePos(TridentBuildingStage.getCardAtHighlightPos(i *3).getX(),TridentBuildingStage.getCardAtHighlightPos(i *3).getY(),TridentBuildingStage.getCardAtHighlightPos(i *3).orientation);
             triButtonArray.get(i+ ButtonEnum.Tri.GAMETRIHAND0.value).cardsVisible=true;
+            triButtonArray.get(i+ ButtonEnum.Tri.GAMETRIHAND0.value).ownership=0;
 
         }
         /*if using pre and post game cards save them to a trident each too */
@@ -314,6 +324,7 @@ public class GameStage extends Stage {
                 triButtonArray.get(i+ ButtonEnum.Tri.GAMETRIHAND0P1.value).cardButtonArray.get(2).setColourFromSuit();
                 triButtonArray.get(i+ ButtonEnum.Tri.GAMETRIHAND0P1.value).updatePos(TridentBuildingStage.getCardAtHighlightPos(i *3).getX(),TridentBuildingStage.getCardAtHighlightPos(i *3).getY()- CardButton.edgeLength,TridentBuildingStage.getCardAtHighlightPos(i *3).orientation);
                 triButtonArray.get(i+ ButtonEnum.Tri.GAMETRIHAND0P1.value).cardsVisible=true;
+                triButtonArray.get(i+ ButtonEnum.Tri.GAMETRIHAND0P1.value).ownership=1;
 
             }
 
@@ -340,6 +351,7 @@ public class GameStage extends Stage {
                     triButtonArray.get(i+ ButtonEnum.Tri.GAMETRIHAND0P2.value).cardButtonArray.get(2).setColourFromSuit();
                     triButtonArray.get(i+ ButtonEnum.Tri.GAMETRIHAND0P2.value).updatePos(TridentBuildingStage.getCardAtHighlightPos(i *3).getX(),TridentBuildingStage.getCardAtHighlightPos(i *3).getY()- CardButton.edgeLength*2,TridentBuildingStage.getCardAtHighlightPos(i *3).orientation);
                     triButtonArray.get(i+ ButtonEnum.Tri.GAMETRIHAND0P2.value).cardsVisible=true;
+                    triButtonArray.get(i+ ButtonEnum.Tri.GAMETRIHAND0P2.value).ownership=2;
 
                 }
                 /*if using pre and post game cards save them to a trident each too */
@@ -414,6 +426,7 @@ public class GameStage extends Stage {
         int index=0;
         /*for each row...*/
         for (int i = 0; i < rows.size; i++) {
+            getGB(index).ownership=-1;
             /*for each trident on the row
             rows.get(i) will equal 1, 3 ,5 , 7 etc - that is the number of tridents on the row*/
             for (int j = 0; j < rows.get(i); j++) {
@@ -784,6 +797,7 @@ public class GameStage extends Stage {
             case GAMEPLACECONFIRM: {
                 triButtonArray.get(highlightPosGameboard).placed=true;
                 triButtonArray.get(highlightPosTriHand).placed=true;
+                triButtonArray.get(highlightPosTriHand).greyed=true;
                 MyServer.emitPlacement(highlightPosTriHand, highlightPosGameboard,triButtonArray.get(highlightPosGameboard).rotation,triButtonArray.get(highlightPosGameboard).flipped);
                 setPlaceMode(false);
                 break;
