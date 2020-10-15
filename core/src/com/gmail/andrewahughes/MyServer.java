@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.utils.Array;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -42,7 +43,16 @@ public class MyServer {
     public static ShapeRenderer shapeRenderer;
     public static float timer;
     private final static float UPDATE_TIME = 1/60f;
-
+    /**
+     *a list of the opposition player's card values, from this you can figure out the suit and what tridents they made
+     */
+    static Array<Integer> player1CardValues = new Array<>();
+    static Array<Integer> player2CardValues = new Array<>();
+    /**
+     * need to store the values of the other players' hands, this data will be recieved just after going to the game stage
+     */
+    static int player1WildCard = -1;
+    static int player2WildCard = -1;
 
     public MyServer(){
 
@@ -178,15 +188,19 @@ public class MyServer {
             data.put("w" , TridentBuildingStage.wildCardSuit);
 
             objects.put(data);
+            String tempString = new String();
             /*send the value of each card the player put in the tri hand in order*/
             for(int i =0; i <TridentBuildingStage.cardButtonArrayTridentHand.size; i++) {
 
                 JSONObject dataCard = new JSONObject();
                 dataCard.put("v" , TridentBuildingStage.getCardAtHighlightPos(i).value);
+                tempString=tempString+(" "+TridentBuildingStage.getCardAtHighlightPos(i).value);
                 objects.put(dataCard);
             }
             Gdx.app.log("Server","player index "+player.index + " wildcardsuit "+ TridentBuildingStage.wildCardSuit);
-            Gdx.app.log("Server","first card "+TridentBuildingStage.getCardAtHighlightPos(0).value+" "+TridentBuildingStage.getCardAtHighlightPos(1).value+" "+TridentBuildingStage.getCardAtHighlightPos(2).value);
+            Gdx.app.log("Server","cards ");
+            Gdx.app.log("pips",""+tempString);
+
 
             /*the player emits data to the server here
              * the server has a corresponding method to
@@ -384,27 +398,44 @@ public class MyServer {
                     int index = objects.getJSONObject(0).getInt("p");
                     Gdx.app.log("Server","index - received "+index);
 
+                    if(index==0)
+                    {
+                        GameStage.player0TriHandReceived=true;
+                    }
+                    else if(index==1)
+                    {
+                        GameStage.player1TriHandReceived=true;
+                    }
+                    else if(index==2)
+                    {
+                        GameStage.player2TriHandReceived=true;
+                    }
                     if(index==(player.index+1)%OptionsStage.numberOfPlayers)
                     {
-                        GameStage.player1WildCard = objects.getJSONObject(0).getInt("w");
-                        Gdx.app.log("Server","wild card - received "+GameStage.player1WildCard);
 
+                        player1WildCard = objects.getJSONObject(0).getInt("w");
+                        Gdx.app.log("Server","wild card - received "+player1WildCard);
+
+                        String tempString = new String();
                         for(int i=1; i<OptionsStage.cardsEach+1;i++){
-                            GameStage.player1CardValues.add(objects.getJSONObject(i).getInt("v"));
+                            player1CardValues.add(objects.getJSONObject(i).getInt("v"));
+                            tempString=tempString+(" "+ player1CardValues.get(i-1));
                         }
-                        Gdx.app.log("Server","first cards - received "+ GameStage.player1CardValues.get(0)+" "+ GameStage.player1CardValues.get(1)+" "+ GameStage.player1CardValues.get(2)+" ");
+                        Gdx.app.log("Server","cards - received ");
+                        Gdx.app.log("pips",""+tempString);
 
                     }
                     else if(index==(player.index+2)%OptionsStage.numberOfPlayers)
                     {
-                        GameStage.player2WildCard = objects.getJSONObject(0).getInt("w");
+
+                        player2WildCard = objects.getJSONObject(0).getInt("w");
                         for(int i=1; i<OptionsStage.cardsEach+1;i++){
-                            GameStage.player2CardValues.add(objects.getJSONObject(i).getInt("v"));
+                            player2CardValues.add(objects.getJSONObject(i).getInt("v"));
+
                         }
                     }
 
-                    Gdx.app.log("Server","index "+index+" wildcard "+GameStage.player1WildCard);
-                    Gdx.app.log("Server","first cards " +GameStage.player1CardValues.get(0) + " "+GameStage.player1CardValues.get(1) + " "+GameStage.player1CardValues.get(2) + " ");
+                    Gdx.app.log("Server","index "+index+" wildcard "+player1WildCard);
 
                     GameStage.triHandLoaded();
                     Gdx.app.log("Server: ","TriHand received: "+objects);

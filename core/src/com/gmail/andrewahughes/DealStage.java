@@ -389,6 +389,8 @@ public class DealStage extends Stage {
         animationTimer = 0;
         /*display the begin deal button*/
         stageInterface.getTriButton(triButtonArray, ButtonEnum.Tri.DEALBEGINDEAL).setVisible(true);
+        stageInterface.getTriButton(triButtonArray, ButtonEnum.Tri.DEALBEGINDEAL).setText("Wait for\nplayers");
+
         CardButton.fadeFont.setColor(1,1,1,1);
         ANIMATIONSETTEXTFLAG=true;
         ANIMATIONSETPARFLAG=true;
@@ -400,6 +402,7 @@ public class DealStage extends Stage {
         playerHandValue.clear();
         dealReady=false;
         parReady=false;
+
 
     }
 

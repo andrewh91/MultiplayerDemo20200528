@@ -558,7 +558,21 @@ static void updatePlayerTridentHand(){
                 * TODO remove this- this is for quickly making tri hands for testing only  */
                     if (triHandCardFilledArrayCount==triHandCardFilledArray.size){
                         stageInterface.goToStage(StageInterface.GAMESTAGE);
+
                         Gdx.app.log("TRIDENTBUILDINGSTAGE","emitTriHand");
+                        if(MyServer.player.index==0)
+                        {
+                            GameStage.player0TriHandReceived=true;
+                        }
+                        else if(MyServer.player.index==1)
+                        {
+                            GameStage.player1TriHandReceived=true;
+                        }
+                        else if(MyServer.player.index==2)
+                        {
+                            GameStage.player2TriHandReceived=true;
+                        }
+                        GameStage.triHandLoaded();
                         MyServer.emitTriHand();
 
                     }
@@ -1151,7 +1165,7 @@ static void updatePlayerTridentHand(){
             tridentHighlightPos=-1;
             stageInterface.getTriButton(triButtonArray,ButtonEnum.Tri.TRIDENTBUILDINGAUTOBUILD).setText("Hand\nFull");
         }
-        Gdx.app.log("TridentBuildingStage","tridentHighlightPos"+tridentHighlightPos);
+        //Gdx.app.log("TridentBuildingStage","tridentHighlightPos"+tridentHighlightPos);
     }
     /**
      * to be used in the auto build methods, this will find the index of 3 cards in the hand

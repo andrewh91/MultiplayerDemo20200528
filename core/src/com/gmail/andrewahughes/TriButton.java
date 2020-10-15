@@ -161,14 +161,13 @@ public class TriButton extends Actor {
     public void setUpCardButtons(CardButton a, CardButton b, CardButton c){
     cardButtonArray.clear();
     cardButtonArray.add(a,b,c);
-    for (int i = 0; i < cardButtonArray.size; i++) {
-        cardButtonArray.get(i).removeListener(cardButtonArray.get(i).clickListener);
-        cardButtonArray.get(i).setVisible(true);
-        cardButtonArray.get(i).setText();
-        Gdx.app.log("TriButton","pip "+cardButtonArray.get(i).getPip());
-    }
+        for (int i = 0; i < cardButtonArray.size; i++) {
+            cardButtonArray.get(i).removeListener(cardButtonArray.get(i).clickListener);
+            cardButtonArray.get(i).setVisible(true);
+            cardButtonArray.get(i).setText();
+        }
 
-}
+    }
 public void touchMessage(float x, float y){
     Gdx.app.log("TriButton", "touch up in "+triButtonIndex+" visible? "+isVisible()+" width "+(int)getWidth() + " height "+(int)getHeight()+" absolute x " + (int)getX() + " absolute y " + (int)getY()+" relative x " + (int)x + " relative y " + (int)y );
 
