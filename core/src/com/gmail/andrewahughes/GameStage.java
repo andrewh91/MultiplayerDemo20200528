@@ -9,6 +9,9 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
+import static com.gmail.andrewahughes.CardButton.LEFT;
+import static com.gmail.andrewahughes.CardButton.RIGHT;
+import static com.gmail.andrewahughes.CardButton.VERTICAL;
 import static com.gmail.andrewahughes.MyGdxGame.WORLDHEIGHT;
 import static com.gmail.andrewahughes.MyGdxGame.WORLDWIDTH;
 
@@ -66,7 +69,7 @@ public class GameStage extends Stage {
         this.spriteBatch = batch;
         for (int i = 0; i < OptionsStage.gameBoardSize; i++) {
             cardButtonArray.add(        new CardButton(stageInterface,0,0,true,CardButton.VERTICAL,MyGdxGame.GAMESTAGE,ButtonEnum.Card.TRIHANDCARD25),
-                    new CardButton(stageInterface,0,0,true,CardButton.LEFT,MyGdxGame.GAMESTAGE,ButtonEnum.Card.TRIHANDCARD25),
+                    new CardButton(stageInterface,0,0,true, LEFT,MyGdxGame.GAMESTAGE,ButtonEnum.Card.TRIHANDCARD25),
                     new CardButton(stageInterface,0,0,true,CardButton.RIGHT,MyGdxGame.GAMESTAGE,ButtonEnum.Card.TRIHANDCARD25));
 
         }
@@ -137,11 +140,11 @@ public class GameStage extends Stage {
              * and vice versa for the right one - right - left
              * UNLESS the adjacent trident is the same orientation as the current one, in which case  we do left -left, or right - right
              * this will only happen to tridents on the edge, where we've been creative in which one is adjacent */
-            boolean sameOrientationLeft = triButtonArray.get(highlightPosGameboard).orientation==triButtonArray.get(triButtonArray.get(highlightPosGameboard).adjacentIndexLeft).orientation;
-            boolean sameOrientationRight = triButtonArray.get(highlightPosGameboard).orientation==triButtonArray.get(triButtonArray.get(highlightPosGameboard).adjacentIndexRight).orientation;
+            boolean sameOrientationLeft = triButtonArray.get(highlightPosGameboard).orientation==triButtonArray.get(triButtonArray.get(highlightPosGameboard).adjacentIndexRight).orientation;
+            boolean sameOrientationRight = triButtonArray.get(highlightPosGameboard).orientation==triButtonArray.get(triButtonArray.get(highlightPosGameboard).adjacentIndexLeft).orientation;
             triButtonArray.get(triButtonArray.get(highlightPosGameboard).adjacentIndexVertical).cardButtonArray.get(0).drawHighlightShape(shapeRenderer);
-            triButtonArray.get(triButtonArray.get(highlightPosGameboard).adjacentIndexLeft).cardButtonArray.get(sameOrientationLeft?2:1).drawHighlightShape(shapeRenderer);
-            triButtonArray.get(triButtonArray.get(highlightPosGameboard).adjacentIndexRight).cardButtonArray.get(sameOrientationRight?1:2).drawHighlightShape(shapeRenderer);
+            triButtonArray.get(triButtonArray.get(highlightPosGameboard).adjacentIndexRight).cardButtonArray.get(sameOrientationLeft?2:1).drawHighlightShape(shapeRenderer);
+            triButtonArray.get(triButtonArray.get(highlightPosGameboard).adjacentIndexLeft).cardButtonArray.get(sameOrientationRight?1:2).drawHighlightShape(shapeRenderer);
             shapeRenderer.setColor(Color.WHITE);
         }
         if (highlightPosTriHand>-1) {
@@ -283,6 +286,7 @@ public class GameStage extends Stage {
             triButtonArray.get(i+ ButtonEnum.Tri.GAMETRIHAND0.value).updatePos(TridentBuildingStage.getCardAtHighlightPos(i *3).getX(),TridentBuildingStage.getCardAtHighlightPos(i *3).getY(),TridentBuildingStage.getCardAtHighlightPos(i *3).orientation);
             triButtonArray.get(i+ ButtonEnum.Tri.GAMETRIHAND0.value).cardsVisible=true;
             triButtonArray.get(i+ ButtonEnum.Tri.GAMETRIHAND0.value).ownership=0;
+            triButtonArray.get(i+ ButtonEnum.Tri.GAMETRIHAND0.value).confirmOwnership();
 
         }
         /*if using pre and post game cards save them to a trident each too */
@@ -338,6 +342,7 @@ public class GameStage extends Stage {
             triButtonArray.get(i + ButtonEnum.Tri.GAMETRIHAND0P1.value).updatePos(TridentBuildingStage.cardButtonArrayTridentHand.get(i * 3).getX(), TridentBuildingStage.cardButtonArrayTridentHand.get(i * 3).getY() - CardButton.edgeLength, TridentBuildingStage.cardButtonArrayTridentHand.get(i * 3).orientation);
             triButtonArray.get(i + ButtonEnum.Tri.GAMETRIHAND0P1.value).cardsVisible = true;
             triButtonArray.get(i + ButtonEnum.Tri.GAMETRIHAND0P1.value).ownership = 1;
+            triButtonArray.get(i + ButtonEnum.Tri.GAMETRIHAND0P1.value).confirmOwnership();
             tempString = tempString + (" " + triButtonArray.get(i + ButtonEnum.Tri.GAMETRIHAND0P1.value).cardButtonArray.get(0).getPip());
             tempString = tempString + (" " + triButtonArray.get(i + ButtonEnum.Tri.GAMETRIHAND0P1.value).cardButtonArray.get(1).getPip());
             tempString = tempString + (" " + triButtonArray.get(i + ButtonEnum.Tri.GAMETRIHAND0P1.value).cardButtonArray.get(2).getPip());
@@ -377,6 +382,7 @@ public class GameStage extends Stage {
                 triButtonArray.get(i + ButtonEnum.Tri.GAMETRIHAND0P1.value).updatePos(TridentBuildingStage.cardButtonArrayTridentHand.get(i * 3).getX(), TridentBuildingStage.cardButtonArrayTridentHand.get(i * 3).getY() - CardButton.edgeLength * 2, TridentBuildingStage.cardButtonArrayTridentHand.get(i * 3).orientation);
                 triButtonArray.get(i + ButtonEnum.Tri.GAMETRIHAND0P2.value).cardsVisible = true;
                 triButtonArray.get(i + ButtonEnum.Tri.GAMETRIHAND0P2.value).ownership = 2;
+                triButtonArray.get(i + ButtonEnum.Tri.GAMETRIHAND0P2.value).confirmOwnership();
 
             }
             /*if using pre and post game cards save them to a trident each too */
@@ -416,7 +422,7 @@ public class GameStage extends Stage {
         /*place the trident in the gameboard, the trihandindex will start at 16, because the 16
         gameboard buttons come before it, so subtract 16, then add the player index worked out
         above which will put us at that player's trihand buttons in the array */
-        triButtonArray.get(gameboardIndex).place(triButtonArray.get(playerIndex+triHandIndex- ButtonEnum.Tri.GAMETRIHAND0.value));
+        triButtonArray.get(gameboardIndex).place(gameboardIndex,triButtonArray.get(playerIndex+triHandIndex- ButtonEnum.Tri.GAMETRIHAND0.value));
         /*now apply any rotation and flip necessary*/
         /*rotation will be either 0, 1 or 2, and that's how many times we need to rotate*/
         for(int i=0;i<rotation;i++){
@@ -434,6 +440,13 @@ public class GameStage extends Stage {
         }
         /*set the placed bool to true so that you can't place something on top of it*/
         triButtonArray.get(gameboardIndex).placed=true;
+
+        /*the ownerhsip will have been set in the place method, but this will update the previousOwnership too*/
+        triButtonArray.get(gameboardIndex).confirmOwnership();
+        /*the ownership of the adjacents might have changed also, so confirm those too */
+        triButtonArray.get(triButtonArray.get(gameboardIndex).adjacentIndexVertical).confirmOwnership();
+        triButtonArray.get(triButtonArray.get(gameboardIndex).adjacentIndexLeft).confirmOwnership();
+        triButtonArray.get(triButtonArray.get(gameboardIndex).adjacentIndexRight).confirmOwnership();
     }
     /**
      * 16 triButtons will have been created, need to set their position and orientation here
@@ -462,6 +475,7 @@ public class GameStage extends Stage {
         /*for each row...*/
         for (int i = 0; i < rows.size; i++) {
             getGB(index).ownership=-1;
+            getGB(index).confirmOwnership();
             /*for each trident on the row
             rows.get(i) will equal 1, 3 ,5 , 7 etc - that is the number of tridents on the row*/
             for (int j = 0; j < rows.get(i); j++) {
@@ -511,40 +525,40 @@ public class GameStage extends Stage {
                 }
                 /*if not on the left edge, set the left adjacent*/
                 if(j>0) {
-                    getGB(index).adjacentIndexLeft = index - 1;
+                    getGB(index).adjacentIndexRight = index - 1;
                 }
                 else if(OptionsStage.gameBoardSize==16){
                     /*special case*/
                     if (index==0){
-                        getGB(index).adjacentIndexLeft= 1;
+                        getGB(index).adjacentIndexRight = 1;
                     }
                     else if (index==1){
-                        getGB(index).adjacentIndexLeft= 0;
+                        getGB(index).adjacentIndexRight = 0;
                     }
                     else if (index==4){
-                        getGB(index).adjacentIndexLeft= 9;
+                        getGB(index).adjacentIndexRight = 9;
                     }
                     else if (index==9){
-                        getGB(index).adjacentIndexLeft= 4;
+                        getGB(index).adjacentIndexRight = 4;
                     }
                 }
                 /*if not on the right edge set the right adjacent*/
                 if(j<rows.get(i)-1) {
-                    getGB(index).adjacentIndexRight = index + 1;
+                    getGB(index).adjacentIndexLeft = index + 1;
                 }
                 else if(OptionsStage.gameBoardSize==16){
                     /*special case*/
                     if (index==0){
-                        getGB(index).adjacentIndexRight= 3;
+                        getGB(index).adjacentIndexLeft = 3;
                     }
                     else if (index==3){
-                        getGB(index).adjacentIndexRight= 0;
+                        getGB(index).adjacentIndexLeft = 0;
                     }
                     else if (index==8){
-                        getGB(index).adjacentIndexRight= 15;
+                        getGB(index).adjacentIndexLeft = 15;
                     }
                     else if (index==15){
-                        getGB(index).adjacentIndexRight= 8;
+                        getGB(index).adjacentIndexLeft = 8;
                     }
                 }
 
@@ -612,6 +626,8 @@ public class GameStage extends Stage {
                 triButtonArray.get(highlightPosGameboard).cancelPlace();
             }
         }
+            /*should always cancel battel before changing the highlightPosGameboard*/
+            cancelBattle();
             /*highlight the tapped gameboard trident */
             highlightPosGameboard = index;
         if(triButtonArray.get(highlightPosGameboard).placed==false) {
@@ -619,7 +635,7 @@ public class GameStage extends Stage {
             if (highlightPosTriHand != -1) {
                 setPlaceMode(true);
                 /*set the gameboard position trident to reflect the chosen trident*/
-                triButtonArray.get(highlightPosGameboard).place(triButtonArray.get(highlightPosTriHand));
+                triButtonArray.get(highlightPosGameboard).place(highlightPosGameboard,triButtonArray.get(highlightPosTriHand));
             }
         }
         else{
@@ -642,7 +658,7 @@ public class GameStage extends Stage {
             if (highlightPosGameboard != -1) {
                 setPlaceMode(true);
                 /*set the gameboard position trident to reflect the chosen trident*/
-                triButtonArray.get(highlightPosGameboard).place(triButtonArray.get(highlightPosTriHand));
+                triButtonArray.get(highlightPosGameboard).place(highlightPosGameboard, triButtonArray.get(highlightPosTriHand));
             }
         }
         else
@@ -680,6 +696,7 @@ public class GameStage extends Stage {
             triButtonArray.get(index).rotation=(byte)((triButtonArray.get(index).rotation-1+3)%3);
         }
         Gdx.app.log("GAMESTAGE","rotation "+triButtonArray.get(index).rotation);
+        evaluateBattle(index);
     }
     public static void flip(int index){
 
@@ -691,7 +708,98 @@ public class GameStage extends Stage {
         /*toggle the flipped boolean*/
         triButtonArray.get(index).flipped=!triButtonArray.get(index).flipped;
         Gdx.app.log("GAMESTAGE","flip "+triButtonArray.get(index).flipped);
+        evaluateBattle(index);
 
+    }
+    /** this mehtod should be called after place, rotate or flip, basically when a new trident is added to the gameBoard
+     * we need to call this to see if it wins or loses any battles.
+     *
+     */
+    public static void evaluateBattle(int gameBoardIndex)
+    {
+        Gdx.app.log("BATTLE","gameBoardPos "+gameBoardIndex);
+        /*variables should try and make this less confusing */
+        int adjacentVertical= triButtonArray.get(gameBoardIndex).adjacentIndexVertical;
+        int adjacentLeft= triButtonArray.get(gameBoardIndex).adjacentIndexLeft;
+        int adjacentRight= triButtonArray.get(gameBoardIndex).adjacentIndexRight;
+        /*save what the current adjacent's ownership is, so we can change back to that if this battle is cancelled*/
+
+
+        Gdx.app.log("BATTLE","AdjacentGBPos V "+adjacentVertical);
+        Gdx.app.log("BATTLE","AdjacentGBPos L "+adjacentLeft);
+        Gdx.app.log("BATTLE","AdjacentGBPos R "+adjacentRight);
+        /*noramlly in a battle we compare the vertical edge to the vertical of the adjacent card,
+        the left with the right
+        and the riight with the left,
+        but there are special edge cases, if the card is on the right edge, the right card should be compared to the right card of the
+        adjacent, instead of the left
+        if the card is on the left edge, the left card should be compared to the left  card of the adjacent, instead of the right
+        */
+        boolean edgeCaseRight=false;
+        boolean edgeCaseLeft=false;
+        if (gameBoardIndex==0||gameBoardIndex==1||gameBoardIndex==4||gameBoardIndex==9)
+        {
+            edgeCaseRight=true;
+        }
+        if (gameBoardIndex==0||gameBoardIndex==3||gameBoardIndex==8||gameBoardIndex==15)
+        {
+            edgeCaseLeft=true;
+        }
+        /*for the newly added trident, test if the vertical card value is greater than the
+        * vertical card value  of the trident adjacent to the vertical card - if there is one */
+        if(triButtonArray.get(adjacentVertical).placed) {
+            Gdx.app.log("BATTLE","V value "+triButtonArray.get(gameBoardIndex).cardButtonArray.get(VERTICAL).getPip()+ " adjacent v Value "+triButtonArray.get(adjacentVertical).cardButtonArray.get(VERTICAL).getPip());
+            if(triButtonArray.get(gameBoardIndex).cardButtonArray.get(VERTICAL).getPip() > triButtonArray.get(adjacentVertical).cardButtonArray.get(VERTICAL).getPip())
+            {
+                triButtonArray.get(adjacentVertical).ownership=triButtonArray.get(gameBoardIndex).ownership;
+                Gdx.app.log("BATTLE","battle won");
+
+            }
+            else
+            {
+                triButtonArray.get(adjacentVertical).ownership=triButtonArray.get(adjacentVertical).previousOwnership;
+                Gdx.app.log("BATTLE","battle lost");
+            }
+        }
+        if(triButtonArray.get(adjacentLeft).placed) {
+            Gdx.app.log("BATTLE","L value "+triButtonArray.get(gameBoardIndex).cardButtonArray.get(LEFT).getPip()+ " adjacent R Value "+triButtonArray.get(adjacentLeft).cardButtonArray.get(RIGHT).getPip());
+            if(triButtonArray.get(gameBoardIndex).cardButtonArray.get(LEFT).getPip() > triButtonArray.get(adjacentLeft).cardButtonArray.get(edgeCaseLeft?LEFT:RIGHT).getPip())
+            {
+                triButtonArray.get(adjacentLeft).ownership=triButtonArray.get(gameBoardIndex).ownership;
+                Gdx.app.log("BATTLE","battle won");
+            }
+            else
+            {
+                triButtonArray.get(adjacentLeft).ownership= triButtonArray.get(adjacentLeft).previousOwnership;
+                Gdx.app.log("BATTLE","battle lost");
+            }
+        }
+        if(triButtonArray.get(adjacentRight).placed) {
+            Gdx.app.log("BATTLE","R value "+triButtonArray.get(gameBoardIndex).cardButtonArray.get(RIGHT).getPip()+ " adjacent L Value "+triButtonArray.get(adjacentRight).cardButtonArray.get(LEFT).getPip());
+            if(triButtonArray.get(gameBoardIndex).cardButtonArray.get(RIGHT).getPip() > triButtonArray.get(adjacentRight).cardButtonArray.get(edgeCaseRight?RIGHT:LEFT).getPip())
+            {
+                triButtonArray.get(adjacentRight).ownership=triButtonArray.get(gameBoardIndex).ownership;
+                Gdx.app.log("BATTLE","battle won");
+            }
+            else
+            {
+                triButtonArray.get(adjacentRight).ownership=triButtonArray.get(adjacentRight).previousOwnership;
+                Gdx.app.log("BATTLE","battle lost");
+            }
+        }
+    }
+
+    /**
+     * if you begin a preliminary battle, but then cancel it we need to reset the ownership or else it will look like
+     * the battle actualy took place, this should be called basically everytime before highlightPosGameboard changes
+     */
+    public static void cancelBattle() {
+        if (highlightPosGameboard > -1)
+        {
+            triButtonArray.get(triButtonArray.get(highlightPosGameboard).adjacentIndexVertical).ownership = triButtonArray.get(triButtonArray.get(highlightPosGameboard).adjacentIndexVertical).previousOwnership;
+            triButtonArray.get(triButtonArray.get(highlightPosGameboard).adjacentIndexLeft).ownership = triButtonArray.get(triButtonArray.get(highlightPosGameboard).adjacentIndexLeft).previousOwnership;
+            triButtonArray.get(triButtonArray.get(highlightPosGameboard).adjacentIndexRight).ownership = triButtonArray.get(triButtonArray.get(highlightPosGameboard).adjacentIndexRight).previousOwnership;
+        }
     }
     /**
      * this will be called in the tributton class,
@@ -835,6 +943,11 @@ public class GameStage extends Stage {
             }
             case GAMEPLACECONFIRM: {
                 triButtonArray.get(highlightPosGameboard).placed=true;
+                triButtonArray.get(highlightPosGameboard).confirmOwnership();
+                triButtonArray.get(triButtonArray.get(highlightPosGameboard).adjacentIndexVertical).confirmOwnership();
+                triButtonArray.get(triButtonArray.get(highlightPosGameboard).adjacentIndexLeft).confirmOwnership();
+                triButtonArray.get(triButtonArray.get(highlightPosGameboard).adjacentIndexRight).confirmOwnership();
+
                 triButtonArray.get(highlightPosTriHand).placed=true;
                 triButtonArray.get(highlightPosTriHand).greyed=true;
                 MyServer.emitPlacement(highlightPosTriHand, highlightPosGameboard,triButtonArray.get(highlightPosGameboard).rotation,triButtonArray.get(highlightPosGameboard).flipped);

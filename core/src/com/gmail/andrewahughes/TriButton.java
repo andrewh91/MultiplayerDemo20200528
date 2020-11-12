@@ -74,8 +74,8 @@ public class TriButton extends Actor {
      * method of gameStage, this is the way each trident knows which tridents are next to it, -1 means no adjacent
      */
     int adjacentIndexVertical=-1;
-    int adjacentIndexLeft=-1;
-    int adjacentIndexRight=-1;
+    int adjacentIndexRight =-1;
+    int adjacentIndexLeft =-1;
 
 
     float oldPosX, oldPosY;
@@ -89,6 +89,7 @@ public class TriButton extends Actor {
      * greyed out so we know it's been placed*/
     boolean greyed = false;
     int ownership=-1;
+    int previousOwnership=-1;
 
     /**
      * this will be used when emitting the data to the other player. if player 1 rotates and flips the trident before placing
@@ -565,7 +566,7 @@ public void touchMessage(float x, float y){
      * Place the selected trident into the empty gameboard trident position
      * this will take on the values of the selected trident,
      */
-    public void place(TriButton triButton){
+    public void place(int gameboardIndex, TriButton triButton){
         for (int i =0; i < 3; i++){
             this.cardButtonArray.get(i).value=triButton.cardButtonArray.get(i).value;
             this.cardButtonArray.get(i).text=triButton.cardButtonArray.get(i).text;
@@ -573,9 +574,8 @@ public void touchMessage(float x, float y){
             this.cardButtonArray.get(i).playerIndex=triButton.cardButtonArray.get(i).playerIndex;
             cardsVisible=true;
             this.ownership=triButton.ownership;
-
         }
-
+        GameStage.evaluateBattle(gameboardIndex);
     }
     /**
      * cancel any tridents that have been placed in the gameboard and not confirmed
@@ -587,8 +587,21 @@ public void touchMessage(float x, float y){
             this.cardButtonArray.get(i).colour= Color.WHITE;
             this.cardButtonArray.get(i).playerIndex=-1;
             cardsVisible=false;
+            this.ownership=previousOwnership;
+            this.rotation=0;
+            this.flipped=false;
 
         }
+
+    }
+
+    /**
+     * ownership will change temporarily during evaluateBattle, if the ownership changes
+     * permanently due to confirming a battle, or it being changed during setup, then use this method
+     */
+    public void confirmOwnership()
+    {
+        previousOwnership=ownership;
 
     }
 }
