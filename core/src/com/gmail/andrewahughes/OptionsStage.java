@@ -63,6 +63,18 @@ public class OptionsStage extends Stage {
      * 6  separate boards of 4 triButtons each
      */
     public static int gameBoardSize=0;
+
+    public static final int PREMADETRIDENTS=0;
+    public static final int BUILDYOUROWNTRIDENTS=1;
+    /**
+     * this will alter how the trident building stage works. the options are PREMADETRIDENTS or BUILDYOUROWNTRIDENTS
+     */
+    public static int tridentBuildingMode=PREMADETRIDENTS;
+    /**
+     * if set to true, then during the game you can flip and rotate tridents on the
+     * gameboard that you placed to change the position of the cards.
+     */
+    public static boolean allowFlipAndRotate=false;
     public OptionsStage(StageInterface stageInterface, Viewport viewport, SpriteBatch batch,ShapeRenderer shapeRenderer)
     {
         this.stageInterface =stageInterface;

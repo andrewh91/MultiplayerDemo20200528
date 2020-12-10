@@ -668,48 +668,50 @@ public class GameStage extends Stage {
     }
     
     public static void rotate(int index){
-        byte tempPosition = triButtonArray.get(index).cardButtonArray.get(0).position;
-        triButtonArray.get(index).cardButtonArray.get(0).position = triButtonArray.get(index).cardButtonArray.get(1).position;;
-        triButtonArray.get(index).cardButtonArray.get(1).position =tempPosition;
+        if(OptionsStage.allowFlipAndRotate) {
+            byte tempPosition = triButtonArray.get(index).cardButtonArray.get(0).position;
+            triButtonArray.get(index).cardButtonArray.get(0).position = triButtonArray.get(index).cardButtonArray.get(1).position;
+            ;
+            triButtonArray.get(index).cardButtonArray.get(1).position = tempPosition;
 
-        tempPosition = triButtonArray.get(index).cardButtonArray.get(1).position;
-        triButtonArray.get(index).cardButtonArray.get(1).position = triButtonArray.get(index).cardButtonArray.get(2).position;;
-        triButtonArray.get(index).cardButtonArray.get(2).position =tempPosition;
+            tempPosition = triButtonArray.get(index).cardButtonArray.get(1).position;
+            triButtonArray.get(index).cardButtonArray.get(1).position = triButtonArray.get(index).cardButtonArray.get(2).position;
+            ;
+            triButtonArray.get(index).cardButtonArray.get(2).position = tempPosition;
 
-        triButtonArray.get(index).cardButtonArray.swap(1,2);
-        triButtonArray.get(index).cardButtonArray.swap(0,1);
+            triButtonArray.get(index).cardButtonArray.swap(1, 2);
+            triButtonArray.get(index).cardButtonArray.swap(0, 1);
 
-        /**
-         * we need to keep track of how the original cards have been rotated for this trident, we
-         * need to do this so we can tell the other player the correct position of each card
-         */
-        if(triButtonArray.get(index).flipped==false)
-        {
-            /*if the trident has not been flipped rotation will increment the rotation number through 0, 1 and 2,
-             * increment over 2 will bring it back to 0 using modulus %*/
-            triButtonArray.get(index).rotation=(byte)((triButtonArray.get(index).rotation+1)%3);
-        }
-        else
-        {
+            /**
+             * we need to keep track of how the original cards have been rotated for this trident, we
+             * need to do this so we can tell the other player the correct position of each card
+             */
+            if (triButtonArray.get(index).flipped == false) {
+                /*if the trident has not been flipped rotation will increment the rotation number through 0, 1 and 2,
+                 * increment over 2 will bring it back to 0 using modulus %*/
+                triButtonArray.get(index).rotation = (byte) ((triButtonArray.get(index).rotation + 1) % 3);
+            } else {
                     /*if the trident is flipped then rotation will decrement instead, i'm not sure how modulus works with minus number in java so
                     i've just added 2 instead of subtracting 1 to ensure it's positive*/
-            triButtonArray.get(index).rotation=(byte)((triButtonArray.get(index).rotation-1+3)%3);
+                triButtonArray.get(index).rotation = (byte) ((triButtonArray.get(index).rotation - 1 + 3) % 3);
+            }
+            Gdx.app.log("GAMESTAGE", "rotation " + triButtonArray.get(index).rotation);
+            evaluateBattle(index);
         }
-        Gdx.app.log("GAMESTAGE","rotation "+triButtonArray.get(index).rotation);
-        evaluateBattle(index);
     }
     public static void flip(int index){
+        if(OptionsStage.allowFlipAndRotate) {
+            byte tempPosition = triButtonArray.get(index).cardButtonArray.get(1).position;
+            triButtonArray.get(index).cardButtonArray.get(1).position = triButtonArray.get(index).cardButtonArray.get(2).position;
+            ;
+            triButtonArray.get(index).cardButtonArray.get(2).position = tempPosition;
+            triButtonArray.get(index).cardButtonArray.swap(1, 2);
 
-        byte tempPosition = triButtonArray.get(index).cardButtonArray.get(1).position;
-        triButtonArray.get(index).cardButtonArray.get(1).position = triButtonArray.get(index).cardButtonArray.get(2).position;;
-        triButtonArray.get(index).cardButtonArray.get(2).position =tempPosition;
-        triButtonArray.get(index).cardButtonArray.swap(1,2);
-
-        /*toggle the flipped boolean*/
-        triButtonArray.get(index).flipped=!triButtonArray.get(index).flipped;
-        Gdx.app.log("GAMESTAGE","flip "+triButtonArray.get(index).flipped);
-        evaluateBattle(index);
-
+            /*toggle the flipped boolean*/
+            triButtonArray.get(index).flipped = !triButtonArray.get(index).flipped;
+            Gdx.app.log("GAMESTAGE", "flip " + triButtonArray.get(index).flipped);
+            evaluateBattle(index);
+        }
     }
     /** this mehtod should be called after place, rotate or flip, basically when a new trident is added to the gameBoard
      * we need to call this to see if it wins or loses any battles.
