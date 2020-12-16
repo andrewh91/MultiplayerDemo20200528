@@ -11,9 +11,7 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.viewport.ExtendViewport;
 import com.badlogic.gdx.utils.viewport.FitViewport;
-import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
 public class MyGdxGame extends ApplicationAdapter  implements  StageInterface{
@@ -26,6 +24,7 @@ public class MyGdxGame extends ApplicationAdapter  implements  StageInterface{
 	MatchMakingStage matchMakingStage;
 	DealStage dealStage;
 	TridentBuildingStage tridentBuildingStage;
+	DeckBuildingStage deckBuildingStage;
 	GameStage gameStage;
 	GameOverStage gameOverStage;
 
@@ -63,11 +62,16 @@ public class MyGdxGame extends ApplicationAdapter  implements  StageInterface{
 		matchMakingStage = new MatchMakingStage(			this, viewport, spriteBatch,shapeRenderer);
 		dealStage = new DealStage(							this, viewport, spriteBatch,shapeRenderer);
 		tridentBuildingStage = new TridentBuildingStage(	this, viewport, spriteBatch,shapeRenderer);
+		deckBuildingStage = new DeckBuildingStage(			this, viewport, spriteBatch,shapeRenderer);
 		gameStage = new GameStage(							this, viewport, spriteBatch,shapeRenderer);
 		gameOverStage = new GameOverStage(					this, viewport, spriteBatch,shapeRenderer);
 
 
 		goToStage(TITLESTAGE);
+		/*TODO remove this
+
+		 */
+		goToStage(DECKBUILDINGSTAGE);
 	}
 
 	@Override
@@ -94,6 +98,7 @@ public class MyGdxGame extends ApplicationAdapter  implements  StageInterface{
 		matchMakingStage.draw();
 		dealStage.draw();
 		tridentBuildingStage.draw();
+		deckBuildingStage.draw();
 		gameStage.draw();
 		gameOverStage.draw();
 	}
@@ -125,6 +130,7 @@ public class MyGdxGame extends ApplicationAdapter  implements  StageInterface{
 		matchMakingStage.setVisible(false);
 		dealStage.setVisible(false);
 		tridentBuildingStage.setVisible(false);
+		deckBuildingStage.setVisible(false);
 		gameStage.setVisible(false);
 		gameOverStage.setVisible(false);
 	}
@@ -167,13 +173,25 @@ public class MyGdxGame extends ApplicationAdapter  implements  StageInterface{
 				break;
 			}
 			case TRIDENTBUILDINGSTAGE :{
+				if(OptionsStage.usePreMadeDeck ==false) {
+					tridentBuildingStage.setVisible(true);
+					/*all of the tridentStage should have been set up in the deal stage
+					 * so we just need to amend some values*/
+					tridentBuildingStage.amendCardsForTridentBuildingStage();
 
-				tridentBuildingStage.setVisible(true);
-				/*all of the tridentStage should have been set up in the deal stage
-				* so we just need to amend some values*/
-				tridentBuildingStage.amendCardsForTridentBuildingStage();
+					Gdx.input.setInputProcessor(tridentBuildingStage);
+				}
+				break;
+			}
+			case DECKBUILDINGSTAGE :{
+				if(OptionsStage.usePreMadeDeck ==true) {
 
-				Gdx.input.setInputProcessor(tridentBuildingStage);
+					deckBuildingStage.setVisible(true);
+					deckBuildingStage.reset();
+
+
+					Gdx.input.setInputProcessor(deckBuildingStage);
+				}
 				break;
 			}
 			case GAMESTAGE :{
@@ -294,6 +312,12 @@ public class MyGdxGame extends ApplicationAdapter  implements  StageInterface{
 	@Override
 	public void handleButtonsTridentBuildingTri(ButtonEnum.Tri triButtonIndex) {
 		tridentBuildingStage.touchLogic(triButtonIndex);
+
+	}
+
+	@Override
+	public void handleButtonsDeckBuildingTri(ButtonEnum.Tri triButtonIndex) {
+		deckBuildingStage.touchLogic(triButtonIndex);
 
 	}
 

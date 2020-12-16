@@ -75,6 +75,12 @@ public class OptionsStage extends Stage {
      * gameboard that you placed to change the position of the cards.
      */
     public static boolean allowFlipAndRotate=false;
+    /**
+     * if true we will skip over trident building stage after progressing from the deal stage
+     * and use the deckbuildingstage instead
+     */
+    public static boolean usePreMadeDeck = true;
+
     public OptionsStage(StageInterface stageInterface, Viewport viewport, SpriteBatch batch,ShapeRenderer shapeRenderer)
     {
         this.stageInterface =stageInterface;

@@ -362,6 +362,11 @@ public void touchMessage(float x, float y){
                 TridentBuildingStage.queryTriButtonTouch(x, y);
                 break;
             }
+            case StageInterface.DECKBUILDINGSTAGE:
+            {
+                DeckBuildingStage.queryTriButtonTouch(x, y);
+                break;
+            }
             case StageInterface.GAMESTAGE:
             {
                 GameStage.queryTriButtonTouch(x, y);
@@ -414,6 +419,11 @@ public void touchMessage(float x, float y){
             case StageInterface.TRIDENTBUILDINGSTAGE:
             {
                 stageInterface.handleButtonsTridentBuildingTri(triButtonIndex);
+                break;
+            }
+            case StageInterface.DECKBUILDINGSTAGE:
+            {
+                stageInterface.handleButtonsDeckBuildingTri(triButtonIndex);
                 break;
             }
             case StageInterface.GAMESTAGE:

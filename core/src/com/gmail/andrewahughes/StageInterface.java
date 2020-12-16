@@ -5,7 +5,7 @@ import com.badlogic.gdx.utils.Array;
 
 public interface StageInterface {
     /**some constants to refer to each game stage*/
-    public static final byte TITLESTAGE =0,OPTIONSSTAGE =1, MATCHMAKINGSTAGE = 2, DEALSTAGE =3, TRIDENTBUILDINGSTAGE=4,GAMESTAGE =5, GAMEOVERSTAGE=6;
+    public static final byte TITLESTAGE =0,OPTIONSSTAGE =1, MATCHMAKINGSTAGE = 2, DEALSTAGE =3, TRIDENTBUILDINGSTAGE=4,DECKBUILDINGSTAGE=5,GAMESTAGE =6, GAMEOVERSTAGE=7;
 
     void hideAllStages();
     void goToStage(int stage);
@@ -19,6 +19,7 @@ public interface StageInterface {
     void handleButtonsMatchMakingTri(ButtonEnum.Tri triButtonIndex);
     void handleButtonsDealTri(ButtonEnum.Tri triButtonIndex);
     void handleButtonsTridentBuildingTri(ButtonEnum.Tri triButtonIndex);
+    void handleButtonsDeckBuildingTri(ButtonEnum.Tri triButtonIndex);
     void handleButtonsGameTri(ButtonEnum.Tri triButtonIndex);
     void handleButtonsGameOverTri(ButtonEnum.Tri triButtonIndex);
     void handleButtonsTridentBuildingCard(ButtonEnum.Card cardButtonIndex);
