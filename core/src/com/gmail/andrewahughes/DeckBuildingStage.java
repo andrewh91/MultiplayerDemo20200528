@@ -10,6 +10,7 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 
 import static com.gmail.andrewahughes.MyGdxGame.WORLDHEIGHT;
 import static com.gmail.andrewahughes.MyGdxGame.WORLDWIDTH;
+import static com.gmail.andrewahughes.StageInterface.DECKBUILDINGSTAGE;
 
 public class DeckBuildingStage extends Stage {
 
@@ -33,13 +34,13 @@ public class DeckBuildingStage extends Stage {
 
         viewport.update(WORLDWIDTH, WORLDHEIGHT, true);
 
-        createButtons();
 
     }
     /*called everytime we go to the deck building stage*/
     public void reset()
     {
 
+        createButtons();
 
 
 
@@ -72,6 +73,49 @@ public class DeckBuildingStage extends Stage {
                 /*need to do the same for the trihandcards*/
                 triButtonArray.get(i).setX(CardButton.dealAnimationRectangleDealX + w/2 * (i)+10);
             }
+        }
+    }
+
+    /**
+     * the available tridents will have been set up with no position, we need to give them position
+     * and visibility and orientation, but importantly, orientation needs to come from the premadeDeck class
+     * and each suit might not necessarily use alternative orientation
+     */
+    static void updateAvailableTridents()
+    {
+        float w = (CardButton.dealAnimationRectangleWidth-CardButton.dealAnimationRectangleDealX*2)/4;
+        float h = (float) (w * Math.sin(Math.PI/3));
+        /*for the 17 tridents after the tridents set up for the trident hand*/
+        for(int i = OptionsStage.tridentsEach ; i < OptionsStage.tridentsEach + 16;i++){
+            triButtonArray.get(i).setVisible(true);
+
+            triButtonArray.get(i).edgeLength=w;
+            triButtonArray.get(i).updateBounds();
+            triButtonArray.get(i).drawMirror=false;
+            triButtonArray.get(i).setX(CardButton.dealAnimationRectangleDealX + w * ((i -OptionsStage.tridentsEach)%4));
+            triButtonArray.get(i).setY(CardButton.dealAnimationRectangleHeight + CardButton.dealAnimationRectangleDealY-h*2 - (h+CardButton.dealAnimationRectangleDealY)*(float)(Math.floor((i -OptionsStage.tridentsEach)/4)+1));
+            triButtonArray.get(i).orientation=(i-OptionsStage.tridentsEach)%2==1?true:false;
+
+            triButtonArray.get(i).setUpCardButtons(new CardButton(stageInterface,triButtonArray.get(i).getX(),triButtonArray.get(i).getY(),triButtonArray.get(i).orientation,(byte)0,DECKBUILDINGSTAGE, ButtonEnum.Card.TRIDENTBUILDING0),new CardButton(stageInterface,triButtonArray.get(i).getX(),triButtonArray.get(i).getY(),triButtonArray.get(i).orientation,(byte)1,DECKBUILDINGSTAGE, ButtonEnum.Card.TRIDENTBUILDING0),new CardButton(stageInterface,triButtonArray.get(i).getX(),triButtonArray.get(i).getY(),triButtonArray.get(i).orientation,(byte)2,DECKBUILDINGSTAGE, ButtonEnum.Card.TRIDENTBUILDING0));
+            triButtonArray.get(i).cardButtonArray.get(0).value = MyGdxGame.premadeDeck.d01.get((int)Math.floor((i -OptionsStage.tridentsEach)*3)+0);
+            triButtonArray.get(i).cardButtonArray.get(1).value = MyGdxGame.premadeDeck.d01.get((int)Math.floor((i -OptionsStage.tridentsEach)*3)+1);
+            triButtonArray.get(i).cardButtonArray.get(2).value = MyGdxGame.premadeDeck.d01.get((int)Math.floor((i -OptionsStage.tridentsEach)*3)+2);
+            triButtonArray.get(i).cardButtonArray.get(0).setText();
+            triButtonArray.get(i).cardButtonArray.get(1).setText();
+            triButtonArray.get(i).cardButtonArray.get(2).setText();
+            triButtonArray.get(i).cardButtonArray.get(0).setX(triButtonArray.get(i).getX());
+            triButtonArray.get(i).cardButtonArray.get(1).setX(triButtonArray.get(i).getX());
+            triButtonArray.get(i).cardButtonArray.get(2).setX(triButtonArray.get(i).getX());
+            triButtonArray.get(i).cardButtonArray.get(0).setY(triButtonArray.get(i).getY());
+            triButtonArray.get(i).cardButtonArray.get(1).setY(triButtonArray.get(i).getY());
+            triButtonArray.get(i).cardButtonArray.get(2).setY(triButtonArray.get(i).getY());
+
+            CardButton.edgeLength = triButtonArray.get(i).edgeLength;
+
+            triButtonArray.get(i).cardButtonArray.get(0).updateBounds();
+            triButtonArray.get(i).cardButtonArray.get(1).updateBounds();
+            triButtonArray.get(i).cardButtonArray.get(2).updateBounds();
+            triButtonArray.get(i).cardsVisible=true;
         }
     }
     @Override
@@ -188,6 +232,8 @@ public class DeckBuildingStage extends Stage {
 
         /*this will set the position of the tridents*/
         updatePlayerTridentHand();
+
+        updateAvailableTridents();
 
     }
 

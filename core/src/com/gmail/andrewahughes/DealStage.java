@@ -793,7 +793,13 @@ public class DealStage extends Stage {
         /*should only call this once deal data received*/
         ANIMATIONSTAGE=ANIMATIONDEALCARDS;
     }
-
+    public void setUpDealRect()
+    {
+        /*this will set up a rectangle in which the card buttons will be arranged for the
+         * deal animation*/
+        CardButton.setDealAnimationRectangle(35, 35, 720 - 70, 1280 - 70);
+        CardButton.updateBounds();
+    }
     /**
      * this will be the first method called in the deal stage (after resetting the deal stage)
      * amend the cards in the tridentBuildingStage's cardbuttonarray
@@ -802,10 +808,7 @@ public class DealStage extends Stage {
      * beginDeal button
      */
     public void amendCardsForDealStageAnimation() {
-        /*this will set up a rectangle in which the card buttons will be arranged for the
-         * deal animation*/
-        CardButton.setDealAnimationRectangle(35, 35, 720 - 70, 1280 - 70);
-        CardButton.updateBounds();
+        setUpDealRect();
         /*loop through the tridentBuildingStage's cardButtonArray setting all the values
          * so the cardButtons are spread out and oriented correctly */
 

@@ -29,6 +29,8 @@ import com.badlogic.gdx.utils.Array;
  * and i can set this up so that, typically, one suit has a advantage over the next sort of like rock paper scissors.
  * nature beats light beats demon beats dark beats nature , but this is just a sort of thematic rule i made for myself,
  * nothing to actually enforce it
+ *
+ * the orientation will be implicit, it will always start with POINTDOWN then alternate
  */
 public class PremadeDeck {
 

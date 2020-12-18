@@ -19,6 +19,8 @@ public class MyGdxGame extends ApplicationAdapter  implements  StageInterface{
 	BitmapFont bitmapFont;
 	ShapeRenderer shapeRenderer;
 
+	static PremadeDeck premadeDeck;
+
 	TitleStage titleStage;
 	OptionsStage optionsStage;
 	MatchMakingStage matchMakingStage;
@@ -56,6 +58,9 @@ public class MyGdxGame extends ApplicationAdapter  implements  StageInterface{
         viewport.apply();
 
 		deck = new Deck();
+
+		premadeDeck = new PremadeDeck();
+
 		/*pass in this (MyGdxGame) as the stage interface so the stage can use the stage interface methods*/
 		titleStage = new TitleStage(						this, viewport, spriteBatch,shapeRenderer);
 		optionsStage = new OptionsStage(					this, viewport, spriteBatch,shapeRenderer);
@@ -186,6 +191,8 @@ public class MyGdxGame extends ApplicationAdapter  implements  StageInterface{
 			case DECKBUILDINGSTAGE :{
 				if(OptionsStage.usePreMadeDeck ==true) {
 
+					/*if the deal stage was skipped, then call this here because we need it to help position things*/
+					dealStage.setUpDealRect();
 					deckBuildingStage.setVisible(true);
 					deckBuildingStage.reset();
 
