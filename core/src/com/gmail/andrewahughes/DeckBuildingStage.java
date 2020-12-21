@@ -2,6 +2,8 @@ package com.gmail.andrewahughes;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.scenes.scene2d.Stage;
@@ -21,7 +23,21 @@ public class DeckBuildingStage extends Stage {
     ShapeRenderer shapeRenderer;
 
 
+
+    static int selectedTridentInTriHand=0;
+    static int selectedTridentInTriHandIncrementCount=0;
     static Array<TriButton> triButtonArray = new Array<TriButton>();
+    /**
+     * this is a total value of all card in all trident in the player's trident hand,
+     * we need to calculate this and show it on screen to help the player stay under their handicap
+     */
+    static int handValue =0;
+    static int handValueX=0;
+    static int handValueY=0;
+
+    BitmapFont font = new BitmapFont();
+    GlyphLayout glyphLayout = new GlyphLayout();
+
 
     public DeckBuildingStage(StageInterface stageInterface, Viewport viewport, SpriteBatch batch, ShapeRenderer shapeRenderer) {
         this.stageInterface = stageInterface;
@@ -34,7 +50,7 @@ public class DeckBuildingStage extends Stage {
 
         viewport.update(WORLDWIDTH, WORLDHEIGHT, true);
 
-
+        font.getData().setScale(2);
     }
     /*called everytime we go to the deck building stage*/
     public void reset()
@@ -72,6 +88,9 @@ public class DeckBuildingStage extends Stage {
                 triButtonArray.get(i).drawMirror=false;
                 /*need to do the same for the trihandcards*/
                 triButtonArray.get(i).setX(CardButton.dealAnimationRectangleDealX + w/2 * (i)+10);
+                triButtonArray.get(i).setY(-1000);
+                handValueX=(int)(CardButton.dealAnimationRectangleDealX + w/2 * (i+1));
+                handValueY=(int)(CardButton.dealAnimationRectangleHeight + CardButton.dealAnimationRectangleDealY-h*1.5);
             }
         }
     }
@@ -83,7 +102,7 @@ public class DeckBuildingStage extends Stage {
      */
     static void updateAvailableTridents()
     {
-        float w = (CardButton.dealAnimationRectangleWidth-CardButton.dealAnimationRectangleDealX*2)/4;
+        float w = CardButton.dealAnimationRectangleWidth/5;
         float h = (float) (w * Math.sin(Math.PI/3));
         /*for the 17 tridents after the tridents set up for the trident hand*/
         for(int i = OptionsStage.tridentsEach ; i < OptionsStage.tridentsEach + 16;i++){
@@ -145,6 +164,11 @@ public class DeckBuildingStage extends Stage {
             spriteBatch.begin();
             /*draw all actors of this stage*/
             drawTriButtons(spriteBatch);
+
+            glyphLayout.setText(font,handValue+"");
+            font.draw(spriteBatch   , handValue+"",handValueX,handValueY);
+
+
             spriteBatch.end();
         }
     }
@@ -194,35 +218,35 @@ public class DeckBuildingStage extends Stage {
 
         /*the maximum number of tridents will be 8 in the players' trident hand,
          */
-        stageInterface.addTriButton(new TriButton(stageInterface,0,0,false,StageInterface.DECKBUILDINGSTAGE, ButtonEnum.Tri.DECKBUILDINGPLAYERTRIDENTARRAY1), triButtonArray,this);
-        stageInterface.addTriButton(new TriButton(stageInterface,0,0,false,StageInterface.DECKBUILDINGSTAGE, ButtonEnum.Tri.DECKBUILDINGPLAYERTRIDENTARRAY2), triButtonArray,this);
-        stageInterface.addTriButton(new TriButton(stageInterface,0,0,false,StageInterface.DECKBUILDINGSTAGE, ButtonEnum.Tri.DECKBUILDINGPLAYERTRIDENTARRAY3), triButtonArray,this);
-        stageInterface.addTriButton(new TriButton(stageInterface,0,0,false,StageInterface.DECKBUILDINGSTAGE, ButtonEnum.Tri.DECKBUILDINGPLAYERTRIDENTARRAY4), triButtonArray,this);
-        stageInterface.addTriButton(new TriButton(stageInterface,0,0,false,StageInterface.DECKBUILDINGSTAGE, ButtonEnum.Tri.DECKBUILDINGPLAYERTRIDENTARRAY5), triButtonArray,this);
-        stageInterface.addTriButton(new TriButton(stageInterface,0,0,false,StageInterface.DECKBUILDINGSTAGE, ButtonEnum.Tri.DECKBUILDINGPLAYERTRIDENTARRAY6), triButtonArray,this);
-        stageInterface.addTriButton(new TriButton(stageInterface,0,0,false,StageInterface.DECKBUILDINGSTAGE, ButtonEnum.Tri.DECKBUILDINGPLAYERTRIDENTARRAY7), triButtonArray,this);
-        stageInterface.addTriButton(new TriButton(stageInterface,0,0,false,StageInterface.DECKBUILDINGSTAGE, ButtonEnum.Tri.DECKBUILDINGPLAYERTRIDENTARRAY8), triButtonArray,this);
-        stageInterface.addTriButton(new TriButton(stageInterface,0,0,false,StageInterface.DECKBUILDINGSTAGE, ButtonEnum.Tri.DECKBUILDINGPLAYERTRIDENTARRAY9), triButtonArray,this);
+        stageInterface.addTriButton(new TriButton(stageInterface,-1000,-1000,false,StageInterface.DECKBUILDINGSTAGE, ButtonEnum.Tri.DECKBUILDINGPLAYERTRIDENTARRAY1), triButtonArray,this);
+        stageInterface.addTriButton(new TriButton(stageInterface,-1000,-1000,false,StageInterface.DECKBUILDINGSTAGE, ButtonEnum.Tri.DECKBUILDINGPLAYERTRIDENTARRAY2), triButtonArray,this);
+        stageInterface.addTriButton(new TriButton(stageInterface,-1000,-1000,false,StageInterface.DECKBUILDINGSTAGE, ButtonEnum.Tri.DECKBUILDINGPLAYERTRIDENTARRAY3), triButtonArray,this);
+        stageInterface.addTriButton(new TriButton(stageInterface,-1000,-1000,false,StageInterface.DECKBUILDINGSTAGE, ButtonEnum.Tri.DECKBUILDINGPLAYERTRIDENTARRAY4), triButtonArray,this);
+        stageInterface.addTriButton(new TriButton(stageInterface,-1000,-1000,false,StageInterface.DECKBUILDINGSTAGE, ButtonEnum.Tri.DECKBUILDINGPLAYERTRIDENTARRAY5), triButtonArray,this);
+        stageInterface.addTriButton(new TriButton(stageInterface,-1000,-1000,false,StageInterface.DECKBUILDINGSTAGE, ButtonEnum.Tri.DECKBUILDINGPLAYERTRIDENTARRAY6), triButtonArray,this);
+        stageInterface.addTriButton(new TriButton(stageInterface,-1000,-1000,false,StageInterface.DECKBUILDINGSTAGE, ButtonEnum.Tri.DECKBUILDINGPLAYERTRIDENTARRAY7), triButtonArray,this);
+        stageInterface.addTriButton(new TriButton(stageInterface,-1000,-1000,false,StageInterface.DECKBUILDINGSTAGE, ButtonEnum.Tri.DECKBUILDINGPLAYERTRIDENTARRAY8), triButtonArray,this);
+        stageInterface.addTriButton(new TriButton(stageInterface,-1000,-1000,false,StageInterface.DECKBUILDINGSTAGE, ButtonEnum.Tri.DECKBUILDINGPLAYERTRIDENTARRAY9), triButtonArray,this);
 
-        stageInterface.addTriButton(new TriButton(stageInterface,0,0,false,StageInterface.DECKBUILDINGSTAGE, ButtonEnum.Tri.DECKBUILDINGPLAYERAVAILABLETRIDENTARRAY1), triButtonArray,this);
-        stageInterface.addTriButton(new TriButton(stageInterface,0,0,false,StageInterface.DECKBUILDINGSTAGE, ButtonEnum.Tri.DECKBUILDINGPLAYERAVAILABLETRIDENTARRAY2), triButtonArray,this);
-        stageInterface.addTriButton(new TriButton(stageInterface,0,0,false,StageInterface.DECKBUILDINGSTAGE, ButtonEnum.Tri.DECKBUILDINGPLAYERAVAILABLETRIDENTARRAY3), triButtonArray,this);
-        stageInterface.addTriButton(new TriButton(stageInterface,0,0,false,StageInterface.DECKBUILDINGSTAGE, ButtonEnum.Tri.DECKBUILDINGPLAYERAVAILABLETRIDENTARRAY4), triButtonArray,this);
-        stageInterface.addTriButton(new TriButton(stageInterface,0,0,false,StageInterface.DECKBUILDINGSTAGE, ButtonEnum.Tri.DECKBUILDINGPLAYERAVAILABLETRIDENTARRAY5), triButtonArray,this);
-        stageInterface.addTriButton(new TriButton(stageInterface,0,0,false,StageInterface.DECKBUILDINGSTAGE, ButtonEnum.Tri.DECKBUILDINGPLAYERAVAILABLETRIDENTARRAY6), triButtonArray,this);
-        stageInterface.addTriButton(new TriButton(stageInterface,0,0,false,StageInterface.DECKBUILDINGSTAGE, ButtonEnum.Tri.DECKBUILDINGPLAYERAVAILABLETRIDENTARRAY7), triButtonArray,this);
-        stageInterface.addTriButton(new TriButton(stageInterface,0,0,false,StageInterface.DECKBUILDINGSTAGE, ButtonEnum.Tri.DECKBUILDINGPLAYERAVAILABLETRIDENTARRAY8), triButtonArray,this);
-        stageInterface.addTriButton(new TriButton(stageInterface,0,0,false,StageInterface.DECKBUILDINGSTAGE, ButtonEnum.Tri.DECKBUILDINGPLAYERAVAILABLETRIDENTARRAY9), triButtonArray,this);
-        stageInterface.addTriButton(new TriButton(stageInterface,0,0,false,StageInterface.DECKBUILDINGSTAGE, ButtonEnum.Tri.DECKBUILDINGPLAYERAVAILABLETRIDENTARRAY10),triButtonArray,this);
-        stageInterface.addTriButton(new TriButton(stageInterface,0,0,false,StageInterface.DECKBUILDINGSTAGE, ButtonEnum.Tri.DECKBUILDINGPLAYERAVAILABLETRIDENTARRAY11),triButtonArray,this);
-        stageInterface.addTriButton(new TriButton(stageInterface,0,0,false,StageInterface.DECKBUILDINGSTAGE, ButtonEnum.Tri.DECKBUILDINGPLAYERAVAILABLETRIDENTARRAY12),triButtonArray,this);
-        stageInterface.addTriButton(new TriButton(stageInterface,0,0,false,StageInterface.DECKBUILDINGSTAGE, ButtonEnum.Tri.DECKBUILDINGPLAYERAVAILABLETRIDENTARRAY13),triButtonArray,this);
-        stageInterface.addTriButton(new TriButton(stageInterface,0,0,false,StageInterface.DECKBUILDINGSTAGE, ButtonEnum.Tri.DECKBUILDINGPLAYERAVAILABLETRIDENTARRAY14),triButtonArray,this);
-        stageInterface.addTriButton(new TriButton(stageInterface,0,0,false,StageInterface.DECKBUILDINGSTAGE, ButtonEnum.Tri.DECKBUILDINGPLAYERAVAILABLETRIDENTARRAY15),triButtonArray,this);
-        stageInterface.addTriButton(new TriButton(stageInterface,0,0,false,StageInterface.DECKBUILDINGSTAGE, ButtonEnum.Tri.DECKBUILDINGPLAYERAVAILABLETRIDENTARRAY16),triButtonArray,this);
-        stageInterface.addTriButton(new TriButton(stageInterface,0,0,false,StageInterface.DECKBUILDINGSTAGE, ButtonEnum.Tri.DECKBUILDINGPLAYERAVAILABLETRIDENTARRAY17),triButtonArray,this);
-        stageInterface.addTriButton(new TriButton(stageInterface,0,0,false,StageInterface.DECKBUILDINGSTAGE, ButtonEnum.Tri.DECKBUILDINGPLAYERAVAILABLETRIDENTARRAY18),triButtonArray,this);
-        stageInterface.addTriButton(new TriButton(stageInterface,0,0,false,StageInterface.DECKBUILDINGSTAGE, ButtonEnum.Tri.DECKBUILDINGPLAYERAVAILABLETRIDENTARRAY19),triButtonArray,this);
+        stageInterface.addTriButton(new TriButton(stageInterface,-1000,-1000,false,StageInterface.DECKBUILDINGSTAGE, ButtonEnum.Tri.DECKBUILDINGPLAYERAVAILABLETRIDENTARRAY1), triButtonArray,this);
+        stageInterface.addTriButton(new TriButton(stageInterface,-1000,-1000,false,StageInterface.DECKBUILDINGSTAGE, ButtonEnum.Tri.DECKBUILDINGPLAYERAVAILABLETRIDENTARRAY2), triButtonArray,this);
+        stageInterface.addTriButton(new TriButton(stageInterface,-1000,-1000,false,StageInterface.DECKBUILDINGSTAGE, ButtonEnum.Tri.DECKBUILDINGPLAYERAVAILABLETRIDENTARRAY3), triButtonArray,this);
+        stageInterface.addTriButton(new TriButton(stageInterface,-1000,-1000,false,StageInterface.DECKBUILDINGSTAGE, ButtonEnum.Tri.DECKBUILDINGPLAYERAVAILABLETRIDENTARRAY4), triButtonArray,this);
+        stageInterface.addTriButton(new TriButton(stageInterface,-1000,-1000,false,StageInterface.DECKBUILDINGSTAGE, ButtonEnum.Tri.DECKBUILDINGPLAYERAVAILABLETRIDENTARRAY5), triButtonArray,this);
+        stageInterface.addTriButton(new TriButton(stageInterface,-1000,-1000,false,StageInterface.DECKBUILDINGSTAGE, ButtonEnum.Tri.DECKBUILDINGPLAYERAVAILABLETRIDENTARRAY6), triButtonArray,this);
+        stageInterface.addTriButton(new TriButton(stageInterface,-1000,-1000,false,StageInterface.DECKBUILDINGSTAGE, ButtonEnum.Tri.DECKBUILDINGPLAYERAVAILABLETRIDENTARRAY7), triButtonArray,this);
+        stageInterface.addTriButton(new TriButton(stageInterface,-1000,-1000,false,StageInterface.DECKBUILDINGSTAGE, ButtonEnum.Tri.DECKBUILDINGPLAYERAVAILABLETRIDENTARRAY8), triButtonArray,this);
+        stageInterface.addTriButton(new TriButton(stageInterface,-1000,-1000,false,StageInterface.DECKBUILDINGSTAGE, ButtonEnum.Tri.DECKBUILDINGPLAYERAVAILABLETRIDENTARRAY9), triButtonArray,this);
+        stageInterface.addTriButton(new TriButton(stageInterface,-1000,-1000,false,StageInterface.DECKBUILDINGSTAGE, ButtonEnum.Tri.DECKBUILDINGPLAYERAVAILABLETRIDENTARRAY10),triButtonArray,this);
+        stageInterface.addTriButton(new TriButton(stageInterface,-1000,-1000,false,StageInterface.DECKBUILDINGSTAGE, ButtonEnum.Tri.DECKBUILDINGPLAYERAVAILABLETRIDENTARRAY11),triButtonArray,this);
+        stageInterface.addTriButton(new TriButton(stageInterface,-1000,-1000,false,StageInterface.DECKBUILDINGSTAGE, ButtonEnum.Tri.DECKBUILDINGPLAYERAVAILABLETRIDENTARRAY12),triButtonArray,this);
+        stageInterface.addTriButton(new TriButton(stageInterface,-1000,-1000,false,StageInterface.DECKBUILDINGSTAGE, ButtonEnum.Tri.DECKBUILDINGPLAYERAVAILABLETRIDENTARRAY13),triButtonArray,this);
+        stageInterface.addTriButton(new TriButton(stageInterface,-1000,-1000,false,StageInterface.DECKBUILDINGSTAGE, ButtonEnum.Tri.DECKBUILDINGPLAYERAVAILABLETRIDENTARRAY14),triButtonArray,this);
+        stageInterface.addTriButton(new TriButton(stageInterface,-1000,-1000,false,StageInterface.DECKBUILDINGSTAGE, ButtonEnum.Tri.DECKBUILDINGPLAYERAVAILABLETRIDENTARRAY15),triButtonArray,this);
+        stageInterface.addTriButton(new TriButton(stageInterface,-1000,-1000,false,StageInterface.DECKBUILDINGSTAGE, ButtonEnum.Tri.DECKBUILDINGPLAYERAVAILABLETRIDENTARRAY16),triButtonArray,this);
+        stageInterface.addTriButton(new TriButton(stageInterface,-1000,-1000,false,StageInterface.DECKBUILDINGSTAGE, ButtonEnum.Tri.DECKBUILDINGPLAYERAVAILABLETRIDENTARRAY17),triButtonArray,this);
+        stageInterface.addTriButton(new TriButton(stageInterface,-1000,-1000,false,StageInterface.DECKBUILDINGSTAGE, ButtonEnum.Tri.DECKBUILDINGPLAYERAVAILABLETRIDENTARRAY18),triButtonArray,this);
+        stageInterface.addTriButton(new TriButton(stageInterface,-1000,-1000,false,StageInterface.DECKBUILDINGSTAGE, ButtonEnum.Tri.DECKBUILDINGPLAYERAVAILABLETRIDENTARRAY19),triButtonArray,this);
 
 
 
@@ -284,6 +308,126 @@ public class DeckBuildingStage extends Stage {
         /*should be ok to leave this empty
          */
     }
+
+    /**
+     * this method will set the highlighted trident value to the index of the next trident in the
+     * players trident hand, so that the selected available trident will move there.
+     * the argument specifies the orientation of the trident we are looking for
+     * @return will return false if there is not a free trident in the trident hand that matches the
+     * orientation of the argument
+     */
+    public static boolean selectNextTriHandTrident(boolean orientation)
+    {
+        boolean success;
+        /*we need this counter to stop us infinitely incrementing */
+        if(selectedTridentInTriHandIncrementCount>OptionsStage.tridentsEach)
+        {
+            Gdx.app.log("DECKBUILDINGSTAGE","selectedTridentInTriHandIncrementCount is too high "+selectedTridentInTriHandIncrementCount+" tested all spaces in trident hand");
+            success=false;
+        }
+        /*if the current trihand trident is not already used and is the correct orientation*/
+        else
+        {
+            if (triButtonArray.get(selectedTridentInTriHand).greyed==false&&triButtonArray.get(selectedTridentInTriHand).orientation==orientation)
+            {
+                Gdx.app.log("DECKBUILDINGSTAGE","found suitable trident space "+selectedTridentInTriHand);
+                selectedTridentInTriHandIncrementCount=0;
+                success= true;
+            }
+            /*we will have to increment the selectedTridentInTriHand and try again*/
+            else
+            {
+                Gdx.app.log("DECKBUILDINGSTAGE","increment and retry");
+                selectedTridentInTriHand++;
+                selectedTridentInTriHandIncrementCount++;
+                selectedTridentInTriHand=selectedTridentInTriHand%(OptionsStage.tridentsEach-1);
+                success = selectNextTriHandTrident(orientation);
+            }
+        }
+        return success;
+    }
+    /**
+     * if you click a trident that's part of the available tridents, and it has not already been used
+     * put it in the trident hand if there is an available space and it will not exceed the handicap
+     * @param index this will be the index of the touched button in the trident array
+     */
+    public static void selectAvailableTrident(int index)
+    {
+        if(triButtonArray.get(index).greyed==true)
+        {
+            Gdx.app.log("DECKBUILDINGSTAGE","Trident not available");
+
+        }
+        else {
+            /*if the trident can be added to the trident hand*/
+
+            selectedTridentInTriHandIncrementCount=0;
+            if (selectNextTriHandTrident(triButtonArray.get(index).orientation)) {
+                triButtonArray.get(index).greyed=true;
+                triButtonArray.get(selectedTridentInTriHand).greyed=true;
+                triButtonArray.get(selectedTridentInTriHand).cardButtonArray = triButtonArray.get(index).cardButtonArray;
+                triButtonArray.get(selectedTridentInTriHand).cardButtonArray.get(0).setX(triButtonArray.get(selectedTridentInTriHand).getX());
+                triButtonArray.get(selectedTridentInTriHand).cardButtonArray.get(0).setY(triButtonArray.get(selectedTridentInTriHand).getY());
+                triButtonArray.get(selectedTridentInTriHand).cardButtonArray.get(1).setX(triButtonArray.get(selectedTridentInTriHand).getX());
+                triButtonArray.get(selectedTridentInTriHand).cardButtonArray.get(1).setY(triButtonArray.get(selectedTridentInTriHand).getY());
+                triButtonArray.get(selectedTridentInTriHand).cardButtonArray.get(2).setX(triButtonArray.get(selectedTridentInTriHand).getX());
+                triButtonArray.get(selectedTridentInTriHand).cardButtonArray.get(2).setY(triButtonArray.get(selectedTridentInTriHand).getY());
+                triButtonArray.get(selectedTridentInTriHand).cardButtonArray.get(0).setText();
+                triButtonArray.get(selectedTridentInTriHand).cardButtonArray.get(1).setText();
+                triButtonArray.get(selectedTridentInTriHand).cardButtonArray.get(2).setText();
+                triButtonArray.get(selectedTridentInTriHand).cardsVisible=true;
+                triButtonArray.get(index).cardsVisible=false;
+                triButtonArray.get(selectedTridentInTriHand).availableTridentIndex=index;
+                Gdx.app.log("DECKBUILDINGSTAGE","Trident added to hand");
+                updateTotalValue();
+            }
+            else
+            {
+                Gdx.app.log("DECKBUILDINGSTAGE","Trident won't fit in trident hand");
+
+            }
+        }
+    }
+    public static void deselectAvailableTrident(int index)
+    {
+        if (triButtonArray.get(index).greyed) {
+            triButtonArray.get(index).greyed = false;
+            triButtonArray.get(index).cardsVisible = false;
+            triButtonArray.get(triButtonArray.get(index).availableTridentIndex).greyed = false;
+            triButtonArray.get(triButtonArray.get(index).availableTridentIndex).cardsVisible = true;
+            selectedTridentInTriHand=index;
+            triButtonArray.get(index).cardButtonArray.get(0).setX(triButtonArray.get(triButtonArray.get(index).availableTridentIndex).getX());
+            triButtonArray.get(index).cardButtonArray.get(0).setY(triButtonArray.get(triButtonArray.get(index).availableTridentIndex).getY());
+            triButtonArray.get(index).cardButtonArray.get(1).setX(triButtonArray.get(triButtonArray.get(index).availableTridentIndex).getX());
+            triButtonArray.get(index).cardButtonArray.get(1).setY(triButtonArray.get(triButtonArray.get(index).availableTridentIndex).getY());
+            triButtonArray.get(index).cardButtonArray.get(2).setX(triButtonArray.get(triButtonArray.get(index).availableTridentIndex).getX());
+            triButtonArray.get(index).cardButtonArray.get(2).setY(triButtonArray.get(triButtonArray.get(index).availableTridentIndex).getY());
+
+
+            Gdx.app.log("DECKBUILDINGSTAGE", "deselected trident in trident hand, and the trident in available tridents");
+            updateTotalValue();
+        }
+        else {
+            Gdx.app.log("DECKBUILDINGSTAGE", "can't deselect, it wasn't selected");
+        }
+
+    }
+    /**
+     * this method will add up the value of the 3 cards on each trident in the trident hand
+     */
+    public static void updateTotalValue()
+    {
+        handValue =0;
+        for (int i = 0;i<OptionsStage.tridentsEach;i++)
+        {
+            if (triButtonArray.get(i).greyed==true)
+            {
+                handValue +=triButtonArray.get(i).cardButtonArray.get(0).getPip();
+                handValue +=triButtonArray.get(i).cardButtonArray.get(1).getPip();
+                handValue +=triButtonArray.get(i).cardButtonArray.get(2).getPip();
+            }
+        }
+    }
     /**
      * this will be called in the tributton class,
      * @param triButtonIndex this will be the index of the tributton that was clicked, the index is set on creation of the
@@ -305,8 +449,40 @@ public class DeckBuildingStage extends Stage {
                 stageInterface.goToStage(StageInterface.GAMESTAGE);
             break;
             }
+            case DECKBUILDINGPLAYERAVAILABLETRIDENTARRAY1:
+            case DECKBUILDINGPLAYERAVAILABLETRIDENTARRAY2:
+            case DECKBUILDINGPLAYERAVAILABLETRIDENTARRAY3:
+            case DECKBUILDINGPLAYERAVAILABLETRIDENTARRAY4:
+            case DECKBUILDINGPLAYERAVAILABLETRIDENTARRAY5:
+            case DECKBUILDINGPLAYERAVAILABLETRIDENTARRAY6:
+            case DECKBUILDINGPLAYERAVAILABLETRIDENTARRAY7:
+            case DECKBUILDINGPLAYERAVAILABLETRIDENTARRAY8:
+            case DECKBUILDINGPLAYERAVAILABLETRIDENTARRAY9:
+            case DECKBUILDINGPLAYERAVAILABLETRIDENTARRAY10:
+            case DECKBUILDINGPLAYERAVAILABLETRIDENTARRAY11:
+            case DECKBUILDINGPLAYERAVAILABLETRIDENTARRAY12:
+            case DECKBUILDINGPLAYERAVAILABLETRIDENTARRAY13:
+            case DECKBUILDINGPLAYERAVAILABLETRIDENTARRAY14:
+            case DECKBUILDINGPLAYERAVAILABLETRIDENTARRAY15:
+            case DECKBUILDINGPLAYERAVAILABLETRIDENTARRAY16:
+            {
+                selectAvailableTrident(triButtonIndex.value);
+                break;
+            }
+            case DECKBUILDINGPLAYERTRIDENTARRAY1:
+            case DECKBUILDINGPLAYERTRIDENTARRAY2:
+            case DECKBUILDINGPLAYERTRIDENTARRAY3:
+            case DECKBUILDINGPLAYERTRIDENTARRAY4:
+            case DECKBUILDINGPLAYERTRIDENTARRAY5:
+            case DECKBUILDINGPLAYERTRIDENTARRAY6:
+            case DECKBUILDINGPLAYERTRIDENTARRAY7:
+            case DECKBUILDINGPLAYERTRIDENTARRAY8:
+            {
+                deselectAvailableTrident(triButtonIndex.value);
+                break;
+            }
             default:
-                Gdx.app.log("DECKBUILDINGSTAGE", "DEFAULT "+triButtonIndex);
+                Gdx.app.log("DECKBUILDINGSTAGE", "DEFAULT "+triButtonIndex+ " pos " + triButtonArray.get(triButtonIndex.value).getX());
                 //throw new IllegalStateException("Unexpected value: " + triButtonIndex);
         }
     }

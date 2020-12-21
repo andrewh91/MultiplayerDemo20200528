@@ -92,6 +92,12 @@ public class TriButton extends Actor {
     int previousOwnership=-1;
 
     /**
+     * this variable is used to record which trident in the available tridents array the trident hand's value came from
+     * so that if we deselect it we know where that value ame from
+     */
+    int availableTridentIndex=-1;
+
+    /**
      * this will be used when emitting the data to the other player. if player 1 rotates and flips the trident before placing
      * this will keep track of the position of the cards.
      */
