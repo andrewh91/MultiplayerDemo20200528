@@ -38,6 +38,27 @@ public class DeckBuildingStage extends Stage {
     BitmapFont font = new BitmapFont();
     GlyphLayout glyphLayout = new GlyphLayout();
 
+    /**
+     * to prevent the player from just choosing the best card there is a value limit.
+     * when you pick your 24 cards their pip values must not exceed this value limit
+     * if players agree they can alter the value limit, so they can have a bit of
+     * variety in games, play a game were lots of high cards are allowed
+     */
+    final static int VALUELIMITBASE=168;
+    static int proposedValueLimitDiff=0;
+    /**
+     * the player will specify their own handicap, positive numbers means it will be
+     * harder for them and negative will be easier as this number is subtracted from
+     * the value limit
+     */
+    static int proposedHandicap=0;
+    static int opponentProposedHandicap=0;
+
+    static int yourElo=0;
+    static int opponentElo=0;
+
+
+
 
     public DeckBuildingStage(StageInterface stageInterface, Viewport viewport, SpriteBatch batch, ShapeRenderer shapeRenderer) {
         this.stageInterface = stageInterface;
@@ -168,6 +189,17 @@ public class DeckBuildingStage extends Stage {
             glyphLayout.setText(font,handValue+"");
             font.draw(spriteBatch   , handValue+"",handValueX,handValueY);
 
+            glyphLayout.setText(font,"Value Limit: "+proposedValueLimitDiff+"");
+            font.draw(spriteBatch   , "Value Limit: "+proposedValueLimitDiff+"",720/3-65-65-glyphLayout.width/2,260+160);
+            glyphLayout.setText(font,"Your Handicap: "+proposedHandicap+"");
+            font.draw(spriteBatch   , "Your Handicap: "+proposedHandicap+"",720/3*2-65-65-glyphLayout.width/2,260+160);
+            glyphLayout.setText(font,"Opp. Handicap: "+opponentProposedHandicap+"");
+            font.draw(spriteBatch   , "Opp. Handicap: "+opponentProposedHandicap+"",720/3*2-65-65-glyphLayout.width/2,260-120);
+            glyphLayout.setText(font,"Your ELO: "+yourElo+"");
+            font.draw(spriteBatch   , "Your ELO: "+yourElo+"",720-65-65-glyphLayout.width/2,260+160);
+            glyphLayout.setText(font,"Opp. ELO: "+opponentElo+"");
+            font.draw(spriteBatch   , "Opp. ELO: "+opponentElo+"",720-65-65-glyphLayout.width/2,260-120);
+
 
             spriteBatch.end();
         }
@@ -252,6 +284,15 @@ public class DeckBuildingStage extends Stage {
 
         stageInterface.addTriButton(new TriButton(stageInterface,0,0,false,StageInterface.DECKBUILDINGSTAGE, ButtonEnum.Tri.DECKBUILDINGNEXTSTAGE),triButtonArray,this);
         stageInterface.getTriButton(triButtonArray,ButtonEnum.Tri.DECKBUILDINGNEXTSTAGE).setText("Game");
+
+        stageInterface.addTriButton(new TriButton(stageInterface,720/3-65,280,true,StageInterface.DECKBUILDINGSTAGE, ButtonEnum.Tri.DECKBUILDINGLIMITUP),triButtonArray,this);
+        stageInterface.getTriButton(triButtonArray,ButtonEnum.Tri.DECKBUILDINGLIMITUP).setText("Limit Up");
+        stageInterface.addTriButton(new TriButton(stageInterface,720/3-65,280-130,false,StageInterface.DECKBUILDINGSTAGE, ButtonEnum.Tri.DECKBUILDINGLIMITDOWN),triButtonArray,this);
+        stageInterface.getTriButton(triButtonArray,ButtonEnum.Tri.DECKBUILDINGLIMITDOWN).setText("Limit Down");
+        stageInterface.addTriButton(new TriButton(stageInterface,720/3*2-65,280,true,StageInterface.DECKBUILDINGSTAGE, ButtonEnum.Tri.DECKBUILDINGHANDICAPUP),triButtonArray,this);
+        stageInterface.getTriButton(triButtonArray,ButtonEnum.Tri.DECKBUILDINGHANDICAPUP).setText("Handicap Up");
+        stageInterface.addTriButton(new TriButton(stageInterface,720/3*2-65,280-130,false,StageInterface.DECKBUILDINGSTAGE, ButtonEnum.Tri.DECKBUILDINGHANDICAPDOWN),triButtonArray,this);
+        stageInterface.getTriButton(triButtonArray,ButtonEnum.Tri.DECKBUILDINGHANDICAPDOWN).setText("Handicap Down");
         //stageInterface.getTriButton(triButtonArray,ButtonEnum.Tri.TRIDENTBUILDINGNEXTSTAGE).setTridentToTextSize();
 
         /*this will set the position of the tridents*/
@@ -479,6 +520,45 @@ public class DeckBuildingStage extends Stage {
             case DECKBUILDINGPLAYERTRIDENTARRAY8:
             {
                 deselectAvailableTrident(triButtonIndex.value);
+                break;
+            }
+            case DECKBUILDINGLIMITUP:
+            {
+                proposedValueLimitDiff++;
+                if (proposedValueLimitDiff>84)
+                {
+                    proposedValueLimitDiff=84;
+                }
+                break;
+            }
+            case DECKBUILDINGLIMITDOWN:
+            {
+                proposedValueLimitDiff--;
+                if (proposedValueLimitDiff<-84)
+                {
+                    proposedValueLimitDiff=-84;
+                }
+
+                break;
+            }
+            case DECKBUILDINGHANDICAPUP:
+            {
+                proposedHandicap++;
+                if (proposedHandicap>42)
+                {
+                    proposedHandicap=42;
+                }
+                /*TODO emit the handicap here*/
+                break;
+            }
+            case DECKBUILDINGHANDICAPDOWN:
+            {
+                proposedHandicap--;
+                if (proposedHandicap<-42)
+                {
+                    proposedHandicap=-42;
+                }
+                /*TODO emit the handicap here*/
                 break;
             }
             default:

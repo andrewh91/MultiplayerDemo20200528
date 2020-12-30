@@ -85,6 +85,10 @@ public class ButtonEnum {
         DECKBUILDINGPLAYERAVAILABLETRIDENTARRAY18   (26),
         DECKBUILDINGPLAYERAVAILABLETRIDENTARRAY19   (27),
         DECKBUILDINGNEXTSTAGE                       (28),
+        DECKBUILDINGLIMITUP                         (29),
+        DECKBUILDINGLIMITDOWN                       (30),
+        DECKBUILDINGHANDICAPUP                      (31),
+        DECKBUILDINGHANDICAPDOWN                    (32),
 
         GAMEBOARD0                  (0),
         GAMEBOARD1                  (1),
