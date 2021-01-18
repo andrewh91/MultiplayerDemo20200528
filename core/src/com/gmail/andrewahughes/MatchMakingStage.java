@@ -129,7 +129,14 @@ public class MatchMakingStage extends Stage {
 
         switch(triButtonIndex){
             case MATCHMAKINGNEXTSTAGE: {
-                stageInterface.goToStage(StageInterface.DEALSTAGE);
+                if (OptionsStage.tridentBuildingMode==OptionsStage.PREMADETRIDENTS)
+                {
+                    stageInterface.goToStage(StageInterface.DECKBUILDINGSTAGE);
+                }
+                else if (OptionsStage.tridentBuildingMode==OptionsStage.BUILDYOUROWNTRIDENTS)
+                {
+                    stageInterface.goToStage(StageInterface.DEALSTAGE);
+                }
                 break;
             }
             default:

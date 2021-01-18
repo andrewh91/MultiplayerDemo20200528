@@ -76,11 +76,8 @@ public class DeckBuildingStage extends Stage {
     /*called everytime we go to the deck building stage*/
     public void reset()
     {
-
+        MyServer.gotAllPlayers();
         createButtons();
-
-
-
     }
 
     /*the player's trident array will be created initially, but we might want to set
@@ -487,7 +484,10 @@ public class DeckBuildingStage extends Stage {
         switch(triButtonIndex){
 
             case DECKBUILDINGNEXTSTAGE: {
+
+
                 stageInterface.goToStage(StageInterface.GAMESTAGE);
+
             break;
             }
             case DECKBUILDINGPLAYERAVAILABLETRIDENTARRAY1:
@@ -529,6 +529,7 @@ public class DeckBuildingStage extends Stage {
                 {
                     proposedValueLimitDiff=84;
                 }
+                MyServer.emitBuildLimit(proposedValueLimitDiff);
                 break;
             }
             case DECKBUILDINGLIMITDOWN:
@@ -538,7 +539,7 @@ public class DeckBuildingStage extends Stage {
                 {
                     proposedValueLimitDiff=-84;
                 }
-
+                MyServer.emitBuildLimit(proposedValueLimitDiff);
                 break;
             }
             case DECKBUILDINGHANDICAPUP:
@@ -548,7 +549,8 @@ public class DeckBuildingStage extends Stage {
                 {
                     proposedHandicap=42;
                 }
-                /*TODO emit the handicap here*/
+                MyServer.emitHandicap(proposedHandicap);
+
                 break;
             }
             case DECKBUILDINGHANDICAPDOWN:
@@ -558,12 +560,23 @@ public class DeckBuildingStage extends Stage {
                 {
                     proposedHandicap=-42;
                 }
-                /*TODO emit the handicap here*/
+                MyServer.emitHandicap(proposedHandicap);
                 break;
             }
             default:
                 Gdx.app.log("DECKBUILDINGSTAGE", "DEFAULT "+triButtonIndex+ " pos " + triButtonArray.get(triButtonIndex.value).getX());
                 //throw new IllegalStateException("Unexpected value: " + triButtonIndex);
+        }
+    }
+    public static void updateHandicap()
+    {
+        if (MyServer.player.index==0)
+        {
+            opponentProposedHandicap=MyServer.player1Handicap;
+        }
+        else if (MyServer.player.index==1)
+        {
+            opponentProposedHandicap=MyServer.player0Handicap;
         }
     }
 }

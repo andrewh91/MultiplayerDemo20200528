@@ -12,7 +12,7 @@ var par2 = 0;
 var par =0;
 
 
-server.listen(8080,"192.168.1.10", function(){
+server.listen(8080,"192.168.1.7", function(){
 	console.log("Server is now running...");
 });
 
@@ -75,6 +75,31 @@ io.on('connection', function(socket){
     	    console.log("total data: "+data);
 
     	});
+
+
+
+	/*when player emits a emitBuildLimitDataToServer event the server
+    	will interpret it here*/
+    	socket.on('emitBuildLimitDataToServer', function(data){
+
+console.log("index: emitBuildLimitDataToServer");
+    	    /*send the data we received (player id, buildLimit) to all  players */
+    	    socket.broadcast.emit("emitBuildLimitDataToPlayers",data);
+
+
+    	});
+
+    	/*when player emits a emitHandicapDataToServer event the server
+               	will interpret it here*/
+               	socket.on('emitHandicapDataToServer', function(data){
+
+           console.log("index: emitHandicapDataToServer");
+               	    /*send the data we received (player id, buildLimit) to all  players */
+               	    socket.broadcast.emit("emitHandicapDataToPlayers",data);
+
+
+               	});
+
 	/*when player emits a emitTriHand event the server
     	will interpret it here*/
     	socket.on('emitTriHandDataToServer', function(data){

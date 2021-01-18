@@ -73,10 +73,7 @@ public class MyGdxGame extends ApplicationAdapter  implements  StageInterface{
 
 
 		goToStage(TITLESTAGE);
-		/*TODO remove this
 
-		 */
-		goToStage(DECKBUILDINGSTAGE);
 	}
 
 	@Override

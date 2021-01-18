@@ -13,6 +13,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.HashMap;
+import java.util.Map;
 
 import io.socket.client.IO;
 import io.socket.client.Socket;
@@ -53,6 +54,11 @@ public class MyServer {
      */
     static int player1WildCard = -1;
     static int player2WildCard = -1;
+
+    static int player0Handicap=0;
+    static int player1Handicap=0;
+    static int player2Handicap=0;
+
 
     public MyServer(){
 
@@ -168,6 +174,69 @@ public class MyServer {
             Gdx.app.log("SOCKET.IO","Error sending deal data");
         }
     }
+
+    /**
+     * this will be called in the deckBuildingStage, everytime the building limit is adjusted
+
+     */
+    public static void emitBuildLimit(int buildLimit){
+        Gdx.app.log("Server","emitBuildLimit");
+
+        /*this array will have one object that gives the player index then the buildlimit*/
+        JSONArray objects = new JSONArray();
+        try{
+
+            JSONObject data = new JSONObject();
+            /*need to send the player index - not really needed for 2 player game, but need for 3 player*/
+            data.put("p" , player.index);
+            /*send the buildlimit so the other player can see what you set it to */
+            data.put("b" , buildLimit);
+
+            objects.put(data);
+
+            Gdx.app.log("Server","player index "+player.index + " buildlimit "+ buildLimit);
+
+
+            /*the player emits data to the server here
+             * the server has a corresponding method to
+             * interpret this data*/
+            socket.emit("emitBuildLimitDataToServer",objects);
+        } catch(JSONException e) {
+            Gdx.app.log("SOCKET.IO","Error sending buildLimit");
+        }
+    }
+    /**
+     * this will be called in the deckBuildingStage, everytime the handicap is adjusted
+
+     */
+    public static void emitHandicap(int handicap){
+        Gdx.app.log("Server","emitHandicap");
+
+        /*this array will have one object that gives the player index then the buildlimit*/
+        JSONArray objects = new JSONArray();
+        try{
+
+            JSONObject data = new JSONObject();
+            /*need to send the player index - not really needed for 2 player game, but need for 3 player*/
+            data.put("p" , player.index);
+            /*send the buildlimit so the other player can see what you set it to */
+            data.put("h" , handicap);
+
+            objects.put(data);
+
+            Gdx.app.log("Server","player index "+player.index + " buildlimit "+ handicap);
+
+
+            /*the player emits data to the server here
+             * the server has a corresponding method to
+             * interpret this data*/
+            socket.emit("emitHandicapDataToServer",objects);
+        } catch(JSONException e) {
+            Gdx.app.log("SOCKET.IO","Error sending handicap");
+        }
+    }
+
+
     /**
      * this will be called in the TridentBuildingStage, just before we go to the GameStage,
      * the player will have made and confirmed the triHand they want to use, so now that whole hand
@@ -265,7 +334,7 @@ public class MyServer {
     }
     public static void connectSocket() {
         try {
-            socket = IO.socket("http://192.168.1.10:8080");
+            socket = IO.socket("http://192.168.1.7:8080");
             socket.connect();
             System.out.println("connected");
         } catch (Exception e) {
@@ -439,6 +508,81 @@ public class MyServer {
 
                     GameStage.triHandLoaded();
                     Gdx.app.log("Server: ","TriHand received: "+objects);
+
+                }catch(JSONException e){
+                }
+            }
+        }).on("emitBuildLimitDataToPlayers", new Emitter.Listener() {
+            @Override
+            public void call(Object... args) {
+
+                Gdx.app.log("Server","emitBuildLimitDataToPlayers");
+                /*player 1 will have called emitBuildLimit,
+                that will have called emitBuildLimitDataToServer
+                when the server receives that emitBuildLimitDataToServer
+                it calls emitBuildLimitDataToPlayers
+                each player listens for the emitBuildLimitDataToPlayers
+                emitBuildLimitDataToPlayers is received here
+                 */
+                JSONArray objects = (JSONArray) args[0];
+                try {
+                    /*player index will have been set for each player, it will be 0,1 or 2,
+                     * so this player will be either 0, 1 or 2, the if statements below will figure out
+                     * which other player is emitting this data and we'll save that data in
+                     * a corresponding array*/
+                    int index = objects.getJSONObject(0).getInt("p");
+                    Gdx.app.log("Server","index - received "+index);
+
+                    DeckBuildingStage.proposedValueLimitDiff = objects.getJSONObject(0).getInt("b");
+                    Gdx.app.log("Server","build limit - received "+ DeckBuildingStage.proposedValueLimitDiff);
+
+
+                    Gdx.app.log("Server: ","build limit received: "+objects);
+
+                }catch(JSONException e){
+                }
+            }
+        }).on("emitHandicapDataToPlayers", new Emitter.Listener() {
+
+            @Override
+            public void call(Object... args) {
+
+                Gdx.app.log("Server","emitHandicapDataToPlayers");
+                /*player 1 will have called emitHandicap,
+                that will have called emitHandicapDataToServer
+                when the server receives that emitHandicapDataToServer
+                it calls emitHandicapDataToPlayers
+                each player listens for the emitHandicapDataToPlayers
+                emitHandicapDataToPlayers is received here
+                 */
+                JSONArray objects = (JSONArray) args[0];
+                try {
+                    /*player index will have been set for each player, it will be 0,1 or 2,
+                     * so this player will be either 0, 1 or 2, the if statements below will figure out
+                     * which other player is emitting this data and we'll save that data in
+                     * a corresponding array*/
+                    int index = objects.getJSONObject(0).getInt("p");
+                    Gdx.app.log("Server","index - received "+index);
+
+
+                    if(index==0)
+                    {
+                        player0Handicap=objects.getJSONObject(0).getInt("h");
+                    }
+                    else if(index==1)
+                    {
+                        player1Handicap=objects.getJSONObject(0).getInt("h");
+                    }
+                    else if(index==2)
+                    {
+                        player2Handicap=objects.getJSONObject(0).getInt("h");
+                    }
+
+                    DeckBuildingStage.updateHandicap();
+                    Gdx.app.log("Server","handicap - received "+ objects.getJSONObject(0).getInt("h"));
+
+
+                    Gdx.app.log("Server: ","handicap received: "+objects);
 
                 }catch(JSONException e){
                 }
