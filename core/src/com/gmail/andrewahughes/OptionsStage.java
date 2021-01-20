@@ -52,7 +52,7 @@ public class OptionsStage extends Stage {
      * number of players will be either 2 or 3
      */
     public static byte numberOfPlayers = 2;
-    public static boolean preAndPostGameCard = true;
+    public static boolean preAndPostGameCard = false;
     /**
      * used in the game stage when setting up the gameboard
      * max value should be 16, which will give a standard board 4 rows, with 1, 3, 5 then 7 tridents per row
@@ -75,11 +75,6 @@ public class OptionsStage extends Stage {
      * gameboard that you placed to change the position of the cards.
      */
     public static boolean allowFlipAndRotate=false;
-    /**
-     * if true we will skip over trident building stage after progressing from the deal stage
-     * and use the deckbuildingstage instead
-     */
-    public static boolean usePreMadeDeck = true;
 
     public OptionsStage(StageInterface stageInterface, Viewport viewport, SpriteBatch batch,ShapeRenderer shapeRenderer)
     {

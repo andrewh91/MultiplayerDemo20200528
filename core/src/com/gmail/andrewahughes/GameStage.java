@@ -282,8 +282,14 @@ public class GameStage extends Stage {
             /*add 3 cards from the trident building stage's cardButtonArrayTridentHand to this tributton
             * note that the first TriButton in this tributtonarray is the button to go to the next stage,
             * so exclude that, then the next 16 buttons are gameboard buttons, exclude them too */
-            triButtonArray.get(i + ButtonEnum.Tri.GAMETRIHAND0.value).setUpCardButtons(TridentBuildingStage.getCardAtHighlightPos(i *3),TridentBuildingStage.getCardAtHighlightPos(i *3+1),TridentBuildingStage.getCardAtHighlightPos(i *3+2));
-            triButtonArray.get(i+ ButtonEnum.Tri.GAMETRIHAND0.value).updatePos(TridentBuildingStage.getCardAtHighlightPos(i *3).getX(),TridentBuildingStage.getCardAtHighlightPos(i *3).getY(),TridentBuildingStage.getCardAtHighlightPos(i *3).orientation);
+            if (OptionsStage.tridentBuildingMode==OptionsStage.PREMADETRIDENTS)
+            {
+                triButtonArray.get(i + ButtonEnum.Tri.GAMETRIHAND0.value).updatePos(DeckBuildingStage.triButtonArray.get(i).getX(), DeckBuildingStage.triButtonArray.get(i).getY(), DeckBuildingStage.triButtonArray.get(i).orientation);
+            }
+            else
+            {
+                triButtonArray.get(i + ButtonEnum.Tri.GAMETRIHAND0.value).updatePos(TridentBuildingStage.getCardAtHighlightPos(i * 3).getX(), TridentBuildingStage.getCardAtHighlightPos(i * 3).getY(), TridentBuildingStage.getCardAtHighlightPos(i * 3).orientation);
+            }
             triButtonArray.get(i+ ButtonEnum.Tri.GAMETRIHAND0.value).cardsVisible=true;
             triButtonArray.get(i+ ButtonEnum.Tri.GAMETRIHAND0.value).ownership=0;
             triButtonArray.get(i+ ButtonEnum.Tri.GAMETRIHAND0.value).confirmOwnership();
@@ -306,6 +312,7 @@ public class GameStage extends Stage {
      * in the MyServer when a triHand is recieved from another player */
     public static void triHandLoaded()
     {
+        Gdx.app.log("GameStage","trihandloaded() - player hands received"+(player0TriHandReceived?0:"")+(player1TriHandReceived?1:"")+(player2TriHandReceived?2:"")+"");
         if (OptionsStage.numberOfPlayers==3)
         {
             if (player0TriHandReceived&&player1TriHandReceived&&player2TriHandReceived) {
@@ -325,67 +332,70 @@ public class GameStage extends Stage {
         String tempString = new String();
         String tempString1 = new String();
         Gdx.app.log("GameStage", "AllTriHandsLoaded");
-        for (int i = 0; i < OptionsStage.nonPrePostGameTridentsEach; i++) {
-            /*add 3 cards from the MyServer.player1CardValues array to this tributton
-             * note that the first TriButton in this tributtonarray is the button to go to the next stage,
-             * so exclude that, then the next 16 buttons are gameboard buttons, exclude them too */
-            triButtonArray.get(i + ButtonEnum.Tri.GAMETRIHAND0P1.value).setUpCardButtons(TridentBuildingStage.getCardWithValue(MyServer.player1CardValues.get(i * 3)), TridentBuildingStage.getCardWithValue(MyServer.player1CardValues.get(i * 3 + 1)), TridentBuildingStage.getCardWithValue(MyServer.player1CardValues.get(i * 3 + 2)));
-            triButtonArray.get(i + ButtonEnum.Tri.GAMETRIHAND0P1.value).cardButtonArray.get(0).oppositionWildCardSuit = MyServer.player1WildCard;
-            triButtonArray.get(i + ButtonEnum.Tri.GAMETRIHAND0P1.value).cardButtonArray.get(1).oppositionWildCardSuit = MyServer.player1WildCard;
-            triButtonArray.get(i + ButtonEnum.Tri.GAMETRIHAND0P1.value).cardButtonArray.get(2).oppositionWildCardSuit = MyServer.player1WildCard;
-            triButtonArray.get(i + ButtonEnum.Tri.GAMETRIHAND0P1.value).cardButtonArray.get(0).setColourFromSuit();
-            triButtonArray.get(i + ButtonEnum.Tri.GAMETRIHAND0P1.value).cardButtonArray.get(1).setColourFromSuit();
-            triButtonArray.get(i + ButtonEnum.Tri.GAMETRIHAND0P1.value).cardButtonArray.get(2).setColourFromSuit();
-            triButtonArray.get(i + ButtonEnum.Tri.GAMETRIHAND0P1.value).cardButtonArray.get(0).position = 0;
-            triButtonArray.get(i + ButtonEnum.Tri.GAMETRIHAND0P1.value).cardButtonArray.get(1).position = 1;
-            triButtonArray.get(i + ButtonEnum.Tri.GAMETRIHAND0P1.value).cardButtonArray.get(2).position = 2;
-            triButtonArray.get(i + ButtonEnum.Tri.GAMETRIHAND0P1.value).updatePos(TridentBuildingStage.cardButtonArrayTridentHand.get(i * 3).getX(), TridentBuildingStage.cardButtonArrayTridentHand.get(i * 3).getY() - CardButton.edgeLength, TridentBuildingStage.cardButtonArrayTridentHand.get(i * 3).orientation);
-            triButtonArray.get(i + ButtonEnum.Tri.GAMETRIHAND0P1.value).cardsVisible = true;
-            triButtonArray.get(i + ButtonEnum.Tri.GAMETRIHAND0P1.value).ownership = 1;
-            triButtonArray.get(i + ButtonEnum.Tri.GAMETRIHAND0P1.value).confirmOwnership();
-            tempString = tempString + (" " + triButtonArray.get(i + ButtonEnum.Tri.GAMETRIHAND0P1.value).cardButtonArray.get(0).getPip());
-            tempString = tempString + (" " + triButtonArray.get(i + ButtonEnum.Tri.GAMETRIHAND0P1.value).cardButtonArray.get(1).getPip());
-            tempString = tempString + (" " + triButtonArray.get(i + ButtonEnum.Tri.GAMETRIHAND0P1.value).cardButtonArray.get(2).getPip());
-            tempString1 = tempString1 + (" " + MyServer.player1CardValues.get(i * 3));
-            tempString1 = tempString1 + (" " + MyServer.player1CardValues.get(i * 3 + 1));
-            tempString1 = tempString1 + (" " + MyServer.player1CardValues.get(i * 3 + 2));
 
-        }
-        Gdx.app.log("GAMESTAGE", "opposite player card values ");
-        Gdx.app.log("pips", "" + tempString1);
-        Gdx.app.log("GAMESTAGE", "opposite player tributton array ");
-        Gdx.app.log("pips", "" + tempString);
+        if (OptionsStage.tridentBuildingMode==OptionsStage.BUILDYOUROWNTRIDENTS) {
+            for (int i = 0; i < OptionsStage.nonPrePostGameTridentsEach; i++) {
+                /*add 3 cards from the MyServer.player1CardValues array to this tributton
+                 * note that the first TriButton in this tributtonarray is the button to go to the next stage,
+                 * so exclude that, then the next 16 buttons are gameboard buttons, exclude them too */
+                triButtonArray.get(i + ButtonEnum.Tri.GAMETRIHAND0P1.value).setUpCardButtons(TridentBuildingStage.getCardWithValue(MyServer.player1CardValues.get(i * 3)), TridentBuildingStage.getCardWithValue(MyServer.player1CardValues.get(i * 3 + 1)), TridentBuildingStage.getCardWithValue(MyServer.player1CardValues.get(i * 3 + 2)));
+                triButtonArray.get(i + ButtonEnum.Tri.GAMETRIHAND0P1.value).cardButtonArray.get(0).oppositionWildCardSuit = MyServer.player1WildCard;
+                triButtonArray.get(i + ButtonEnum.Tri.GAMETRIHAND0P1.value).cardButtonArray.get(1).oppositionWildCardSuit = MyServer.player1WildCard;
+                triButtonArray.get(i + ButtonEnum.Tri.GAMETRIHAND0P1.value).cardButtonArray.get(2).oppositionWildCardSuit = MyServer.player1WildCard;
 
-        /*if using pre and post game cards save them to a trident each too */
+                triButtonArray.get(i + ButtonEnum.Tri.GAMETRIHAND0P1.value).cardButtonArray.get(0).setColourFromSuit();
+                triButtonArray.get(i + ButtonEnum.Tri.GAMETRIHAND0P1.value).cardButtonArray.get(1).setColourFromSuit();
+                triButtonArray.get(i + ButtonEnum.Tri.GAMETRIHAND0P1.value).cardButtonArray.get(2).setColourFromSuit();
+                triButtonArray.get(i + ButtonEnum.Tri.GAMETRIHAND0P1.value).cardButtonArray.get(0).position = 0;
+                triButtonArray.get(i + ButtonEnum.Tri.GAMETRIHAND0P1.value).cardButtonArray.get(1).position = 1;
+                triButtonArray.get(i + ButtonEnum.Tri.GAMETRIHAND0P1.value).cardButtonArray.get(2).position = 2;
+                triButtonArray.get(i + ButtonEnum.Tri.GAMETRIHAND0P1.value).updatePos(TridentBuildingStage.cardButtonArrayTridentHand.get(i * 3).getX(), TridentBuildingStage.cardButtonArrayTridentHand.get(i * 3).getY() - CardButton.edgeLength, TridentBuildingStage.cardButtonArrayTridentHand.get(i * 3).orientation);
+                triButtonArray.get(i + ButtonEnum.Tri.GAMETRIHAND0P1.value).cardsVisible = true;
+                triButtonArray.get(i + ButtonEnum.Tri.GAMETRIHAND0P1.value).ownership = 1;
+                triButtonArray.get(i + ButtonEnum.Tri.GAMETRIHAND0P1.value).confirmOwnership();
+                tempString = tempString + (" " + triButtonArray.get(i + ButtonEnum.Tri.GAMETRIHAND0P1.value).cardButtonArray.get(0).getPip());
+                tempString = tempString + (" " + triButtonArray.get(i + ButtonEnum.Tri.GAMETRIHAND0P1.value).cardButtonArray.get(1).getPip());
+                tempString = tempString + (" " + triButtonArray.get(i + ButtonEnum.Tri.GAMETRIHAND0P1.value).cardButtonArray.get(2).getPip());
+                tempString1 = tempString1 + (" " + MyServer.player1CardValues.get(i * 3));
+                tempString1 = tempString1 + (" " + MyServer.player1CardValues.get(i * 3 + 1));
+                tempString1 = tempString1 + (" " + MyServer.player1CardValues.get(i * 3 + 2));
+
+            }
+            Gdx.app.log("GAMESTAGE", "opposite player card values ");
+            Gdx.app.log("pips", "" + tempString1);
+            Gdx.app.log("GAMESTAGE", "opposite player tributton array ");
+            Gdx.app.log("pips", "" + tempString);
+
+            /*if using pre and post game cards save them to a trident each too */
             /*if (OptionsStage.preAndPostGameCard){
                 triButtonArray.get(OptionsStage.nonPrePostGameTridentsEach+ ButtonEnum.Tri.GAMETRIHAND0P1.value).setPreGameCard(TridentBuildingStage.getCardWithValue(MyServer.player1CardValues.get(OptionsStage.nonPrePostGameTridentsEach*3)));
                 triButtonArray.get(OptionsStage.nonPrePostGameTridentsEach+ ButtonEnum.Tri.GAMETRIHAND0P1.value+1).setPostGameCard(TridentBuildingStage.getCardWithValue(MyServer.player1CardValues.get(OptionsStage.nonPrePostGameTridentsEach*3+1)));
             }*/
 
 
-        if (OptionsStage.numberOfPlayers == 3) {
+            if (OptionsStage.numberOfPlayers == 3) {
 
-            for (int i = 0; i < OptionsStage.nonPrePostGameTridentsEach; i++) {
-                /*add 3 cards from the MyServer.player1CardValues array to this tributton
-                 * note that the first TriButton in this tributtonarray is the button to go to the next stage,
-                 * so exclude that, then the next 16 buttons are gameboard buttons, exclude them too */
-                triButtonArray.get(i + ButtonEnum.Tri.GAMETRIHAND0P2.value).setUpCardButtons(TridentBuildingStage.getCardWithValue(MyServer.player2CardValues.get(i * 3)), TridentBuildingStage.getCardWithValue(MyServer.player2CardValues.get(i * 3 + 1)), TridentBuildingStage.getCardWithValue(MyServer.player2CardValues.get(i * 3 + 2)));
-                triButtonArray.get(i + ButtonEnum.Tri.GAMETRIHAND0P2.value).cardButtonArray.get(0).oppositionWildCardSuit = MyServer.player2WildCard;
-                triButtonArray.get(i + ButtonEnum.Tri.GAMETRIHAND0P2.value).cardButtonArray.get(1).oppositionWildCardSuit = MyServer.player2WildCard;
-                triButtonArray.get(i + ButtonEnum.Tri.GAMETRIHAND0P2.value).cardButtonArray.get(2).oppositionWildCardSuit = MyServer.player2WildCard;
-                triButtonArray.get(i + ButtonEnum.Tri.GAMETRIHAND0P2.value).cardButtonArray.get(0).setColourFromSuit();
-                triButtonArray.get(i + ButtonEnum.Tri.GAMETRIHAND0P2.value).cardButtonArray.get(1).setColourFromSuit();
-                triButtonArray.get(i + ButtonEnum.Tri.GAMETRIHAND0P2.value).cardButtonArray.get(2).setColourFromSuit();
-                triButtonArray.get(i + ButtonEnum.Tri.GAMETRIHAND0P2.value).cardButtonArray.get(0).position = 0;
-                triButtonArray.get(i + ButtonEnum.Tri.GAMETRIHAND0P2.value).cardButtonArray.get(1).position = 1;
-                triButtonArray.get(i + ButtonEnum.Tri.GAMETRIHAND0P2.value).cardButtonArray.get(2).position = 2;
-                triButtonArray.get(i + ButtonEnum.Tri.GAMETRIHAND0P1.value).updatePos(TridentBuildingStage.cardButtonArrayTridentHand.get(i * 3).getX(), TridentBuildingStage.cardButtonArrayTridentHand.get(i * 3).getY() - CardButton.edgeLength * 2, TridentBuildingStage.cardButtonArrayTridentHand.get(i * 3).orientation);
-                triButtonArray.get(i + ButtonEnum.Tri.GAMETRIHAND0P2.value).cardsVisible = true;
-                triButtonArray.get(i + ButtonEnum.Tri.GAMETRIHAND0P2.value).ownership = 2;
-                triButtonArray.get(i + ButtonEnum.Tri.GAMETRIHAND0P2.value).confirmOwnership();
+                for (int i = 0; i < OptionsStage.nonPrePostGameTridentsEach; i++) {
+                    /*add 3 cards from the MyServer.player1CardValues array to this tributton
+                     * note that the first TriButton in this tributtonarray is the button to go to the next stage,
+                     * so exclude that, then the next 16 buttons are gameboard buttons, exclude them too */
+                    triButtonArray.get(i + ButtonEnum.Tri.GAMETRIHAND0P2.value).setUpCardButtons(TridentBuildingStage.getCardWithValue(MyServer.player2CardValues.get(i * 3)), TridentBuildingStage.getCardWithValue(MyServer.player2CardValues.get(i * 3 + 1)), TridentBuildingStage.getCardWithValue(MyServer.player2CardValues.get(i * 3 + 2)));
+                    triButtonArray.get(i + ButtonEnum.Tri.GAMETRIHAND0P2.value).cardButtonArray.get(0).oppositionWildCardSuit = MyServer.player2WildCard;
+                    triButtonArray.get(i + ButtonEnum.Tri.GAMETRIHAND0P2.value).cardButtonArray.get(1).oppositionWildCardSuit = MyServer.player2WildCard;
+                    triButtonArray.get(i + ButtonEnum.Tri.GAMETRIHAND0P2.value).cardButtonArray.get(2).oppositionWildCardSuit = MyServer.player2WildCard;
+                    triButtonArray.get(i + ButtonEnum.Tri.GAMETRIHAND0P2.value).cardButtonArray.get(0).setColourFromSuit();
+                    triButtonArray.get(i + ButtonEnum.Tri.GAMETRIHAND0P2.value).cardButtonArray.get(1).setColourFromSuit();
+                    triButtonArray.get(i + ButtonEnum.Tri.GAMETRIHAND0P2.value).cardButtonArray.get(2).setColourFromSuit();
+                    triButtonArray.get(i + ButtonEnum.Tri.GAMETRIHAND0P2.value).cardButtonArray.get(0).position = 0;
+                    triButtonArray.get(i + ButtonEnum.Tri.GAMETRIHAND0P2.value).cardButtonArray.get(1).position = 1;
+                    triButtonArray.get(i + ButtonEnum.Tri.GAMETRIHAND0P2.value).cardButtonArray.get(2).position = 2;
+                    triButtonArray.get(i + ButtonEnum.Tri.GAMETRIHAND0P1.value).updatePos(TridentBuildingStage.cardButtonArrayTridentHand.get(i * 3).getX(), TridentBuildingStage.cardButtonArrayTridentHand.get(i * 3).getY() - CardButton.edgeLength * 2, TridentBuildingStage.cardButtonArrayTridentHand.get(i * 3).orientation);
+                    triButtonArray.get(i + ButtonEnum.Tri.GAMETRIHAND0P2.value).cardsVisible = true;
+                    triButtonArray.get(i + ButtonEnum.Tri.GAMETRIHAND0P2.value).ownership = 2;
+                    triButtonArray.get(i + ButtonEnum.Tri.GAMETRIHAND0P2.value).confirmOwnership();
 
-            }
-            /*if using pre and post game cards save them to a trident each too */
+                }
+                /*if using pre and post game cards save them to a trident each too */
                 /*if (OptionsStage.preAndPostGameCard){
                     triButtonArray.get(OptionsStage.nonPrePostGameTridentsEach+ ButtonEnum.Tri.GAMETRIHAND0P2.value).setPreGameCard(TridentBuildingStage.getCardWithValue(MyServer.player2CardValues.get(OptionsStage.nonPrePostGameTridentsEach*3)));
                     triButtonArray.get(OptionsStage.nonPrePostGameTridentsEach+ ButtonEnum.Tri.GAMETRIHAND0P2.value+1).setPostGameCard(TridentBuildingStage.getCardWithValue(MyServer.player2CardValues.get(OptionsStage.nonPrePostGameTridentsEach*3+1)));
@@ -394,6 +404,82 @@ public class GameStage extends Stage {
                  */
 
 
+            }
+        }
+        else if (OptionsStage.tridentBuildingMode==OptionsStage.PREMADETRIDENTS)
+        {
+
+            for (int i = 0; i < OptionsStage.nonPrePostGameTridentsEach; i++) {
+                /*add 3 cards from the MyServer.player1CardValues array to this tributton
+                 * note that the first TriButton in this tributtonarray is the button to go to the next stage,
+                 * so exclude that, then the next 16 buttons are gameboard buttons, exclude them too */
+                triButtonArray.get(i + ButtonEnum.Tri.GAMETRIHAND0P1.value).setUpCardButtons(TridentBuildingStage.getCardWithValue(MyServer.player1CardValues.get(i * 3)), TridentBuildingStage.getCardWithValue(MyServer.player1CardValues.get(i * 3 + 1)), TridentBuildingStage.getCardWithValue(MyServer.player1CardValues.get(i * 3 + 2)));
+                triButtonArray.get(i + ButtonEnum.Tri.GAMETRIHAND0P1.value).cardButtonArray.get(0).oppositionWildCardSuit = MyServer.player1WildCard;
+                triButtonArray.get(i + ButtonEnum.Tri.GAMETRIHAND0P1.value).cardButtonArray.get(1).oppositionWildCardSuit = MyServer.player1WildCard;
+                triButtonArray.get(i + ButtonEnum.Tri.GAMETRIHAND0P1.value).cardButtonArray.get(2).oppositionWildCardSuit = MyServer.player1WildCard;
+
+                triButtonArray.get(i + ButtonEnum.Tri.GAMETRIHAND0P1.value).cardButtonArray.get(0).setColourFromSuit();
+                triButtonArray.get(i + ButtonEnum.Tri.GAMETRIHAND0P1.value).cardButtonArray.get(1).setColourFromSuit();
+                triButtonArray.get(i + ButtonEnum.Tri.GAMETRIHAND0P1.value).cardButtonArray.get(2).setColourFromSuit();
+                triButtonArray.get(i + ButtonEnum.Tri.GAMETRIHAND0P1.value).cardButtonArray.get(0).position = 0;
+                triButtonArray.get(i + ButtonEnum.Tri.GAMETRIHAND0P1.value).cardButtonArray.get(1).position = 1;
+                triButtonArray.get(i + ButtonEnum.Tri.GAMETRIHAND0P1.value).cardButtonArray.get(2).position = 2;
+                triButtonArray.get(i + ButtonEnum.Tri.GAMETRIHAND0P1.value).updatePos(DeckBuildingStage.triButtonArray.get(i).getX(), DeckBuildingStage.triButtonArray.get(i).getY() - CardButton.edgeLength, DeckBuildingStage.triButtonArray.get(i).orientation);
+                triButtonArray.get(i + ButtonEnum.Tri.GAMETRIHAND0P1.value).cardsVisible = true;
+                triButtonArray.get(i + ButtonEnum.Tri.GAMETRIHAND0P1.value).ownership = 1;
+                triButtonArray.get(i + ButtonEnum.Tri.GAMETRIHAND0P1.value).confirmOwnership();
+                tempString = tempString + (" " + triButtonArray.get(i + ButtonEnum.Tri.GAMETRIHAND0P1.value).cardButtonArray.get(0).getPip());
+                tempString = tempString + (" " + triButtonArray.get(i + ButtonEnum.Tri.GAMETRIHAND0P1.value).cardButtonArray.get(1).getPip());
+                tempString = tempString + (" " + triButtonArray.get(i + ButtonEnum.Tri.GAMETRIHAND0P1.value).cardButtonArray.get(2).getPip());
+                tempString1 = tempString1 + (" " + MyServer.player1CardValues.get(i * 3));
+                tempString1 = tempString1 + (" " + MyServer.player1CardValues.get(i * 3 + 1));
+                tempString1 = tempString1 + (" " + MyServer.player1CardValues.get(i * 3 + 2));
+
+            }
+            Gdx.app.log("GAMESTAGE", "opposite player card values ");
+            Gdx.app.log("pips", "" + tempString1);
+            Gdx.app.log("GAMESTAGE", "opposite player tributton array ");
+            Gdx.app.log("pips", "" + tempString);
+
+            /*if using pre and post game cards save them to a trident each too */
+            /*if (OptionsStage.preAndPostGameCard){
+                triButtonArray.get(OptionsStage.nonPrePostGameTridentsEach+ ButtonEnum.Tri.GAMETRIHAND0P1.value).setPreGameCard(TridentBuildingStage.getCardWithValue(MyServer.player1CardValues.get(OptionsStage.nonPrePostGameTridentsEach*3)));
+                triButtonArray.get(OptionsStage.nonPrePostGameTridentsEach+ ButtonEnum.Tri.GAMETRIHAND0P1.value+1).setPostGameCard(TridentBuildingStage.getCardWithValue(MyServer.player1CardValues.get(OptionsStage.nonPrePostGameTridentsEach*3+1)));
+            }*/
+
+
+            if (OptionsStage.numberOfPlayers == 3) {
+
+                for (int i = 0; i < OptionsStage.nonPrePostGameTridentsEach; i++) {
+                    /*add 3 cards from the MyServer.player1CardValues array to this tributton
+                     * note that the first TriButton in this tributtonarray is the button to go to the next stage,
+                     * so exclude that, then the next 16 buttons are gameboard buttons, exclude them too */
+                    triButtonArray.get(i + ButtonEnum.Tri.GAMETRIHAND0P2.value).setUpCardButtons(TridentBuildingStage.getCardWithValue(MyServer.player2CardValues.get(i * 3)), TridentBuildingStage.getCardWithValue(MyServer.player2CardValues.get(i * 3 + 1)), TridentBuildingStage.getCardWithValue(MyServer.player2CardValues.get(i * 3 + 2)));
+                    triButtonArray.get(i + ButtonEnum.Tri.GAMETRIHAND0P2.value).cardButtonArray.get(0).oppositionWildCardSuit = MyServer.player2WildCard;
+                    triButtonArray.get(i + ButtonEnum.Tri.GAMETRIHAND0P2.value).cardButtonArray.get(1).oppositionWildCardSuit = MyServer.player2WildCard;
+                    triButtonArray.get(i + ButtonEnum.Tri.GAMETRIHAND0P2.value).cardButtonArray.get(2).oppositionWildCardSuit = MyServer.player2WildCard;
+                    triButtonArray.get(i + ButtonEnum.Tri.GAMETRIHAND0P2.value).cardButtonArray.get(0).setColourFromSuit();
+                    triButtonArray.get(i + ButtonEnum.Tri.GAMETRIHAND0P2.value).cardButtonArray.get(1).setColourFromSuit();
+                    triButtonArray.get(i + ButtonEnum.Tri.GAMETRIHAND0P2.value).cardButtonArray.get(2).setColourFromSuit();
+                    triButtonArray.get(i + ButtonEnum.Tri.GAMETRIHAND0P2.value).cardButtonArray.get(0).position = 0;
+                    triButtonArray.get(i + ButtonEnum.Tri.GAMETRIHAND0P2.value).cardButtonArray.get(1).position = 1;
+                    triButtonArray.get(i + ButtonEnum.Tri.GAMETRIHAND0P2.value).cardButtonArray.get(2).position = 2;
+                    triButtonArray.get(i + ButtonEnum.Tri.GAMETRIHAND0P1.value).updatePos(DeckBuildingStage.triButtonArray.get(i).getX(), DeckBuildingStage.triButtonArray.get(i).getY() - CardButton.edgeLength * 2, DeckBuildingStage.triButtonArray.get(i).orientation);
+                    triButtonArray.get(i + ButtonEnum.Tri.GAMETRIHAND0P2.value).cardsVisible = true;
+                    triButtonArray.get(i + ButtonEnum.Tri.GAMETRIHAND0P2.value).ownership = 2;
+                    triButtonArray.get(i + ButtonEnum.Tri.GAMETRIHAND0P2.value).confirmOwnership();
+
+                }
+                /*if using pre and post game cards save them to a trident each too */
+                /*if (OptionsStage.preAndPostGameCard){
+                    triButtonArray.get(OptionsStage.nonPrePostGameTridentsEach+ ButtonEnum.Tri.GAMETRIHAND0P2.value).setPreGameCard(TridentBuildingStage.getCardWithValue(MyServer.player2CardValues.get(OptionsStage.nonPrePostGameTridentsEach*3)));
+                    triButtonArray.get(OptionsStage.nonPrePostGameTridentsEach+ ButtonEnum.Tri.GAMETRIHAND0P2.value+1).setPostGameCard(TridentBuildingStage.getCardWithValue(MyServer.player2CardValues.get(OptionsStage.nonPrePostGameTridentsEach*3+1)));
+                }
+
+                 */
+
+
+            }
         }
     }
 

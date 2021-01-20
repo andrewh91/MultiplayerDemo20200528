@@ -175,7 +175,7 @@ public class MyGdxGame extends ApplicationAdapter  implements  StageInterface{
 				break;
 			}
 			case TRIDENTBUILDINGSTAGE :{
-				if(OptionsStage.usePreMadeDeck ==false) {
+				if(OptionsStage.tridentBuildingMode==OptionsStage.BUILDYOUROWNTRIDENTS) {
 					tridentBuildingStage.setVisible(true);
 					/*all of the tridentStage should have been set up in the deal stage
 					 * so we just need to amend some values*/
@@ -186,7 +186,7 @@ public class MyGdxGame extends ApplicationAdapter  implements  StageInterface{
 				break;
 			}
 			case DECKBUILDINGSTAGE :{
-				if(OptionsStage.usePreMadeDeck ==true) {
+				if(OptionsStage.tridentBuildingMode==OptionsStage.PREMADETRIDENTS) {
 
 					/*if the deal stage was skipped, then call this here because we need it to help position things*/
 					dealStage.setUpDealRect();

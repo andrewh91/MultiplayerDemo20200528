@@ -169,7 +169,12 @@ public class TriButton extends Actor {
     cardButtonArray.clear();
     cardButtonArray.add(a,b,c);
         for (int i = 0; i < cardButtonArray.size; i++) {
-            cardButtonArray.get(i).removeListener(cardButtonArray.get(i).clickListener);
+            try {
+                cardButtonArray.get(i).removeListener(cardButtonArray.get(i).clickListener);
+            }
+            catch (Exception e){
+            }
+
             cardButtonArray.get(i).setVisible(true);
             cardButtonArray.get(i).setText();
         }

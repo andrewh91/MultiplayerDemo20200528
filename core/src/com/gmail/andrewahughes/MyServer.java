@@ -279,6 +279,56 @@ public class MyServer {
             Gdx.app.log("SOCKET.IO","Error sending triHand");
         }
     }
+
+    /**
+     * this will be called in the DeckBuildingStage, just before we go to the GameStage,
+     * the player will have made and confirmed the triHand they want to use, so now that whole hand
+     * will be transmitted to the other players.
+     */
+    public static void emitDeckTriHand(){
+        Gdx.app.log("Server","emitDeckTriHand");
+
+        /*this array will have one object that gives the player index ,
+         * then it will have one object per card which tells us the value of each card*/
+        JSONArray objects = new JSONArray();
+        try{
+
+            JSONObject data = new JSONObject();
+            /*need to send the player index - not really needed for 2 player game, but need for 3 player*/
+            data.put("p" , player.index);
+
+            objects.put(data);
+            String tempString = new String();
+            /*send the value of each card the player put in the tri hand in order*/
+            for(int i =0; i <OptionsStage.tridentsEach; i++) {
+
+                JSONObject dataCard = new JSONObject();
+                dataCard.put("v" , DeckBuildingStage.triButtonArray.get(i).cardButtonArray.get(0).value);
+                objects.put(dataCard);
+                JSONObject dataCard1 = new JSONObject();
+                tempString=tempString+(" "+DeckBuildingStage.triButtonArray.get(i).cardButtonArray.get(0).value);
+                dataCard1.put("v" , DeckBuildingStage.triButtonArray.get(i).cardButtonArray.get(1).value);
+                objects.put(dataCard1);
+                JSONObject dataCard2 = new JSONObject();
+                tempString=tempString+(" "+DeckBuildingStage.triButtonArray.get(i).cardButtonArray.get(1).value);
+                dataCard2.put("v" , DeckBuildingStage.triButtonArray.get(i).cardButtonArray.get(2).value);
+                objects.put(dataCard2);
+                tempString=tempString+(" "+DeckBuildingStage.triButtonArray.get(i).cardButtonArray.get(2).value);
+
+            }
+            Gdx.app.log("Server","player "+player.index+" cards ");
+            Gdx.app.log("pips",""+tempString);
+
+
+            /*the player emits data to the server here
+             * the server has a corresponding method to
+             * interpret this data*/
+            socket.emit("emitDeckTriHandDataToServer",objects);
+        } catch(JSONException e) {
+            Gdx.app.log("SOCKET.IO","Error sending deckTriHand");
+        }
+    }
+
     /**
      * this will be called in the gameStage. when a player places a trident then clicks confirm
      * i can emit just a small amount of data and it can be interpreted by the other player.
@@ -508,6 +558,64 @@ public class MyServer {
 
                     GameStage.triHandLoaded();
                     Gdx.app.log("Server: ","TriHand received: "+objects);
+
+                }catch(JSONException e){
+                }
+            }
+        }).on("emitDeckTriHandDataToPlayers", new Emitter.Listener() {
+            @Override
+            public void call(Object... args) {
+
+                Gdx.app.log("Server","emitDeckTriHandDataToPlayers");
+                /*player 1 will have called emitDeckTiHand,
+                that will have called emitDeckTriHandDataToServer
+                when the server receives that emitDeckTriHandDataToServer
+                it calls emitDeckTriHandDataToPlayers
+                each player listens for the emitDeckTriHandDataToPlayers
+                emitDeckTriHandDataToPlayers is received here
+                 */
+                JSONArray objects = (JSONArray) args[0];
+                try {
+                    /*player index will have been set for each player, it will be 0,1 or 2,
+                     * so this player will be either 0, 1 or 2, the if statements below will figure out
+                     * which other player is emitting this data and we'll save that data in
+                     * a corresponding array*/
+                    int index = objects.getJSONObject(0).getInt("p");
+                    Gdx.app.log("Server","index - received "+index);
+
+                    if(index==0)
+                    {
+                        GameStage.player0TriHandReceived=true;
+                    }
+                    else if(index==1)
+                    {
+                        GameStage.player1TriHandReceived=true;
+                    }
+                    else if(index==2)
+                    {
+                        GameStage.player2TriHandReceived=true;
+                    }
+                    if(index==(player.index+1)%OptionsStage.numberOfPlayers)
+                    {
+                        String tempString = new String();
+                        for(int i=1; i<OptionsStage.cardsEach+1;i++){
+                            player1CardValues.add(objects.getJSONObject(i).getInt("v"));
+                            tempString=tempString+(" "+ player1CardValues.get(i-1));
+                        }
+                        Gdx.app.log("Server","cards - received ");
+                        Gdx.app.log("pips",""+tempString);
+
+                    }
+                    else if(index==(player.index+2)%OptionsStage.numberOfPlayers)
+                    {
+                        for(int i=1; i<OptionsStage.cardsEach+1;i++){
+                            player2CardValues.add(objects.getJSONObject(i).getInt("v"));
+
+                        }
+                    }
+
+                    GameStage.triHandLoaded();
+                    Gdx.app.log("Server: ","DeckTriHand received: "+objects);
 
                 }catch(JSONException e){
                 }

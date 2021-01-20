@@ -110,6 +110,19 @@ console.log("index: emitTriHandDataToServer");
 
 
     	});
+
+	/*when player emits a emitDeckTriHand event the server
+    	will interpret it here*/
+    	socket.on('emitDeckTriHandDataToServer', function(data){
+
+console.log("index: emitDeckTriHandDataToServer");
+    	    /*send the data we received (player id,  then all cards) to all  players */
+    	    socket.broadcast.emit("emitDeckTriHandDataToPlayers",data);
+
+
+    	});
+
+
     	/*when player emits a emitPlacement event the server
                	will interpret it here*/
                	socket.on('emitPlacementDataToServer', function(data){

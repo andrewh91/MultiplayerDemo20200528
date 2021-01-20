@@ -1436,6 +1436,7 @@ static void updatePlayerTridentHand(){
         tridentHighlightPos=0;
         prevTridentHighlightPos=0;
     }
+
     /*set up all the cards, they should be given an enum each,
     some of the initial values don't matter much since they will be set
     when allocated to one of the players */

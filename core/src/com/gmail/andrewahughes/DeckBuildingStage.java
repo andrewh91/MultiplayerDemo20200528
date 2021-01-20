@@ -23,7 +23,10 @@ public class DeckBuildingStage extends Stage {
     ShapeRenderer shapeRenderer;
 
 
-
+    /**
+     * this will be the triButtonArray index position of the several tridents that appear in the trident hand
+     * should be a value from 0 to OptionsStage.tridentsEach-1
+     */
     static int selectedTridentInTriHand=0;
     static int selectedTridentInTriHandIncrementCount=0;
     static Array<TriButton> triButtonArray = new Array<TriButton>();
@@ -123,20 +126,23 @@ public class DeckBuildingStage extends Stage {
         float w = CardButton.dealAnimationRectangleWidth/5;
         float h = (float) (w * Math.sin(Math.PI/3));
         /*for the 17 tridents after the tridents set up for the trident hand*/
-        for(int i = OptionsStage.tridentsEach ; i < OptionsStage.tridentsEach + 16;i++){
+        /*for(int i = OptionsStage.tridentsEach ; i < OptionsStage.tridentsEach + 16;i++){
+        * used to use the OptionsStage.tridentsEach value here, but if we use less than 9, maybe because we are not using the pre and post game cards,
+        * then it won't match the number of buttons i created earlier */
+        for(int i = 9 ; i < 9 + 16;i++){
             triButtonArray.get(i).setVisible(true);
 
             triButtonArray.get(i).edgeLength=w;
             triButtonArray.get(i).updateBounds();
             triButtonArray.get(i).drawMirror=false;
-            triButtonArray.get(i).setX(CardButton.dealAnimationRectangleDealX + w * ((i -OptionsStage.tridentsEach)%4));
-            triButtonArray.get(i).setY(CardButton.dealAnimationRectangleHeight + CardButton.dealAnimationRectangleDealY-h*2 - (h+CardButton.dealAnimationRectangleDealY)*(float)(Math.floor((i -OptionsStage.tridentsEach)/4)+1));
-            triButtonArray.get(i).orientation=(i-OptionsStage.tridentsEach)%2==1?true:false;
+            triButtonArray.get(i).setX(CardButton.dealAnimationRectangleDealX + w * ((i -9)%4));
+            triButtonArray.get(i).setY(CardButton.dealAnimationRectangleHeight + CardButton.dealAnimationRectangleDealY-h*2 - (h+CardButton.dealAnimationRectangleDealY)*(float)(Math.floor((i -9)/4)+1));
+            triButtonArray.get(i).orientation=(i-9)%2==1?true:false;
 
             triButtonArray.get(i).setUpCardButtons(new CardButton(stageInterface,triButtonArray.get(i).getX(),triButtonArray.get(i).getY(),triButtonArray.get(i).orientation,(byte)0,DECKBUILDINGSTAGE, ButtonEnum.Card.TRIDENTBUILDING0),new CardButton(stageInterface,triButtonArray.get(i).getX(),triButtonArray.get(i).getY(),triButtonArray.get(i).orientation,(byte)1,DECKBUILDINGSTAGE, ButtonEnum.Card.TRIDENTBUILDING0),new CardButton(stageInterface,triButtonArray.get(i).getX(),triButtonArray.get(i).getY(),triButtonArray.get(i).orientation,(byte)2,DECKBUILDINGSTAGE, ButtonEnum.Card.TRIDENTBUILDING0));
-            triButtonArray.get(i).cardButtonArray.get(0).value = MyGdxGame.premadeDeck.d01.get((int)Math.floor((i -OptionsStage.tridentsEach)*3)+0);
-            triButtonArray.get(i).cardButtonArray.get(1).value = MyGdxGame.premadeDeck.d01.get((int)Math.floor((i -OptionsStage.tridentsEach)*3)+1);
-            triButtonArray.get(i).cardButtonArray.get(2).value = MyGdxGame.premadeDeck.d01.get((int)Math.floor((i -OptionsStage.tridentsEach)*3)+2);
+            triButtonArray.get(i).cardButtonArray.get(0).value = MyGdxGame.premadeDeck.d01.get((int)Math.floor((i -9)*3)+0);
+            triButtonArray.get(i).cardButtonArray.get(1).value = MyGdxGame.premadeDeck.d01.get((int)Math.floor((i -9)*3)+1);
+            triButtonArray.get(i).cardButtonArray.get(2).value = MyGdxGame.premadeDeck.d01.get((int)Math.floor((i -9)*3)+2);
             triButtonArray.get(i).cardButtonArray.get(0).setText();
             triButtonArray.get(i).cardButtonArray.get(1).setText();
             triButtonArray.get(i).cardButtonArray.get(2).setText();
@@ -246,6 +252,7 @@ public class DeckBuildingStage extends Stage {
 
 
         /*the maximum number of tridents will be 8 in the players' trident hand,
+        plus one for the pre and post game hand
          */
         stageInterface.addTriButton(new TriButton(stageInterface,-1000,-1000,false,StageInterface.DECKBUILDINGSTAGE, ButtonEnum.Tri.DECKBUILDINGPLAYERTRIDENTARRAY1), triButtonArray,this);
         stageInterface.addTriButton(new TriButton(stageInterface,-1000,-1000,false,StageInterface.DECKBUILDINGSTAGE, ButtonEnum.Tri.DECKBUILDINGPLAYERTRIDENTARRAY2), triButtonArray,this);
@@ -378,7 +385,7 @@ public class DeckBuildingStage extends Stage {
                 Gdx.app.log("DECKBUILDINGSTAGE","increment and retry");
                 selectedTridentInTriHand++;
                 selectedTridentInTriHandIncrementCount++;
-                selectedTridentInTriHand=selectedTridentInTriHand%(OptionsStage.tridentsEach-1);
+                selectedTridentInTriHand=selectedTridentInTriHand%(OptionsStage.tridentsEach);
                 success = selectNextTriHandTrident(orientation);
             }
         }
@@ -485,10 +492,29 @@ public class DeckBuildingStage extends Stage {
 
             case DECKBUILDINGNEXTSTAGE: {
 
+                /*if we have selected enough tridents and our tri hand is full*/
+                int tempTriHandCount=0;
+                for (int i =0; i<OptionsStage.tridentsEach;i++)
+                {
+                    if (triButtonArray.get(i).greyed)
+                    {
+                        tempTriHandCount++;
+                    }
+                }
+                Gdx.app.log("DeckBuildingStage","tridents in hand "+ tempTriHandCount+" / "+(OptionsStage.tridentsEach));
 
-                stageInterface.goToStage(StageInterface.GAMESTAGE);
+                if(tempTriHandCount==OptionsStage.tridentsEach) {
+                    Gdx.app.log("DeckBuildingStage", "tri hand full, progress to game stage");
+                    GameStage.triHandLoaded();
 
-            break;
+                    MyServer.emitDeckTriHand();
+                    stageInterface.goToStage(StageInterface.GAMESTAGE);
+                }
+                else {
+                    Gdx.app.log("DeckBuildingStage", "tri hand not full, can't progress to game stage");
+                }
+
+                break;
             }
             case DECKBUILDINGPLAYERAVAILABLETRIDENTARRAY1:
             case DECKBUILDINGPLAYERAVAILABLETRIDENTARRAY2:
