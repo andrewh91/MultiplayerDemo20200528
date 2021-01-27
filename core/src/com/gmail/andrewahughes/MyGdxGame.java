@@ -16,7 +16,7 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 
 public class MyGdxGame extends ApplicationAdapter  implements  StageInterface{
 	SpriteBatch spriteBatch;
-	BitmapFont bitmapFont;
+	public static BitmapFont bitmapFont;
 	ShapeRenderer shapeRenderer;
 
 	static PremadeDeck premadeDeck;

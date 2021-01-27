@@ -1,5 +1,6 @@
 package com.gmail.andrewahughes;
 
+import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
@@ -384,7 +385,7 @@ public class MyServer {
     }
     public static void connectSocket() {
         try {
-            socket = IO.socket("http://192.168.1.7:8080");
+            socket = IO.socket("http://192.168.1.10:8080");
             socket.connect();
             System.out.println("connected");
         } catch (Exception e) {

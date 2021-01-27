@@ -49,6 +49,7 @@ public class DeckBuildingStage extends Stage {
      */
     final static int VALUELIMITBASE=168;
     static int proposedValueLimitDiff=0;
+    static int buildPoints=VALUELIMITBASE;
     /**
      * the player will specify their own handicap, positive numbers means it will be
      * harder for them and negative will be easier as this number is subtracted from
@@ -80,7 +81,12 @@ public class DeckBuildingStage extends Stage {
     public void reset()
     {
         MyServer.gotAllPlayers();
+        Gdx.app.log("DeckbuildingStage","player index "+MyServer.player.index);
         createButtons();
+        buildPoints=VALUELIMITBASE;
+        proposedHandicap=0;
+        opponentProposedHandicap=0;
+        proposedValueLimitDiff=0;
     }
 
     /*the player's trident array will be created initially, but we might want to set
@@ -192,6 +198,9 @@ public class DeckBuildingStage extends Stage {
             glyphLayout.setText(font,handValue+"");
             font.draw(spriteBatch   , handValue+"",handValueX,handValueY);
 
+            glyphLayout.setText(font,"Build points: "+(buildPoints+proposedValueLimitDiff-proposedHandicap+opponentProposedHandicap));
+            font.draw(spriteBatch   , "Build points: "+(buildPoints+proposedValueLimitDiff-proposedHandicap+opponentProposedHandicap)+"",720-65-65-glyphLayout.width/2,1280-130);
+
             glyphLayout.setText(font,"Value Limit: "+proposedValueLimitDiff+"");
             font.draw(spriteBatch   , "Value Limit: "+proposedValueLimitDiff+"",720/3-65-65-glyphLayout.width/2,260+160);
             glyphLayout.setText(font,"Your Handicap: "+proposedHandicap+"");
@@ -236,6 +245,7 @@ public class DeckBuildingStage extends Stage {
     }
 
     public void createButtons(){
+        triButtonArray.clear();
         /*when creating new buttons we pass in the enum for that button so the button can store it
          * so it can reference itself later. the add button method also needs this stage
          * to add the actor to the stage and our array of buttons so we can add it to that too
@@ -425,6 +435,11 @@ public class DeckBuildingStage extends Stage {
                 triButtonArray.get(selectedTridentInTriHand).availableTridentIndex=index;
                 Gdx.app.log("DECKBUILDINGSTAGE","Trident added to hand");
                 updateTotalValue();
+
+                        buildPoints=buildPoints-triButtonArray.get(selectedTridentInTriHand).cardButtonArray.get(0).getPip();
+                        buildPoints=buildPoints-triButtonArray.get(selectedTridentInTriHand).cardButtonArray.get(1).getPip();
+                        buildPoints=buildPoints-triButtonArray.get(selectedTridentInTriHand).cardButtonArray.get(2).getPip();
+
             }
             else
             {
@@ -451,6 +466,10 @@ public class DeckBuildingStage extends Stage {
 
             Gdx.app.log("DECKBUILDINGSTAGE", "deselected trident in trident hand, and the trident in available tridents");
             updateTotalValue();
+
+            buildPoints=buildPoints+triButtonArray.get(selectedTridentInTriHand).cardButtonArray.get(0).getPip();
+            buildPoints=buildPoints+triButtonArray.get(selectedTridentInTriHand).cardButtonArray.get(1).getPip();
+            buildPoints=buildPoints+triButtonArray.get(selectedTridentInTriHand).cardButtonArray.get(2).getPip();
         }
         else {
             Gdx.app.log("DECKBUILDINGSTAGE", "can't deselect, it wasn't selected");
@@ -503,8 +522,23 @@ public class DeckBuildingStage extends Stage {
                 }
                 Gdx.app.log("DeckBuildingStage","tridents in hand "+ tempTriHandCount+" / "+(OptionsStage.tridentsEach));
 
-                if(tempTriHandCount==OptionsStage.tridentsEach) {
+                if(tempTriHandCount==OptionsStage.tridentsEach&&buildPoints+proposedValueLimitDiff-proposedHandicap+opponentProposedHandicap>=0) {
                     Gdx.app.log("DeckBuildingStage", "tri hand full, progress to game stage");
+
+
+
+                        if (MyServer.player.index==0)
+                        {
+                            GameStage.player0TriHandReceived=true;
+                        }
+                        else if (MyServer.player.index==1)
+                        {
+                            GameStage.player1TriHandReceived=true;
+                        }
+                        else if (MyServer.player.index==2)
+                        {
+                            GameStage.player2TriHandReceived=true;
+                        }
                     GameStage.triHandLoaded();
 
                     MyServer.emitDeckTriHand();
@@ -604,5 +638,16 @@ public class DeckBuildingStage extends Stage {
         {
             opponentProposedHandicap=MyServer.player0Handicap;
         }
+    }
+    public static CardButton getCardWithValue(int value){
+        for (int i = 0; i < triButtonArray.size; i++) {
+            for (int j = 0; j < triButtonArray.get(i).cardButtonArray.size; j++) {
+                if (triButtonArray.get(i).cardButtonArray.get(j).value == value) {
+
+                    return triButtonArray.get(i).cardButtonArray.get(j);
+                }
+            }
+        }
+        return null;
     }
 }

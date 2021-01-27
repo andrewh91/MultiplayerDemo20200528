@@ -41,7 +41,7 @@ public class CardButton  extends Actor {
     /*the cards x and y coordinate will be the bottom left of the imaginary trident's bounding box
     * this is potentially confusing since a POINTDONW RIGHT card's position is quite far from the
     * drawn object*/
-    BitmapFont font = new BitmapFont();
+    /*BitmapFont font = new BitmapFont();*/
     static BitmapFont fadeFont = new BitmapFont();
     /*glyph layout helps provide some extra data on the text which helps centre it properly*/
     GlyphLayout glyphLayout = new GlyphLayout();
@@ -111,7 +111,7 @@ public class CardButton  extends Actor {
     public CardButton(StageInterface stageInterface,float startingX, float startingY, boolean isPointUp, byte position, final byte stageIndex, ButtonEnum.Card cardButtonIndex)
     {
         setVisible(true);
-        font.getData().setScale(2);
+        MyGdxGame.bitmapFont.getData().setScale(2);
         fadeFont.getData().setScale(2);
         //texture = new Texture(Gdx.files.internal("badlogic.jpg"));
         orientation = isPointUp;

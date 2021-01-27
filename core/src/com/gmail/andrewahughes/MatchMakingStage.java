@@ -132,6 +132,7 @@ public class MatchMakingStage extends Stage {
                 if (OptionsStage.tridentBuildingMode==OptionsStage.PREMADETRIDENTS)
                 {
                     stageInterface.goToStage(StageInterface.DECKBUILDINGSTAGE);
+                    MyServer.gotAllPlayers();
                 }
                 else if (OptionsStage.tridentBuildingMode==OptionsStage.BUILDYOUROWNTRIDENTS)
                 {
