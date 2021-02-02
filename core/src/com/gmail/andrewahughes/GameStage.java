@@ -38,8 +38,10 @@ public class GameStage extends Stage {
      * the options to flip and rotate may then appear, as well as the confirm or cancel button
      */
     static boolean placeMode=false;
-
-
+    /**
+     * this is used to flag when the player tries to place a trident in a gameboard space of the incorrect orientation
+     */
+    static boolean tridentPlaced = false;
 
    
 
@@ -269,6 +271,11 @@ public class GameStage extends Stage {
         stageInterface.getTriButton(triButtonArray,ButtonEnum.Tri.GAMEPLACEFLIP).setText("Flip");
         stageInterface.addTriButton(new TriButton(stageInterface,0,0,false,StageInterface.GAMESTAGE, ButtonEnum.Tri.GAMEPLACECONFIRM),triButtonArray,this);
         stageInterface.getTriButton(triButtonArray,ButtonEnum.Tri.GAMEPLACECONFIRM).setText("Confirm");
+        if(OptionsStage.allowFlipAndRotate==false)
+        {
+            stageInterface.getTriButton(triButtonArray,ButtonEnum.Tri.GAMEPLACEROTATE).setVisible(false);
+            stageInterface.getTriButton(triButtonArray,ButtonEnum.Tri.GAMEPLACEFLIP).setVisible(false);
+        }
 
     }
     /**
@@ -563,7 +570,7 @@ public class GameStage extends Stage {
         /*place the trident in the gameboard, the trihandindex will start at 16, because the 16
         gameboard buttons come before it, so subtract 16, then add the player index worked out
         above which will put us at that player's trihand buttons in the array */
-        triButtonArray.get(gameboardIndex).place(gameboardIndex,triButtonArray.get(playerIndex+triHandIndex- ButtonEnum.Tri.GAMETRIHAND0.value));
+        triButtonArray.get(gameboardIndex).place(gameboardIndex,triButtonArray.get(playerIndex+triHandIndex- ButtonEnum.Tri.GAMETRIHAND0.value),triButtonArray.get(gameboardIndex).orientation);
         /*now apply any rotation and flip necessary*/
         /*rotation will be either 0, 1 or 2, and that's how many times we need to rotate*/
         for(int i=0;i<rotation;i++){
@@ -751,8 +758,10 @@ public class GameStage extends Stage {
 
     public void setPlaceMode(boolean bool){
         placeMode=bool;
-        triButtonArray.get(ButtonEnum.Tri.GAMEPLACEROTATE.value).setVisible(bool);
-        triButtonArray.get(ButtonEnum.Tri.GAMEPLACEFLIP.value).setVisible(bool);
+        if (OptionsStage.allowFlipAndRotate) {
+            triButtonArray.get(ButtonEnum.Tri.GAMEPLACEROTATE.value).setVisible(bool);
+            triButtonArray.get(ButtonEnum.Tri.GAMEPLACEFLIP.value).setVisible(bool);
+        }
         triButtonArray.get(ButtonEnum.Tri.GAMEPLACECONFIRM.value).setVisible(bool);
         if (bool ==false) {
             highlightPosGameboard = -1;
@@ -776,7 +785,7 @@ public class GameStage extends Stage {
             if (highlightPosTriHand != -1) {
                 setPlaceMode(true);
                 /*set the gameboard position trident to reflect the chosen trident*/
-                triButtonArray.get(highlightPosGameboard).place(highlightPosGameboard,triButtonArray.get(highlightPosTriHand));
+                triButtonArray.get(highlightPosGameboard).place(highlightPosGameboard,triButtonArray.get(highlightPosTriHand),triButtonArray.get(highlightPosGameboard).orientation);
             }
         }
         else{
@@ -799,7 +808,7 @@ public class GameStage extends Stage {
             if (highlightPosGameboard != -1) {
                 setPlaceMode(true);
                 /*set the gameboard position trident to reflect the chosen trident*/
-                triButtonArray.get(highlightPosGameboard).place(highlightPosGameboard, triButtonArray.get(highlightPosTriHand));
+                triButtonArray.get(highlightPosGameboard).place(highlightPosGameboard, triButtonArray.get(highlightPosTriHand),triButtonArray.get(highlightPosGameboard).orientation);
             }
         }
         else
@@ -1085,16 +1094,19 @@ public class GameStage extends Stage {
                 break;
             }
             case GAMEPLACECONFIRM: {
-                triButtonArray.get(highlightPosGameboard).placed=true;
-                triButtonArray.get(highlightPosGameboard).confirmOwnership();
-                triButtonArray.get(triButtonArray.get(highlightPosGameboard).adjacentIndexVertical).confirmOwnership();
-                triButtonArray.get(triButtonArray.get(highlightPosGameboard).adjacentIndexLeft).confirmOwnership();
-                triButtonArray.get(triButtonArray.get(highlightPosGameboard).adjacentIndexRight).confirmOwnership();
+               if   (tridentPlaced) {
+                   tridentPlaced=false;
+                   triButtonArray.get(highlightPosGameboard).placed = true;
+                   triButtonArray.get(highlightPosGameboard).confirmOwnership();
+                   triButtonArray.get(triButtonArray.get(highlightPosGameboard).adjacentIndexVertical).confirmOwnership();
+                   triButtonArray.get(triButtonArray.get(highlightPosGameboard).adjacentIndexLeft).confirmOwnership();
+                   triButtonArray.get(triButtonArray.get(highlightPosGameboard).adjacentIndexRight).confirmOwnership();
 
-                triButtonArray.get(highlightPosTriHand).placed=true;
-                triButtonArray.get(highlightPosTriHand).greyed=true;
-                MyServer.emitPlacement(highlightPosTriHand, highlightPosGameboard,triButtonArray.get(highlightPosGameboard).rotation,triButtonArray.get(highlightPosGameboard).flipped);
-                setPlaceMode(false);
+                   triButtonArray.get(highlightPosTriHand).placed = true;
+                   triButtonArray.get(highlightPosTriHand).greyed = true;
+                   MyServer.emitPlacement(highlightPosTriHand, highlightPosGameboard, triButtonArray.get(highlightPosGameboard).rotation, triButtonArray.get(highlightPosGameboard).flipped);
+                   setPlaceMode(false);
+               }
                 break;
             }
             default:

@@ -587,21 +587,29 @@ public void touchMessage(float x, float y){
      * Place the selected trident into the empty gameboard trident position
      * this will take on the values of the selected trident,
      */
-    public void place(int gameboardIndex, TriButton triButton){
-        for (int i =0; i < 3; i++){
-            this.cardButtonArray.get(i).value=triButton.cardButtonArray.get(i).value;
-            this.cardButtonArray.get(i).text=triButton.cardButtonArray.get(i).text;
-            this.cardButtonArray.get(i).colour=triButton.cardButtonArray.get(i).colour;
-            this.cardButtonArray.get(i).playerIndex=triButton.cardButtonArray.get(i).playerIndex;
-            cardsVisible=true;
-            this.ownership=triButton.ownership;
+    public void place(int gameboardIndex, TriButton triButton,boolean gameBoardTridentOrientation){
+        if (gameBoardTridentOrientation==triButton.orientation) {
+            for (int i = 0; i < 3; i++) {
+                this.cardButtonArray.get(i).value = triButton.cardButtonArray.get(i).value;
+                this.cardButtonArray.get(i).text = triButton.cardButtonArray.get(i).text;
+                this.cardButtonArray.get(i).colour = triButton.cardButtonArray.get(i).colour;
+                this.cardButtonArray.get(i).playerIndex = triButton.cardButtonArray.get(i).playerIndex;
+                cardsVisible = true;
+                this.ownership = triButton.ownership;
+            }
+            GameStage.tridentPlaced=true;
+            GameStage.evaluateBattle(gameboardIndex);
         }
-        GameStage.evaluateBattle(gameboardIndex);
+        else
+        {
+            GameStage.tridentPlaced=false;
+        }
     }
     /**
      * cancel any tridents that have been placed in the gameboard and not confirmed
      */
     public void cancelPlace(){
+        GameStage.tridentPlaced=false;
         for (int i =0; i < 3; i++){
             this.cardButtonArray.get(i).value=-1;
             this.cardButtonArray.get(i).text="";
